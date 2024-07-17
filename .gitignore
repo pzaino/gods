@@ -1,0 +1,10 @@
+# SAST/DAST
+.scannerwork/
+sonar-properties
+sonar-report.json
+
+# Go lang
+*.log
+*.out
+*.test
+go.work
