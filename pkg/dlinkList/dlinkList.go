@@ -12,19 +12,19 @@ type Node[T comparable] struct {
 	Prev  *Node[T]
 }
 
-// DLinkedList is a representation of a doubly linked list
-type DLinkedList[T comparable] struct {
+// DLinkList is a representation of a doubly linked list
+type DLinkList[T comparable] struct {
 	Head *Node[T]
 	Tail *Node[T]
 }
 
 // New creates a new doubly linked list
-func New[T comparable]() *DLinkedList[T] {
-	return &DLinkedList[T]{}
+func New[T comparable]() *DLinkList[T] {
+	return &DLinkList[T]{}
 }
 
 // Append adds a new node to the end of the doubly linked list
-func (l *DLinkedList[T]) Append(value T) {
+func (l *DLinkList[T]) Append(value T) {
 	newNode := &Node[T]{Value: value}
 
 	if l.Head == nil {
@@ -39,7 +39,7 @@ func (l *DLinkedList[T]) Append(value T) {
 }
 
 // Prepend adds a new node to the beginning of the doubly linked list
-func (l *DLinkedList[T]) Prepend(value T) {
+func (l *DLinkList[T]) Prepend(value T) {
 	newNode := &Node[T]{Value: value}
 
 	if l.Head == nil {
@@ -54,7 +54,7 @@ func (l *DLinkedList[T]) Prepend(value T) {
 }
 
 // Insert inserts a new node with the given value at the given index
-func (l *DLinkedList[T]) Insert(index int, value T) error {
+func (l *DLinkList[T]) Insert(index int, value T) error {
 	if index < 0 {
 		return errors.New(errIndexOutOfBound)
 	}
@@ -88,7 +88,7 @@ func (l *DLinkedList[T]) Insert(index int, value T) error {
 }
 
 // DeleteWithValue deletes the first occurrence of a node with the given value
-func (l *DLinkedList[T]) DeleteWithValue(value T) {
+func (l *DLinkList[T]) DeleteWithValue(value T) {
 	if l.Head == nil {
 		return
 	}
@@ -117,16 +117,16 @@ func (l *DLinkedList[T]) DeleteWithValue(value T) {
 	}
 }
 
-func (l *DLinkedList[T]) Remove(value T) {
+func (l *DLinkList[T]) Remove(value T) {
 	l.DeleteWithValue(value)
 }
 
-func (l *DLinkedList[T]) RemoveAt(index int) error {
+func (l *DLinkList[T]) RemoveAt(index int) error {
 	return l.DeleteAt(index)
 }
 
 // ToSlice converts the doubly linked list to a slice
-func (l *DLinkedList[T]) ToSlice() []T {
+func (l *DLinkList[T]) ToSlice() []T {
 	var result []T
 
 	current := l.Head
@@ -139,7 +139,7 @@ func (l *DLinkedList[T]) ToSlice() []T {
 }
 
 // Reverse reverses the doubly linked list
-func (l *DLinkedList[T]) Reverse() {
+func (l *DLinkList[T]) Reverse() {
 	current := l.Head
 	var prev *Node[T]
 
@@ -155,7 +155,7 @@ func (l *DLinkedList[T]) Reverse() {
 }
 
 // Find returns the first node with the given value
-func (l *DLinkedList[T]) Find(value T) (*Node[T], error) {
+func (l *DLinkList[T]) Find(value T) (*Node[T], error) {
 	current := l.Head
 	for current != nil {
 		if current.Value == value {
@@ -168,12 +168,12 @@ func (l *DLinkedList[T]) Find(value T) (*Node[T], error) {
 }
 
 // IsEmpty returns true if the doubly linked list is empty
-func (l *DLinkedList[T]) IsEmpty() bool {
+func (l *DLinkList[T]) IsEmpty() bool {
 	return l.Head == nil
 }
 
 // Delete deletes the first node with the given value
-func (l *DLinkedList[T]) Delete(value T) {
+func (l *DLinkList[T]) Delete(value T) {
 	node, err := l.Find(value)
 	if err != nil {
 		return
@@ -196,7 +196,7 @@ func (l *DLinkedList[T]) Delete(value T) {
 }
 
 // DeleteLast deletes the last node in the doubly linked list
-func (l *DLinkedList[T]) DeleteLast() {
+func (l *DLinkList[T]) DeleteLast() {
 	if l.Tail == nil {
 		return
 	}
@@ -212,7 +212,7 @@ func (l *DLinkedList[T]) DeleteLast() {
 }
 
 // DeleteFirst deletes the first node in the doubly linked list
-func (l *DLinkedList[T]) DeleteFirst() {
+func (l *DLinkList[T]) DeleteFirst() {
 	if l.Head == nil {
 		return
 	}
@@ -228,7 +228,7 @@ func (l *DLinkedList[T]) DeleteFirst() {
 }
 
 // InsertAfter inserts a new node with the given value after the node with the given value
-func (l *DLinkedList[T]) InsertAfter(value, newValue T) {
+func (l *DLinkList[T]) InsertAfter(value, newValue T) {
 	node, err := l.Find(value)
 	if err != nil {
 		return
@@ -244,7 +244,7 @@ func (l *DLinkedList[T]) InsertAfter(value, newValue T) {
 }
 
 // InsertBefore inserts a new node with the given value before the node with the given value
-func (l *DLinkedList[T]) InsertBefore(value, newValue T) {
+func (l *DLinkList[T]) InsertBefore(value, newValue T) {
 	node, err := l.Find(value)
 	if err != nil {
 		return
@@ -260,7 +260,7 @@ func (l *DLinkedList[T]) InsertBefore(value, newValue T) {
 }
 
 // InsertAt inserts a new node with the given value at the given index
-func (l *DLinkedList[T]) InsertAt(index int, value T) error {
+func (l *DLinkList[T]) InsertAt(index int, value T) error {
 	if index < 0 {
 		return errors.New(errIndexOutOfBound)
 	}
@@ -294,7 +294,7 @@ func (l *DLinkedList[T]) InsertAt(index int, value T) error {
 }
 
 // DeleteAt deletes the node at the given index
-func (l *DLinkedList[T]) DeleteAt(index int) error {
+func (l *DLinkList[T]) DeleteAt(index int) error {
 	if index < 0 {
 		return errors.New(errIndexOutOfBound)
 	}
@@ -332,7 +332,7 @@ func (l *DLinkedList[T]) DeleteAt(index int) error {
 }
 
 // GetAt returns the node at the given index
-func (l *DLinkedList[T]) GetAt(index int) (*Node[T], error) {
+func (l *DLinkList[T]) GetAt(index int) (*Node[T], error) {
 	if index < 0 {
 		return nil, errors.New(errIndexOutOfBound)
 	}
@@ -353,17 +353,17 @@ func (l *DLinkedList[T]) GetAt(index int) (*Node[T], error) {
 }
 
 // GetLast returns the last node in the doubly linked list
-func (l *DLinkedList[T]) GetLast() *Node[T] {
+func (l *DLinkList[T]) GetLast() *Node[T] {
 	return l.Tail
 }
 
 // GetFirst returns the first node in the doubly linked list
-func (l *DLinkedList[T]) GetFirst() *Node[T] {
+func (l *DLinkList[T]) GetFirst() *Node[T] {
 	return l.Head
 }
 
 // Size returns the number of nodes in the doubly linked list
-func (l *DLinkedList[T]) Size() int {
+func (l *DLinkList[T]) Size() int {
 	size := 0
 	current := l.Head
 	for current != nil {
@@ -375,13 +375,13 @@ func (l *DLinkedList[T]) Size() int {
 }
 
 // Clear removes all nodes from the doubly linked list
-func (l *DLinkedList[T]) Clear() {
+func (l *DLinkList[T]) Clear() {
 	l.Head = nil
 	l.Tail = nil
 }
 
 // Contains returns true if the doubly linked list contains the given value
-func (l *DLinkedList[T]) Contains(value T) bool {
+func (l *DLinkList[T]) Contains(value T) bool {
 	current := l.Head
 	for current != nil {
 		if current.Value == value {
@@ -394,7 +394,7 @@ func (l *DLinkedList[T]) Contains(value T) bool {
 }
 
 // ToSliceReverse converts the doubly linked list to a slice in reverse order
-func (l *DLinkedList[T]) ToSliceReverse() []T {
+func (l *DLinkList[T]) ToSliceReverse() []T {
 	var result []T
 
 	current := l.Tail
@@ -407,7 +407,7 @@ func (l *DLinkedList[T]) ToSliceReverse() []T {
 }
 
 // ToSliceFromIndex converts the doubly linked list to a slice starting from the given index
-func (l *DLinkedList[T]) ToSliceFromIndex(index int) []T {
+func (l *DLinkList[T]) ToSliceFromIndex(index int) []T {
 	var result []T
 
 	current, err := l.GetAt(index)
@@ -424,7 +424,7 @@ func (l *DLinkedList[T]) ToSliceFromIndex(index int) []T {
 }
 
 // ToSliceReverseFromIndex converts the doubly linked list to a slice in reverse order starting from the given index
-func (l *DLinkedList[T]) ToSliceReverseFromIndex(index int) []T {
+func (l *DLinkList[T]) ToSliceReverseFromIndex(index int) []T {
 	var result []T
 
 	current, err := l.GetAt(index)
@@ -441,7 +441,7 @@ func (l *DLinkedList[T]) ToSliceReverseFromIndex(index int) []T {
 }
 
 // ForEach traverses the doubly linked list and applies the given function to each node
-func (l *DLinkedList[T]) ForEach(f func(T)) {
+func (l *DLinkList[T]) ForEach(f func(T)) {
 	current := l.Head
 	for current != nil {
 		f(current.Value)
@@ -450,7 +450,7 @@ func (l *DLinkedList[T]) ForEach(f func(T)) {
 }
 
 // Any returns true if the given function returns true for any node in the doubly linked list
-func (l *DLinkedList[T]) Any(f func(T) bool) bool {
+func (l *DLinkList[T]) Any(f func(T) bool) bool {
 	current := l.Head
 	for current != nil {
 		if f(current.Value) {
@@ -463,7 +463,7 @@ func (l *DLinkedList[T]) Any(f func(T) bool) bool {
 }
 
 // All returns true if the given function returns true for all nodes in the doubly linked list
-func (l *DLinkedList[T]) All(f func(T) bool) bool {
+func (l *DLinkList[T]) All(f func(T) bool) bool {
 	current := l.Head
 	for current != nil {
 		if !f(current.Value) {
@@ -476,7 +476,7 @@ func (l *DLinkedList[T]) All(f func(T) bool) bool {
 }
 
 // IndexOf returns the index of the first occurrence of the given value in the doubly linked list
-func (l *DLinkedList[T]) IndexOf(value T) int {
+func (l *DLinkList[T]) IndexOf(value T) int {
 	current := l.Head
 	index := 0
 	for current != nil {
@@ -491,7 +491,7 @@ func (l *DLinkedList[T]) IndexOf(value T) int {
 }
 
 // LastIndexOf returns the index of the last occurrence of the given value in the doubly linked list
-func (l *DLinkedList[T]) LastIndexOf(value T) int {
+func (l *DLinkList[T]) LastIndexOf(value T) int {
 	current := l.Tail
 	index := l.Size() - 1
 	for current != nil {
@@ -506,7 +506,7 @@ func (l *DLinkedList[T]) LastIndexOf(value T) int {
 }
 
 // Filter returns a new doubly linked list containing only the nodes that satisfy the given function
-func (l *DLinkedList[T]) Filter(f func(T) bool) *DLinkedList[T] {
+func (l *DLinkList[T]) Filter(f func(T) bool) *DLinkList[T] {
 	result := New[T]()
 
 	current := l.Head
@@ -521,7 +521,7 @@ func (l *DLinkedList[T]) Filter(f func(T) bool) *DLinkedList[T] {
 }
 
 // Map returns a new doubly linked list containing the result of applying the given function to each node
-func (l *DLinkedList[T]) Map(f func(T) T) *DLinkedList[T] {
+func (l *DLinkList[T]) Map(f func(T) T) *DLinkList[T] {
 	result := New[T]()
 
 	current := l.Head
@@ -534,7 +534,7 @@ func (l *DLinkedList[T]) Map(f func(T) T) *DLinkedList[T] {
 }
 
 // Reduce reduces the doubly linked list to a single value using the given function
-func (l *DLinkedList[T]) Reduce(f func(T, T) T) T {
+func (l *DLinkList[T]) Reduce(f func(T, T) T) T {
 	if l.IsEmpty() {
 		var rVal T
 		return rVal
@@ -551,7 +551,7 @@ func (l *DLinkedList[T]) Reduce(f func(T, T) T) T {
 }
 
 // Copy returns a new doubly linked list with the same nodes as the original doubly linked list
-func (l *DLinkedList[T]) Copy() *DLinkedList[T] {
+func (l *DLinkList[T]) Copy() *DLinkList[T] {
 	newList := New[T]()
 
 	current := l.Head
@@ -564,7 +564,7 @@ func (l *DLinkedList[T]) Copy() *DLinkedList[T] {
 }
 
 // Merge appends the nodes of the given doubly linked list to the original doubly linked list
-func (l *DLinkedList[T]) Merge(list *DLinkedList[T]) {
+func (l *DLinkList[T]) Merge(list *DLinkList[T]) {
 	if list.IsEmpty() {
 		return
 	}
@@ -576,7 +576,7 @@ func (l *DLinkedList[T]) Merge(list *DLinkedList[T]) {
 }
 
 // ReverseCopy returns a new doubly linked list with the nodes of the original doubly linked list in reverse order
-func (l *DLinkedList[T]) ReverseCopy() *DLinkedList[T] {
+func (l *DLinkList[T]) ReverseCopy() *DLinkList[T] {
 	newList := New[T]()
 
 	current := l.Tail
@@ -589,7 +589,7 @@ func (l *DLinkedList[T]) ReverseCopy() *DLinkedList[T] {
 }
 
 // ReverseMerge appends the nodes of the given doubly linked list to the original doubly linked list in reverse order
-func (l *DLinkedList[T]) ReverseMerge(list *DLinkedList[T]) {
+func (l *DLinkList[T]) ReverseMerge(list *DLinkList[T]) {
 	current := list.Tail
 	for current != nil {
 		l.Append(current.Value)
@@ -598,7 +598,7 @@ func (l *DLinkedList[T]) ReverseMerge(list *DLinkedList[T]) {
 }
 
 // Equal returns true if the given doubly linked list is equal to the original doubly linked list
-func (l *DLinkedList[T]) Equal(list *DLinkedList[T]) bool {
+func (l *DLinkList[T]) Equal(list *DLinkList[T]) bool {
 	current1 := l.Head
 	current2 := list.Head
 
@@ -614,7 +614,7 @@ func (l *DLinkedList[T]) Equal(list *DLinkedList[T]) bool {
 }
 
 // Swap swaps the nodes at the given indices
-func (l *DLinkedList[T]) Swap(i, j int) error {
+func (l *DLinkList[T]) Swap(i, j int) error {
 	node1, err := l.GetAt(i)
 	if err != nil {
 		return err
@@ -633,7 +633,7 @@ func (l *DLinkedList[T]) Swap(i, j int) error {
 // Sort sorts the doubly linked list according to the given function
 // for example, to sort a list of integers in ascending order, use:
 // list.Sort(func(a, b int) bool { return a < b })
-func (l *DLinkedList[T]) Sort(f func(T, T) bool) {
+func (l *DLinkList[T]) Sort(f func(T, T) bool) {
 	if l.Size() <= 1 {
 		return
 	}
@@ -681,7 +681,7 @@ func partition[T comparable](nodes []*Node[T], f func(T, T) bool, low, high int)
 }
 
 // FindAll returns a new doubly linked list containing all nodes that satisfy the given function
-func (l *DLinkedList[T]) FindAll(f func(T) bool) *DLinkedList[T] {
+func (l *DLinkList[T]) FindAll(f func(T) bool) *DLinkList[T] {
 	newList := New[T]()
 
 	current := l.Head
@@ -696,7 +696,7 @@ func (l *DLinkedList[T]) FindAll(f func(T) bool) *DLinkedList[T] {
 }
 
 // FindLast returns the last node that satisfies the given function
-func (l *DLinkedList[T]) FindLast(f func(T) bool) (*Node[T], error) {
+func (l *DLinkList[T]) FindLast(f func(T) bool) (*Node[T], error) {
 	var result *Node[T]
 
 	current := l.Head
@@ -715,7 +715,7 @@ func (l *DLinkedList[T]) FindLast(f func(T) bool) (*Node[T], error) {
 }
 
 // FindLastIndex returns the index of the last node that satisfies the given function
-func (l *DLinkedList[T]) FindLastIndex(f func(T) bool) int {
+func (l *DLinkList[T]) FindLastIndex(f func(T) bool) int {
 	current := l.Head
 	index := -1
 	i := 0
@@ -731,7 +731,7 @@ func (l *DLinkedList[T]) FindLastIndex(f func(T) bool) int {
 }
 
 // FindIndex returns the index of the first node that satisfies the given function
-func (l *DLinkedList[T]) FindIndex(f func(T) bool) int {
+func (l *DLinkList[T]) FindIndex(f func(T) bool) int {
 	current := l.Head
 	index := 0
 	for current != nil {

@@ -165,6 +165,15 @@ func (s *CSStack[T]) Copy() *CSStack[T] {
 
 // Equal checks if two stacks are equal.
 func (s *CSStack[T]) Equal(other *CSStack[T]) bool {
+
+	if s == nil && other == nil {
+		return true
+	}
+
+	if (s != nil && other == nil) || (s == nil && other != nil) {
+		return false
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	other.mu.Lock()
