@@ -1,4 +1,4 @@
-// Copyright 2023 Paolo Fabio Zaino
+// Copyright 2024 Paolo Fabio Zaino
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
 
 // Package csstack is a concurrent-safe stack library (LIFO).
 package csstack
-
-/*
- The  CSStack  type is a concurrent-safe stack that uses a  sync.Mutex  to protect the  items  field. The  Push ,  IsEmpty , and  Pop  methods are protected by the mutex. The  ToSlice  method is not necessary for a stack, but it is useful for debugging purposes.
- The  CSStack  type is similar to the  Stack  type, but it is safe to use concurrently.
- To use the  CSStack  type, you can import the  stack  package and create a new stack with the  CSStackNew  function:
-*/
 
 import (
 	"errors"

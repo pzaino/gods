@@ -1,4 +1,4 @@
-// Copyright 2023 Paolo Fabio Zaino
+// Copyright 2024 Paolo Fabio Zaino
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package queue provides a non-concurrent-safe queue (FIFO).
-package queue
+// Package queue provides a non-concurrent-safe priority queue (FIFO).
+package pqueue
 
 import "errors"
 
