@@ -238,7 +238,7 @@ func (l *LinkList[T]) DeleteAt(index int) error {
 	return nil
 }
 
-// Delete deletes the first node with the given value
+// Remove is just an alias for DeleteWithValue
 func (l *LinkList[T]) Remove(value T) {
 	l.DeleteWithValue(value)
 }
