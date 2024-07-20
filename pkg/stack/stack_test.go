@@ -17,6 +17,7 @@ package stack
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -785,5 +786,156 @@ func TestFind(t *testing.T) {
 	}
 	if item != nil {
 		t.Errorf("Expected item to be nil, but got %v", *item)
+	}
+}
+
+func TestFindIndex(t *testing.T) {
+	stack := New[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	index, err := stack.FindIndex(func(item int) bool {
+		return item == 2
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	if index != 1 {
+		t.Errorf("Expected index to be 1, but got %v", index)
+	}
+
+	index, err = stack.FindIndex(func(item int) bool {
+		return item == 4
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+	if index != -1 {
+		t.Errorf("Expected index to be -1, but got %v", index)
+	}
+}
+
+func TestFindLast(t *testing.T) {
+	stack := New[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	// Test case 1: Item exists in the stack
+	item, err := stack.FindLast(func(i int) bool {
+		return i == 2
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	if item == nil {
+		t.Error("Expected item to not be nil, but it was")
+	} else if *item != 2 {
+		t.Errorf("Expected item to be 2, but got %v", *item)
+	}
+
+	// Test case 2: Item does not exist in the stack
+	item, err = stack.FindLast(func(i int) bool {
+		return i == 4
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+	if item != nil {
+		t.Errorf("Expected item to be nil, but got %v", *item)
+	}
+}
+
+func TestFindLastIndex(t *testing.T) {
+	stack := New[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	index, err := stack.FindLastIndex(func(item int) bool {
+		return item == 2
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	if index != 1 {
+		t.Errorf("Expected index to be 1, but got %v", index)
+	}
+
+	index, err = stack.FindLastIndex(func(item int) bool {
+		return item == 4
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+	if index != -1 {
+		t.Errorf("Expected index to be -1, but got %v", index)
+	}
+}
+
+func TestFindAll(t *testing.T) {
+	stack := New[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+	stack.Push(4)
+	stack.Push(5)
+
+	// Test case 1: Find all even numbers
+	evenPredicate := func(item int) bool {
+		return item%2 == 0
+	}
+	evenItems := stack.FindAll(evenPredicate)
+	expectedEvenItems := []int{2, 4}
+	if !reflect.DeepEqual(evenItems, expectedEvenItems) {
+		t.Errorf("Expected even items to be %v, but got %v", expectedEvenItems, evenItems)
+	}
+
+	// Test case 2: Find all odd numbers
+	oddPredicate := func(item int) bool {
+		return item%2 != 0
+	}
+	oddItems := stack.FindAll(oddPredicate)
+	expectedOddItems := []int{1, 3, 5}
+	if !reflect.DeepEqual(oddItems, expectedOddItems) {
+		t.Errorf("Expected odd items to be %v, but got %v", expectedOddItems, oddItems)
+	}
+
+	// Test case 3: Find all numbers greater than 3
+	greaterThanThreePredicate := func(item int) bool {
+		return item > 3
+	}
+	greaterThanThreeItems := stack.FindAll(greaterThanThreePredicate)
+	expectedGreaterThanThreeItems := []int{4, 5}
+	if !reflect.DeepEqual(greaterThanThreeItems, expectedGreaterThanThreeItems) {
+		t.Errorf("Expected items greater than 3 to be %v, but got %v", expectedGreaterThanThreeItems, greaterThanThreeItems)
+	}
+}
+
+func TestFindIndices(t *testing.T) {
+	stack := New[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+	stack.Push(2)
+	stack.Push(4)
+	stack.Push(2)
+
+	indices := stack.FindIndices(func(item int) bool {
+		return item == 2
+	})
+
+	expectedIndices := []int{1, 3, 5}
+	if !reflect.DeepEqual(indices, expectedIndices) {
+		t.Errorf("Expected indices to be %v, but got %v", expectedIndices, indices)
+	}
+
+	indices = stack.FindIndices(func(item int) bool {
+		return item == 5
+	})
+
+	if indices != nil {
+		t.Errorf("Expected indices to be %v, but got %v", expectedIndices, indices)
 	}
 }
