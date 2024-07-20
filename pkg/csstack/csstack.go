@@ -54,10 +54,15 @@ func (s *CSStack[T]) IsEmpty() bool {
 }
 
 // Pop removes and returns the top item from the stack.
+// note: This is a wrapper around the private pop function.
 func (s *CSStack[T]) Pop() (*T, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	return pop(s)
+}
+
+func pop[T comparable](s *CSStack[T]) (*T, error) {
 	if len(s.items) == 0 {
 		return nil, errors.New(errStackIsEmpty)
 	}
@@ -220,8 +225,14 @@ func (s *CSStack[T]) PopN(n int) ([]T, error) {
 		return nil, errors.New("CSStack has less than n items")
 	}
 
-	items := s.items[len(s.items)-n:]
-	s.items = s.items[:len(s.items)-n]
+	items := make([]T, n)
+	for i := 0; i < n; i++ {
+		item, err := pop(s)
+		if err != nil {
+			return nil, err
+		}
+		items[i] = *item
+	}
 	return items, nil
 }
 
@@ -237,8 +248,14 @@ func (s *CSStack[T]) PopAll() []T {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	if len(s.items) == 0 {
+		return nil
+	}
+
 	items := make([]T, len(s.items))
-	copy(items, s.items)
+	for i := len(s.items) - 1; i >= 0; i-- {
+		items[len(s.items)-i-1] = s.items[i]
+	}
 	s.items = s.items[:0]
 	return items
 }
@@ -320,6 +337,10 @@ func (s *CSStack[T]) Any(predicate func(T) bool) bool {
 func (s *CSStack[T]) All(predicate func(T) bool) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if len(s.items) == 0 {
+		return false
+	}
 
 	for _, item := range s.items {
 		if !predicate(item) {

@@ -159,8 +159,14 @@ func (s *Stack[T]) PopN(n int) ([]T, error) {
 		return nil, errors.New("Stack has less than n items")
 	}
 
-	items := s.items[len(s.items)-n:]
-	s.items = s.items[:len(s.items)-n]
+	items := make([]T, n)
+	for i := 0; i < n; i++ {
+		item, err := s.Pop()
+		if err != nil {
+			return nil, err
+		}
+		items[i] = *item
+	}
 	return items, nil
 }
 

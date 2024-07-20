@@ -476,10 +476,10 @@ func TestPopN(t *testing.T) {
 	if len(items) != 2 {
 		t.Errorf("Expected 2 items, but got %v", len(items))
 	}
-	if items[0] != 2 {
+	if items[0] != 3 {
 		t.Errorf("Expected first item to be 2, but got %v", items[0])
 	}
-	if items[1] != 3 {
+	if items[1] != 2 {
 		t.Errorf("Expected second item to be 3, but got %v", items[1])
 	}
 	if stack.Size() != 1 {
