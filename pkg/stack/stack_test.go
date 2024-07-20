@@ -687,9 +687,9 @@ func TestForEach(t *testing.T) {
 	stack.Push(3)
 
 	// Define a function to be applied to each item
-	fn := func(item int) {
+	fn := func(item *int) {
 		// Perform some action on the item
-		fmt.Println(item)
+		fmt.Println(*item)
 	}
 
 	// Apply the function to each item in the stack

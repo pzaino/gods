@@ -317,3 +317,20 @@ func TestConcurrentFind(t *testing.T) {
 		t.Errorf("Expected 0 errors, got %d", errorCount)
 	}
 }
+
+func TestForEach(t *testing.T) {
+	list := CSLinkListNew[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	var sum int
+	list.ForEach(func(value *int) {
+		sum += *value
+	})
+
+	expectedSum := 1 + 2 + 3
+	if sum != expectedSum {
+		t.Errorf("Expected sum to be %d, but got %d", expectedSum, sum)
+	}
+}

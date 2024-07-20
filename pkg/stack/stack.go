@@ -225,9 +225,9 @@ func (s *Stack[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each item in the stack.
-func (s *Stack[T]) ForEach(fn func(T)) {
+func (s *Stack[T]) ForEach(fn func(*T)) {
 	for _, item := range s.items {
-		fn(item)
+		fn(&item)
 	}
 }
 

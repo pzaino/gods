@@ -143,11 +143,23 @@ func (l *LinkList[T]) Size() int {
 
 // Values returns all the values in the list
 func (l *LinkList[T]) GetFirst() *Node[T] {
+	if l == nil {
+		return nil
+	}
+
 	return l.Head
 }
 
 // GetLast returns the last node in the list
 func (l *LinkList[T]) GetLast() *Node[T] {
+	if l == nil {
+		return nil
+	}
+
+	if l.Head == nil {
+		return nil
+	}
+
 	current := l.Head
 	for current.Next != nil {
 		current = current.Next
@@ -160,6 +172,10 @@ func (l *LinkList[T]) GetLast() *Node[T] {
 func (l *LinkList[T]) GetAt(index int) (*Node[T], error) {
 	if index < 0 {
 		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	if l == nil {
+		return nil, nil
 	}
 
 	current := l.Head
@@ -268,6 +284,8 @@ func (l *LinkList[T]) Merge(list *LinkList[T]) {
 		l.Append(current.Value)
 		current = current.Next
 	}
+	// Clear the list
+	list.Clear()
 }
 
 // Map applies the function to all the nodes in the list
@@ -313,10 +331,10 @@ func (l *LinkList[T]) Reduce(f func(T, T) T, initial T) T {
 }
 
 // ForEach applies the function to all the nodes in the list
-func (l *LinkList[T]) ForEach(f func(T)) {
+func (l *LinkList[T]) ForEach(f func(*T)) {
 	current := l.Head
 	for current != nil {
-		f(current.Value)
+		f(&current.Value)
 		current = current.Next
 	}
 }

@@ -86,7 +86,7 @@ func (s *CSStack[T]) ToSlice() []T {
 func (s *CSStack[T]) ToStack() *stack.Stack[T] {
 	ns := stack.New[T]()
 	for _, item := range s.ToSlice() {
-		s.Push(item)
+		ns.Push(item)
 	}
 	return ns
 }
@@ -311,12 +311,12 @@ func (s *CSStack[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each item in the stack.
-func (s *CSStack[T]) ForEach(fn func(T)) {
+func (s *CSStack[T]) ForEach(fn func(*T)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	for _, item := range s.items {
-		fn(item)
+		fn(&item)
 	}
 }
 

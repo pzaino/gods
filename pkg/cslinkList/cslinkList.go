@@ -367,13 +367,13 @@ func (l *CSLinkList[T]) Reduce(f func(T, T) T, initial T) T {
 }
 
 // ForEach applies the function to all the nodes in the list
-func (l *CSLinkList[T]) ForEach(f func(T)) {
+func (l *CSLinkList[T]) ForEach(f func(*T)) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
 	current := l.Head
 	for current != nil {
-		f(current.Value)
+		f(&current.Value)
 		current = current.Next
 	}
 }

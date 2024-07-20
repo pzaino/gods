@@ -587,7 +587,7 @@ func TestCSStackForEach(t *testing.T) {
 	s := CSStackNew[int]()
 
 	// Test ForEach on an empty stack
-	s.ForEach(func(item int) {
+	s.ForEach(func(item *int) {
 		t.Errorf("ForEach() called on an empty stack")
 	})
 
@@ -597,8 +597,8 @@ func TestCSStackForEach(t *testing.T) {
 
 	// Test ForEach on a non-empty stack
 	var sum int
-	s.ForEach(func(item int) {
-		sum += item
+	s.ForEach(func(item *int) {
+		sum += *item
 	})
 
 	if sum != 6 {
@@ -879,5 +879,179 @@ func TestCSStackFindAll(t *testing.T) {
 	})
 	if len(items) != 0 {
 		t.Errorf("FindAll() returned %d items; want 0", len(items))
+	}
+}
+
+// TestCSStackFindIndices tests the CSStack FindIndices method.
+func TestCSStackFindIndices(t *testing.T) {
+	s := CSStackNew[int]()
+
+	// Test finding indices in an empty stack
+	indices := s.FindIndices(func(item int) bool {
+		return item > 0
+	})
+	if len(indices) != 0 {
+		t.Errorf("FindIndices() returned %d indices; want 0", len(indices))
+	}
+
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+
+	// Test finding indices in a non-empty stack
+	indices = s.FindIndices(func(item int) bool {
+		return item > 1
+	})
+	expectedIndices := []int{1, 2}
+	if !reflect.DeepEqual(indices, expectedIndices) {
+		t.Errorf("FindIndices() returned %v indices; want %v", indices, expectedIndices)
+	}
+
+	// Test finding indices with no matching items
+	indices = s.FindIndices(func(item int) bool {
+		return item > 10
+	})
+	if len(indices) != 0 {
+		t.Errorf("FindIndices() returned %d indices; want 0", len(indices))
+	}
+}
+
+func TestCSStackToStack(t *testing.T) {
+	s := CSStackNew[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+
+	stack := s.ToStack()
+
+	if size := stack.Size(); size != 3 {
+		t.Errorf("Size() = %v; want 3", size)
+	}
+
+	item, err := stack.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 3 {
+		t.Errorf("Pop() = %v; want 3", *item)
+	}
+
+	item, err = stack.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 2 {
+		t.Errorf("Pop() = %v; want 2", *item)
+	}
+
+	item, err = stack.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 1 {
+		t.Errorf("Pop() = %v; want 1", *item)
+	}
+
+	if !stack.IsEmpty() {
+		t.Errorf("IsEmpty() = false; want true")
+	}
+}
+
+// TestCSStackReverse tests the CSStack Reverse method.
+func TestCSStackReverse(t *testing.T) {
+	s := CSStackNew[int]()
+
+	// Test reversing an empty stack
+	s.Reverse()
+	if !s.IsEmpty() {
+		t.Errorf("IsEmpty() = false; want true")
+	}
+
+	// Test reversing a stack with one item
+	s.Push(1)
+	s.Reverse()
+	if size := s.Size(); size != 1 {
+		t.Errorf("Size() = %v; want 1", size)
+	}
+	item, err := s.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 1 {
+		t.Errorf("Pop() = %v; want 1", *item)
+	}
+
+	// Test reversing a stack with multiple items
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Reverse()
+	if size := s.Size(); size != 3 {
+		t.Errorf("Size() = %v; want 3", size)
+	}
+	item, err = s.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 1 {
+		t.Errorf("Pop() = %v; want 1", *item)
+	}
+	item, err = s.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 2 {
+		t.Errorf("Pop() = %v; want 2", *item)
+	}
+	item, err = s.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 3 {
+		t.Errorf("Pop() = %v; want 3", *item)
+	}
+}
+
+// TestCSStackSwap tests the CSStack Swap method.
+func TestCSStackSwap(t *testing.T) {
+	s := CSStackNew[int]()
+
+	// Test swapping an empty stack
+	err := s.Swap()
+	if err == nil {
+		t.Errorf("Swap() error = nil; want error")
+	}
+
+	s.Push(1)
+
+	// Test swapping a stack with one item
+	err = s.Swap()
+	if err == nil {
+		t.Errorf("Swap() error = nil; want error")
+	}
+
+	s.Push(2)
+	s.Push(3)
+
+	// Test swapping a stack with multiple items
+	err = s.Swap()
+	if err != nil {
+		t.Errorf("Swap() error = %v; want nil", err)
+	}
+
+	item, err := s.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 2 {
+		t.Errorf("Pop() = %v; want 2", *item)
+	}
+
+	item, err = s.Pop()
+	if err != nil {
+		t.Errorf("Pop() error = %v; want nil", err)
+	}
+	if *item != 3 {
+		t.Errorf("Pop() = %v; want 1", *item)
 	}
 }
