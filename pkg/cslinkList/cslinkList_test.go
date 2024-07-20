@@ -16,6 +16,7 @@
 package cslinkList
 
 import (
+	"sync"
 	"testing"
 )
 
@@ -102,5 +103,217 @@ func TestIsEmptyAfterRemove(t *testing.T) {
 	}
 	if list.Size() != 0 {
 		t.Errorf("Expected list to have 0 items, but got %v", list.Size())
+	}
+}
+
+// Test concurrent operations on the list
+
+func TestConcurrentAppend(t *testing.T) {
+	list := CSLinkListNew[int]()
+	var wg sync.WaitGroup
+
+	// Append 1000 items concurrently
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(val int) {
+			defer wg.Done()
+			list.Append(val)
+		}(i)
+	}
+
+	wg.Wait()
+
+	if list.Size() != 1000 {
+		t.Errorf("Expected list size 1000, got %d", list.Size())
+	}
+}
+
+func TestConcurrentPrepend(t *testing.T) {
+	list := CSLinkListNew[int]()
+	var wg sync.WaitGroup
+
+	// Prepend 1000 items concurrently
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(val int) {
+			defer wg.Done()
+			list.Prepend(val)
+		}(i)
+	}
+
+	wg.Wait()
+
+	if list.Size() != 1000 {
+		t.Errorf("Expected list size 1000, got %d", list.Size())
+	}
+}
+
+func TestConcurrentDeleteWithValue(t *testing.T) {
+	list := CSLinkListNew[int]()
+
+	// Append 1000 items
+	for i := 0; i < 1000; i++ {
+		list.Append(i)
+	}
+
+	var wg sync.WaitGroup
+
+	// Delete all 1000 items concurrently
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(val int) {
+			defer wg.Done()
+			list.DeleteWithValue(val)
+		}(i)
+	}
+
+	wg.Wait()
+
+	if list.Size() != 0 {
+		t.Errorf("Expected list size 0, got %d", list.Size())
+	}
+}
+
+func TestConcurrentInsertAt(t *testing.T) {
+	list := CSLinkListNew[int]()
+	var wg sync.WaitGroup
+
+	// Insert 1000 items at the beginning concurrently
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(val int) {
+			defer wg.Done()
+			err := list.InsertAt(0, val)
+			if err != nil {
+				t.Error(err)
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	if list.Size() != 1000 {
+		t.Errorf("Expected list size 1000, got %d", list.Size())
+	}
+}
+
+func TestConcurrentGetAt(t *testing.T) {
+	list := CSLinkListNew[int]()
+
+	// Append 1000 items
+	for i := 0; i < 1000; i++ {
+		list.Append(i)
+	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	errorCount := 0
+
+	// Concurrently get all items and check their values
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(index int) {
+			defer wg.Done()
+			node, err := list.GetAt(index)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil || node.Value != index {
+				errorCount++
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	if errorCount != 0 {
+		t.Errorf("Expected 0 errors, got %d", errorCount)
+	}
+}
+
+func TestConcurrentClear(t *testing.T) {
+	list := CSLinkListNew[int]()
+
+	// Append 1000 items
+	for i := 0; i < 1000; i++ {
+		list.Append(i)
+	}
+
+	var wg sync.WaitGroup
+
+	// Concurrently clear the list
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			list.Clear()
+		}()
+	}
+
+	wg.Wait()
+
+	if list.Size() != 0 {
+		t.Errorf("Expected list size 0, got %d", list.Size())
+	}
+}
+
+func TestConcurrentMerge(t *testing.T) {
+	list1 := CSLinkListNew[int]()
+	list2 := CSLinkListNew[int]()
+
+	// Append 500 items to each list
+	for i := 0; i < 500; i++ {
+		list1.Append(i)
+		list2.Append(i + 500)
+	}
+
+	var wg sync.WaitGroup
+
+	// Concurrently merge list2 into list1
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			list1.Merge(list2)
+		}()
+	}
+
+	wg.Wait()
+
+	// Size should be at least 1000 if merged correctly multiple times concurrently
+	if list1.Size() < 1000 {
+		t.Errorf("Expected list size at least 1000, got %d", list1.Size())
+	}
+}
+
+func TestConcurrentFind(t *testing.T) {
+	list := CSLinkListNew[int]()
+
+	// Append 1000 items
+	for i := 0; i < 1000; i++ {
+		list.Append(i)
+	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	errorCount := 0
+
+	// Concurrently find all items and check their values
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(val int) {
+			defer wg.Done()
+			node, err := list.Find(val)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil || node.Value != val {
+				errorCount++
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	if errorCount != 0 {
+		t.Errorf("Expected 0 errors, got %d", errorCount)
 	}
 }

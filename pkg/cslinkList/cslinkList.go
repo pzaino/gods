@@ -42,10 +42,15 @@ func CSLinkListNew[T comparable]() *CSLinkList[T] {
 }
 
 // Append adds a new node to the end of the list
+// note: it's just a concurrent-safe wrapper around the append private function
 func (l *CSLinkList[T]) Append(value T) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
+	privAppend(l, value)
+}
+
+func privAppend[T comparable](l *CSLinkList[T], value T) {
 	newNode := &Node[T]{Value: value}
 
 	if l.Head == nil {
@@ -62,10 +67,15 @@ func (l *CSLinkList[T]) Append(value T) {
 }
 
 // Prepend adds a new node to the beginning of the list
+// note: it's just a concurrent-safe wrapper around the prepend private function
 func (l *CSLinkList[T]) Prepend(value T) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
+	prepend(l, value)
+}
+
+func prepend[T comparable](l *CSLinkList[T], value T) {
 	newNode := &Node[T]{Value: value}
 	newNode.Next = l.Head
 	l.Head = newNode
@@ -214,7 +224,7 @@ func (l *CSLinkList[T]) InsertAt(index int, value T) error {
 	}
 
 	if index == 0 {
-		l.Prepend(value)
+		prepend(l, value)
 		return nil
 	}
 
@@ -301,10 +311,12 @@ func (l *CSLinkList[T]) Copy() *CSLinkList[T] {
 func (l *CSLinkList[T]) Merge(list *CSLinkList[T]) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	list.mu.Lock()
+	defer list.mu.Unlock()
 
 	current := list.Head
 	for current != nil {
-		l.Append(current.Value)
+		privAppend(l, current.Value)
 		current = current.Next
 	}
 }
