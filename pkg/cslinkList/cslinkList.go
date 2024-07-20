@@ -147,8 +147,13 @@ func (l *CSLinkList[T]) Reverse() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
+	if l.Head == nil {
+		return
+	}
+
 	var prev *Node[T]
 	current := l.Head
+	// reverse the list
 	for current != nil {
 		next := current.Next
 		current.Next = prev
@@ -185,6 +190,10 @@ func (l *CSLinkList[T]) GetLast() *Node[T] {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
+	if l.Head == nil {
+		return nil
+	}
+
 	current := l.Head
 	for current.Next != nil {
 		current = current.Next
@@ -199,6 +208,10 @@ func (l *CSLinkList[T]) GetAt(index int) (*Node[T], error) {
 
 	if index < 0 {
 		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	if l.Head == nil {
+		return nil, nil
 	}
 
 	current := l.Head
@@ -397,6 +410,10 @@ func (l *CSLinkList[T]) Any(f func(T) bool) bool {
 func (l *CSLinkList[T]) All(f func(T) bool) bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
+	if l.Head == nil {
+		return false
+	}
 
 	current := l.Head
 	for current != nil {
