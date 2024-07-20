@@ -172,7 +172,9 @@ func (s *Stack[T]) PushN(items ...T) {
 // PopAll removes and returns all items from the stack.
 func (s *Stack[T]) PopAll() []T {
 	items := make([]T, len(s.items))
-	copy(items, s.items)
+	for i := len(s.items) - 1; i >= 0; i-- {
+		items[len(s.items)-i-1] = s.items[i]
+	}
 	s.items = s.items[:0]
 	return items
 }
