@@ -67,8 +67,51 @@ func (l *DLinkList[T]) Prepend(value T) {
 	l.Head = newNode
 }
 
-// Insert inserts a new node with the given value at the given index
-func (l *DLinkList[T]) Insert(index int, value T) error {
+// Insert inserts a new node with the given value at first available index
+// note: this is just an alias for Append
+func (l *DLinkList[T]) Insert(value T) error {
+	ln := l.Size()
+	l.Append(value)
+	if ln == l.Size() {
+		return errors.New("failed to insert")
+	}
+	return nil
+}
+
+// InsertAfter inserts a new node with the given value after the node with the given value
+func (l *DLinkList[T]) InsertAfter(value, newValue T) {
+	node, err := l.Find(value)
+	if err != nil {
+		return
+	}
+
+	newNode := &Node[T]{Value: newValue}
+	newNode.Next = node.Next
+	newNode.Prev = node
+	node.Next = newNode
+	if newNode.Next != nil {
+		newNode.Next.Prev = newNode
+	}
+}
+
+// InsertBefore inserts a new node with the given value before the node with the given value
+func (l *DLinkList[T]) InsertBefore(value, newValue T) {
+	node, err := l.Find(value)
+	if err != nil {
+		return
+	}
+
+	newNode := &Node[T]{Value: newValue}
+	newNode.Next = node
+	newNode.Prev = node.Prev
+	node.Prev = newNode
+	if newNode.Prev != nil {
+		newNode.Prev.Next = newNode
+	}
+}
+
+// InsertAt inserts a new node with the given value at the given index
+func (l *DLinkList[T]) InsertAt(index int, value T) error {
 	if index < 0 {
 		return errors.New(errIndexOutOfBound)
 	}
@@ -139,53 +182,6 @@ func (l *DLinkList[T]) RemoveAt(index int) error {
 	return l.DeleteAt(index)
 }
 
-// ToSlice converts the doubly linked list to a slice
-func (l *DLinkList[T]) ToSlice() []T {
-	var result []T
-
-	current := l.Head
-	for current != nil {
-		result = append(result, current.Value)
-		current = current.Next
-	}
-
-	return result
-}
-
-// Reverse reverses the doubly linked list
-func (l *DLinkList[T]) Reverse() {
-	current := l.Head
-	var prev *Node[T]
-
-	for current != nil {
-		next := current.Next
-		current.Next = prev
-		current.Prev = next
-		prev = current
-		current = next
-	}
-
-	l.Head, l.Tail = l.Tail, l.Head
-}
-
-// Find returns the first node with the given value
-func (l *DLinkList[T]) Find(value T) (*Node[T], error) {
-	current := l.Head
-	for current != nil {
-		if current.Value == value {
-			return current, nil
-		}
-		current = current.Next
-	}
-
-	return nil, errors.New("value not found")
-}
-
-// IsEmpty returns true if the doubly linked list is empty
-func (l *DLinkList[T]) IsEmpty() bool {
-	return l.Head == nil
-}
-
 // Delete deletes the first node with the given value
 func (l *DLinkList[T]) Delete(value T) {
 	node, err := l.Find(value)
@@ -195,7 +191,9 @@ func (l *DLinkList[T]) Delete(value T) {
 
 	if node.Prev == nil {
 		l.Head = node.Next
-		l.Head.Prev = nil
+		if l.Head != nil {
+			l.Head.Prev = nil
+		}
 		return
 	}
 
@@ -241,72 +239,6 @@ func (l *DLinkList[T]) DeleteFirst() {
 	l.Head.Prev = nil
 }
 
-// InsertAfter inserts a new node with the given value after the node with the given value
-func (l *DLinkList[T]) InsertAfter(value, newValue T) {
-	node, err := l.Find(value)
-	if err != nil {
-		return
-	}
-
-	newNode := &Node[T]{Value: newValue}
-	newNode.Next = node.Next
-	newNode.Prev = node
-	node.Next = newNode
-	if newNode.Next != nil {
-		newNode.Next.Prev = newNode
-	}
-}
-
-// InsertBefore inserts a new node with the given value before the node with the given value
-func (l *DLinkList[T]) InsertBefore(value, newValue T) {
-	node, err := l.Find(value)
-	if err != nil {
-		return
-	}
-
-	newNode := &Node[T]{Value: newValue}
-	newNode.Next = node
-	newNode.Prev = node.Prev
-	node.Prev = newNode
-	if newNode.Prev != nil {
-		newNode.Prev.Next = newNode
-	}
-}
-
-// InsertAt inserts a new node with the given value at the given index
-func (l *DLinkList[T]) InsertAt(index int, value T) error {
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	if index == 0 {
-		l.Prepend(value)
-		return nil
-	}
-
-	current := l.Head
-	for i := 0; i < index-1; i++ {
-		if current == nil {
-			return errors.New(errIndexOutOfBound)
-		}
-		current = current.Next
-	}
-
-	if current == nil {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	newNode := &Node[T]{Value: value}
-	newNode.Next = current.Next
-	newNode.Prev = current
-	current.Next = newNode
-	if newNode.Next != nil {
-		newNode.Next.Prev = newNode
-	}
-
-	return nil
-}
-
 // DeleteAt deletes the node at the given index
 func (l *DLinkList[T]) DeleteAt(index int) error {
 	if index < 0 {
@@ -345,6 +277,100 @@ func (l *DLinkList[T]) DeleteAt(index int) error {
 	return nil
 }
 
+// ToSlice converts the doubly linked list to a slice
+func (l *DLinkList[T]) ToSlice() []T {
+	var result []T
+
+	current := l.Head
+	for current != nil {
+		result = append(result, current.Value)
+		current = current.Next
+	}
+
+	return result
+}
+
+// ToSliceReverse converts the doubly linked list to a slice in reverse order
+func (l *DLinkList[T]) ToSliceReverse() []T {
+	var result []T
+
+	current := l.Tail
+	for current != nil {
+		result = append(result, current.Value)
+		current = current.Prev
+	}
+
+	return result
+}
+
+// ToSliceFromIndex converts the doubly linked list to a slice starting from the given index
+func (l *DLinkList[T]) ToSliceFromIndex(index int) []T {
+	var result []T
+
+	current, err := l.GetAt(index)
+	if err != nil {
+		return result
+	}
+
+	for current != nil {
+		result = append(result, current.Value)
+		current = current.Next
+	}
+
+	return result
+}
+
+// ToSliceReverseFromIndex converts the doubly linked list to a slice in reverse order starting from the given index
+func (l *DLinkList[T]) ToSliceReverseFromIndex(index int) []T {
+	var result []T
+
+	current, err := l.GetAt((l.Size() - 1) - index)
+	if err != nil {
+		return result
+	}
+
+	for current != nil {
+		result = append(result, current.Value)
+		current = current.Prev
+	}
+
+	return result
+}
+
+// Reverse reverses the doubly linked list
+func (l *DLinkList[T]) Reverse() {
+	current := l.Head
+	var prev *Node[T]
+
+	for current != nil {
+		next := current.Next
+		current.Next = prev
+		current.Prev = next
+		prev = current
+		current = next
+	}
+
+	l.Head, l.Tail = l.Tail, l.Head
+}
+
+// Find returns the first node with the given value
+func (l *DLinkList[T]) Find(value T) (*Node[T], error) {
+	current := l.Head
+	for current != nil {
+		if current.Value == value {
+			return current, nil
+		}
+		current = current.Next
+	}
+
+	return nil, errors.New("value not found")
+}
+
+// IsEmpty returns true if the doubly linked list is empty
+func (l *DLinkList[T]) IsEmpty() bool {
+	return l.Head == nil
+}
+
 // GetAt returns the node at the given index
 func (l *DLinkList[T]) GetAt(index int) (*Node[T], error) {
 	if index < 0 {
@@ -352,6 +378,13 @@ func (l *DLinkList[T]) GetAt(index int) (*Node[T], error) {
 	}
 
 	current := l.Head
+	if current == nil {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+	if index == 0 {
+		return current, nil
+	}
+
 	for i := 0; i < index; i++ {
 		if current == nil {
 			return nil, errors.New(errIndexOutOfBound)
@@ -407,58 +440,11 @@ func (l *DLinkList[T]) Contains(value T) bool {
 	return false
 }
 
-// ToSliceReverse converts the doubly linked list to a slice in reverse order
-func (l *DLinkList[T]) ToSliceReverse() []T {
-	var result []T
-
-	current := l.Tail
-	for current != nil {
-		result = append(result, current.Value)
-		current = current.Prev
-	}
-
-	return result
-}
-
-// ToSliceFromIndex converts the doubly linked list to a slice starting from the given index
-func (l *DLinkList[T]) ToSliceFromIndex(index int) []T {
-	var result []T
-
-	current, err := l.GetAt(index)
-	if err != nil {
-		return result
-	}
-
-	for current != nil {
-		result = append(result, current.Value)
-		current = current.Next
-	}
-
-	return result
-}
-
-// ToSliceReverseFromIndex converts the doubly linked list to a slice in reverse order starting from the given index
-func (l *DLinkList[T]) ToSliceReverseFromIndex(index int) []T {
-	var result []T
-
-	current, err := l.GetAt(index)
-	if err != nil {
-		return result
-	}
-
-	for current != nil {
-		result = append(result, current.Value)
-		current = current.Prev
-	}
-
-	return result
-}
-
 // ForEach traverses the doubly linked list and applies the given function to each node
-func (l *DLinkList[T]) ForEach(f func(T)) {
+func (l *DLinkList[T]) ForEach(f func(*T)) {
 	current := l.Head
 	for current != nil {
-		f(current.Value)
+		f(&current.Value)
 		current = current.Next
 	}
 }

@@ -1,4 +1,6 @@
-# GODS (Go Data Structures)
+# GoDS (Go Data Structures)
+
+**WIP**: This project is still a work in progress. I will be adding more data structures as I implement them.
 
 This repository contains my implementations of various data structures in Go. The data structures are implemented in a way that they can be used in a concurrent environment.
 

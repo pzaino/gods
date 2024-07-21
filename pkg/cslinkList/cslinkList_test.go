@@ -175,6 +175,98 @@ func TestConcurrentDeleteWithValue(t *testing.T) {
 	}
 }
 
+func TestInsertAt(t *testing.T) {
+	list := CSLinkListNew[int]()
+	list.Append(1)
+	list.Append(3)
+
+	err := list.InsertAt(1, 2)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if list.Size() != 3 {
+		t.Errorf("Expected list size 3, got %d", list.Size())
+	}
+
+	if list.ToSlice()[1] != 2 {
+		t.Errorf("Expected list to be [1, 2, 3], but got %v", list.ToSlice())
+	}
+}
+
+func TestInsertAtOutOfBounds(t *testing.T) {
+	list := CSLinkListNew[int]()
+	list.Append(1)
+	list.Append(2)
+
+	err := list.InsertAt(3, 3)
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	if list.Size() != 2 {
+		t.Errorf("Expected list size 2, got %d", list.Size())
+	}
+
+	if list.ToSlice()[0] != 1 || list.ToSlice()[1] != 2 {
+		t.Errorf("Expected list to be [1, 2], but got %v", list.ToSlice())
+	}
+}
+
+func TestInsertAtEmptyList(t *testing.T) {
+	list := CSLinkListNew[int]()
+
+	err := list.InsertAt(0, 1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if list.Size() != 1 {
+		t.Errorf("Expected list size 1, got %d", list.Size())
+	}
+
+	if list.ToSlice()[0] != 1 {
+		t.Errorf("Expected list to be [1], but got %v", list.ToSlice())
+	}
+}
+
+func TestInsertAtComplexObjects(t *testing.T) {
+	type ComplexObject struct {
+		Name string
+		Age  int
+	}
+
+	list := CSLinkListNew[ComplexObject]()
+	list.Append(ComplexObject{"Alice", 25})
+	list.Append(ComplexObject{"Bob", 30})
+
+	err := list.InsertAt(1, ComplexObject{"Charlie", 35})
+	if err != nil {
+		t.Error(err)
+	}
+
+	if list.Size() != 3 {
+		t.Errorf("Expected list size 3, got %d", list.Size())
+	}
+
+	if list.ToSlice()[1] != (ComplexObject{"Charlie", 35}) {
+		t.Errorf("Expected list to be [Alice, Charlie, Bob], but got %v", list.ToSlice())
+	}
+
+	err = list.InsertAt(0, ComplexObject{"David", 40})
+	if err != nil {
+		t.Error(err)
+	}
+
+	if list.Size() != 4 {
+		t.Errorf("Expected list size 4, got %d", list.Size())
+	}
+
+	if list.ToSlice()[0] != (ComplexObject{"David", 40}) {
+		t.Errorf("Expected list to be [David, Alice, Charlie, Bob], but got %v", list.ToSlice())
+	}
+}
+
 func TestConcurrentInsertAt(t *testing.T) {
 	list := CSLinkListNew[int]()
 	var wg sync.WaitGroup

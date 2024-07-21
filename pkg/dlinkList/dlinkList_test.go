@@ -16,6 +16,7 @@
 package dlinkList
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -752,5 +753,622 @@ func TestMergeEmptyList15(t *testing.T) {
 	list.Clear()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
+	}
+}
+
+func TestInsert(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	err := list.InsertAt(1, 4)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	if list.Size() != 4 {
+		t.Errorf(errWrongSize, 4, list.Size())
+	}
+
+	item, err := list.GetAt(1)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 4 {
+		t.Errorf(errWrongValue, 4, item.Value)
+	}
+
+	item, err = list.GetAt(2)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 2 {
+		t.Errorf(errWrongValue, 2, item.Value)
+	}
+}
+
+func TestInsertAtStart(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	err := list.InsertAt(0, 4)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	if list.Size() != 4 {
+		t.Errorf(errWrongSize, 4, list.Size())
+	}
+
+	item, err := list.GetAt(0)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 4 {
+		t.Errorf(errWrongValue, 4, item.Value)
+	}
+
+	item, err = list.GetAt(1)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 1 {
+		t.Errorf(errWrongValue, 1, item.Value)
+	}
+}
+
+func TestInsertAtEnd(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	err := list.InsertAt(3, 4)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	if list.Size() != 4 {
+		t.Errorf(errWrongSize, 4, list.Size())
+	}
+
+	item, err := list.GetAt(3)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 4 {
+		t.Errorf(errWrongValue, 4, item.Value)
+	}
+
+	item, err = list.GetAt(2)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 3 {
+		t.Errorf(errWrongValue, 3, item.Value)
+	}
+}
+
+func TestInsertOutOfBounds(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	err := list.InsertAt(5, 4)
+	if err == nil {
+		t.Error(errYesError)
+	}
+
+	if list.Size() != 3 {
+		t.Errorf(errWrongSize, 3, list.Size())
+	}
+}
+
+func TestToSlice(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	slice := list.ToSlice()
+	expected := []int{1, 2, 3}
+
+	if len(slice) != len(expected) {
+		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+	}
+
+	for i := 0; i < len(slice); i++ {
+		if slice[i] != expected[i] {
+			t.Errorf("Expected value at index %d to be %d, but got %d", i, expected[i], slice[i])
+		}
+	}
+}
+
+func TestToSliceEmpty(t *testing.T) {
+	list := New[int]()
+
+	slice := list.ToSlice()
+
+	if len(slice) != 0 {
+		t.Errorf("Expected empty slice, but got length %d", len(slice))
+	}
+}
+
+func TestFind(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test case 1: Value exists in the list
+	node, err := list.Find(2)
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	if node.Value != 2 {
+		t.Errorf("Expected value to be 2, but got %v", node.Value)
+	}
+
+	// Test case 2: Value does not exist in the list
+	_, err = list.Find(4)
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}
+
+func TestDelete(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test deleting a value that exists in the list
+	list.Delete(2)
+	if list.Size() != 2 {
+		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+	}
+	if list.Contains(2) {
+		t.Error("Expected list to not contain value 2")
+	}
+
+	// Test deleting a value that doesn't exist in the list
+	list.Delete(4)
+	if list.Size() != 2 {
+		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+	}
+
+	// Test deleting the first value in the list
+	list.Delete(1)
+	if list.Size() != 1 {
+		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+	}
+	if list.Contains(1) {
+		t.Error("Expected list to not contain value 1")
+	}
+
+	// Test deleting the last value in the list
+	list.Delete(3)
+	if list.Size() != 0 {
+		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+	}
+	if list.Contains(3) {
+		t.Error("Expected list to not contain value 3")
+	}
+}
+
+func TestDeleteEmpty(t *testing.T) {
+	list := New[int]()
+	list.Delete(1)
+	if list.Size() != 0 {
+		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+	}
+}
+
+func TestInsertEmpty(t *testing.T) {
+	list := New[int]()
+
+	err := list.Insert(1)
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+
+	expected := []int{1}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestInsertAfter(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.InsertAfter(2, 4)
+
+	expected := []int{1, 2, 4, 3}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestInsertAfterNotFound(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.InsertAfter(4, 5)
+
+	expected := []int{1, 2, 3}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestInsertBefore(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.InsertBefore(2, 4)
+
+	expected := []int{1, 4, 2, 3}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestInsertBeforeNotFound(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.InsertBefore(4, 5)
+
+	expected := []int{1, 2, 3}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestDeleteLast(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.DeleteLast()
+	if list.Size() != 2 {
+		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+	}
+
+	item, err := list.GetAt(1)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 2 {
+		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+	}
+
+	list.DeleteLast()
+	if list.Size() != 1 {
+		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+	}
+
+	item, err = list.GetAt(0)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 1 {
+		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+	}
+
+	list.DeleteLast()
+	if list.Size() != 0 {
+		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+	}
+
+	if !list.IsEmpty() {
+		t.Error(errListNotEmpty)
+	}
+}
+
+func TestDeleteLastEmpty(t *testing.T) {
+	list := New[int]()
+	list.DeleteLast()
+	if !list.IsEmpty() {
+		t.Error(errListNotEmpty)
+	}
+}
+
+func TestDeleteFirst(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.DeleteFirst()
+
+	if list.Size() != 2 {
+		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+	}
+
+	if list.GetFirst().Value != 2 {
+		t.Errorf("Expected first element to be 2, but got %v", list.GetFirst().Value)
+	}
+}
+
+func TestToSliceReverse(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	expected := []int{3, 2, 1}
+	result := list.ToSliceReverse()
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestToSliceReverseEmpty(t *testing.T) {
+	list := New[int]()
+
+	expected := []int{}
+	result := list.ToSliceReverse()
+
+	if result != nil {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestToSliceReverseSingle(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+
+	expected := []int{1}
+	result := list.ToSliceReverse()
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestToSliceReverseDouble(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+
+	expected := []int{2, 1}
+	result := list.ToSliceReverse()
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestToSliceReverseTriple(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+
+	expected := []int{4, 3, 2, 1}
+	result := list.ToSliceReverse()
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestToSliceFromIndex(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	tests := []struct {
+		index    int
+		expected []int
+	}{
+		{0, []int{1, 2, 3, 4, 5}},
+		{1, []int{2, 3, 4, 5}},
+		{2, []int{3, 4, 5}},
+		{3, []int{4, 5}},
+		{4, []int{5}},
+		{5, []int{}},
+		{6, []int{}},
+	}
+
+	for _, test := range tests {
+		result := list.ToSliceFromIndex(test.index)
+		if result == nil && (test.index != 5 && test.index != 6) {
+			t.Errorf("Expected ToSliceFromIndex(%d) to return %v, but got %v", test.index, test.expected, result)
+		}
+	}
+}
+
+func TestToSliceReverseFromIndex(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test from index 0
+	expected := []int{5, 4, 3, 2, 1}
+	result := list.ToSliceReverseFromIndex(0)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test from index 1
+	expected = []int{4, 3, 2, 1}
+	result = list.ToSliceReverseFromIndex(1)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test from index 2
+	expected = []int{3, 2, 1}
+	result = list.ToSliceReverseFromIndex(2)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test from index 3
+	expected = []int{2, 1}
+	result = list.ToSliceReverseFromIndex(3)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test from index 4
+	expected = []int{1}
+	result = list.ToSliceReverseFromIndex(4)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test from index 5 (out of bounds)
+	expected = []int{}
+	result = list.ToSliceReverseFromIndex(5)
+	if result != nil {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestForEach(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	sum := 0
+	list.ForEach(func(value *int) {
+		sum += *value
+	})
+
+	expectedSum := 1 + 2 + 3
+	if sum != expectedSum {
+		t.Errorf("Expected sum to be %d, but got %d", expectedSum, sum)
+	}
+}
+
+func TestForEachEmpty(t *testing.T) {
+	list := New[int]()
+
+	list.ForEach(func(value *int) {
+		t.Error("ForEach should not be called on an empty list")
+	})
+}
+
+func TestAny(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test case 1: Function returns true for at least one node
+	result1 := list.Any(func(value int) bool {
+		return value > 2
+	})
+	if !result1 {
+		t.Error("Expected Any to return true, but got false")
+	}
+
+	// Test case 2: Function returns false for all nodes
+	result2 := list.Any(func(value int) bool {
+		return value > 5
+	})
+	if result2 {
+		t.Error("Expected Any to return false, but got true")
+	}
+}
+
+func TestAll(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+
+	// Test case 1: All elements are even
+	allEven := list.All(func(n int) bool {
+		return n%2 == 0
+	})
+	if allEven {
+		t.Error("Expected all elements not to be even")
+	}
+
+	// Test case 2: All elements are odd
+	allOdd := list.All(func(n int) bool {
+		return n%2 != 0
+	})
+	if allOdd {
+		t.Error("Expected not all elements to be odd")
+	}
+
+	// Test case 3: All elements are greater than 0
+	allGreaterThanZero := list.All(func(n int) bool {
+		return n > 0
+	})
+	if !allGreaterThanZero {
+		t.Error("Expected all elements to be greater than 0")
+	}
+
+	// Test case 4: All elements are less than 10
+	allLessThanTen := list.All(func(n int) bool {
+		return n < 10
+	})
+	if !allLessThanTen {
+		t.Error("Expected all elements to be less than 10")
+	}
+
+	// Test case 5: All elements are equal to 1
+	allEqualToOne := list.All(func(n int) bool {
+		return n == 1
+	})
+	if allEqualToOne {
+		t.Error("Expected all elements not to be equal to 1")
+	}
+}
+
+func TestIndexOf(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	index := list.IndexOf(2)
+	if index != 1 {
+		t.Errorf("Expected index of 2 to be 1, but got %v", index)
+	}
+
+	index = list.IndexOf(4)
+	if index != -1 {
+		t.Errorf("Expected index of 4 to be -1, but got %v", index)
 	}
 }
