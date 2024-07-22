@@ -20,19 +20,25 @@ import (
 )
 
 const (
-	errListNotEmpty = "Expected list to be empty, but it was not"
-	errListIsEmpty  = "Expected list to not be empty, but it was"
+	errListNotEmpty        = "Expected list to be empty, but it was not"
+	errListIsEmpty         = "Expected list to not be empty, but it was"
+	errExpectedIndex       = "Expected index %d, but got %d"
+	errExpectedSliceLength = "Expected slice length %d, but got %d"
+	errExpectedNoError     = "Expected no error, but got %v"
+	errExpectedErr         = "Expected an error, but got nil"
+	errExpectedSliceElem   = "Expected slice element %d to be %d, but got %d"
+	errExpectedNodeValue   = "Expected node value to be %v, but got %v"
 )
 
 func TestNew(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	if list == nil {
 		t.Error("Expected list to be initialized, but got nil")
 	}
 }
 
 func TestAppend(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -43,7 +49,7 @@ func TestAppend(t *testing.T) {
 }
 
 func TestPrepend(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -54,7 +60,7 @@ func TestPrepend(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -63,7 +69,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRemoveEmpty(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Remove(1)
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -71,14 +77,14 @@ func TestRemoveEmpty(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
 	}
 }
 
 func TestIsEmptyAfterAppend(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -86,7 +92,7 @@ func TestIsEmptyAfterAppend(t *testing.T) {
 }
 
 func TestIsEmptyAfterPrepend(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -94,7 +100,7 @@ func TestIsEmptyAfterPrepend(t *testing.T) {
 }
 
 func TestIsEmptyAfterRemove(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -106,7 +112,7 @@ func TestIsEmptyAfterRemove(t *testing.T) {
 }
 
 func TestToSlice(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -115,18 +121,18 @@ func TestToSlice(t *testing.T) {
 	expected := []int{1, 2, 3}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestReverse(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -137,18 +143,18 @@ func TestReverse(t *testing.T) {
 	expected := []int{3, 2, 1}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestReverseEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	list.Reverse()
 
@@ -158,7 +164,7 @@ func TestReverseEmptyList(t *testing.T) {
 }
 
 func TestReverseSingleElementList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 
 	list.Reverse()
@@ -167,18 +173,18 @@ func TestReverseSingleElementList(t *testing.T) {
 	expected := []int{1}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestGetFirst(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -192,7 +198,7 @@ func TestGetFirst(t *testing.T) {
 }
 
 func TestGetLast(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -206,7 +212,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestGetLastEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	last := list.GetLast()
 	if last != nil {
@@ -215,7 +221,7 @@ func TestGetLastEmptyList(t *testing.T) {
 }
 
 func TestGetAt(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -223,191 +229,191 @@ func TestGetAt(t *testing.T) {
 	// Test getting a valid index
 	node, err := list.GetAt(1)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 	if node.Value != 2 {
-		t.Errorf("Expected node value to be 2, but got %v", node.Value)
+		t.Errorf(errExpectedNodeValue, 2, node.Value)
 	}
 
 	// Test getting an index out of bounds
 	_, err = list.GetAt(3)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestInsertAt(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.InsertAt(1, 4)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 
 	slice := list.ToSlice()
 	expected := []int{1, 4, 2, 3}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestInsertAtNegativeIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.InsertAt(-1, 4)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestInsertAtOutOfBoundsIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.InsertAt(4, 4)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestInsertAtZeroIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.InsertAt(0, 4)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 
 	slice := list.ToSlice()
 	expected := []int{4, 1, 2, 3}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestInsertAtEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	err := list.InsertAt(0, 1)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 
 	slice := list.ToSlice()
 	expected := []int{1}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestDeleteAt(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.DeleteAt(1)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 
 	slice := list.ToSlice()
 	expected := []int{1, 3}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestDeleteAtNegativeIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.DeleteAt(-1)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestDeleteAtOutOfBoundsIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.DeleteAt(3)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestDeleteAtZeroIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
 
 	err := list.DeleteAt(0)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 
 	slice := list.ToSlice()
 	expected := []int{2, 3}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestDeleteAtEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	err := list.DeleteAt(0)
 	if err == nil {
@@ -420,7 +426,7 @@ func TestDeleteAtEmptyList(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -436,7 +442,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -471,12 +477,12 @@ func TestCopy(t *testing.T) {
 }
 
 func TestMerge(t *testing.T) {
-	list1 := New[int]()
+	list1 := NewLinkList[int]()
 	list1.Append(1)
 	list1.Append(2)
 	list1.Append(3)
 
-	list2 := New[int]()
+	list2 := NewLinkList[int]()
 	list2.Append(4)
 	list2.Append(5)
 	list2.Append(6)
@@ -487,12 +493,12 @@ func TestMerge(t *testing.T) {
 	slice := list1.ToSlice()
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 
@@ -503,7 +509,7 @@ func TestMerge(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -517,18 +523,18 @@ func TestMap(t *testing.T) {
 	expected := []int{1, 4, 9}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestMapEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	// Test mapping an empty list
 	list.Map(func(value int) int {
@@ -541,7 +547,7 @@ func TestMapEmptyList(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -557,18 +563,18 @@ func TestFilter(t *testing.T) {
 	expected := []int{1, 3, 5}
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 }
 
 func TestFilterEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	// Filter on an empty list
 	list.Filter(func(value int) bool {
@@ -581,7 +587,7 @@ func TestFilterEmptyList(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -603,7 +609,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Test reducing an empty list
-	emptyList := New[int]()
+	emptyList := NewLinkList[int]()
 	result := emptyList.Reduce(func(a, b int) int {
 		return a + b
 	}, 0)
@@ -613,7 +619,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -654,7 +660,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestAny(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -676,7 +682,7 @@ func TestAny(t *testing.T) {
 	}
 
 	// Test with an empty list
-	emptyList := New[int]()
+	emptyList := NewLinkList[int]()
 	any = emptyList.Any(func(value int) bool {
 		return value > 0
 	})
@@ -686,7 +692,7 @@ func TestAny(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(-2)
 	list.Append(4)
 	list.Append(6)
@@ -708,7 +714,7 @@ func TestAll(t *testing.T) {
 	}
 
 	// Test with an empty list
-	emptyList := New[int]()
+	emptyList := NewLinkList[int]()
 	allEmpty := emptyList.All(func(value int) bool {
 		return value == 0
 	})
@@ -718,7 +724,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -734,14 +740,14 @@ func TestContains(t *testing.T) {
 	}
 
 	// Test when the list is empty
-	emptyList := New[int]()
+	emptyList := NewLinkList[int]()
 	if emptyList.Contains(1) {
 		t.Error("Expected empty list to not contain any value")
 	}
 }
 
 func TestIndexOf(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -761,7 +767,7 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestIndexOfEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	// Test finding a value in an empty list
 	index := list.IndexOf(1)
@@ -771,7 +777,7 @@ func TestIndexOfEmptyList(t *testing.T) {
 }
 
 func TestLastIndexOf(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -782,30 +788,30 @@ func TestLastIndexOf(t *testing.T) {
 	expected := 3
 
 	if index != expected {
-		t.Errorf("Expected index %d, but got %d", expected, index)
+		t.Errorf(errExpectedIndex, expected, index)
 	}
 
 	index = list.LastIndexOf(5)
 	expected = -1
 
 	if index != expected {
-		t.Errorf("Expected index %d, but got %d", expected, index)
+		t.Errorf(errExpectedIndex, expected, index)
 	}
 }
 
 func TestLastIndexOfEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	index := list.LastIndexOf(1)
 	expected := -1
 
 	if index != expected {
-		t.Errorf("Expected index %d, but got %d", expected, index)
+		t.Errorf(errExpectedIndex, expected, index)
 	}
 }
 
 func TestFindIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -830,7 +836,7 @@ func TestFindIndex(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -855,7 +861,7 @@ func TestFindLastIndex(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -900,7 +906,7 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindLast(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -910,12 +916,12 @@ func TestFindLast(t *testing.T) {
 		return value == 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 	if node == nil {
 		t.Error("Expected node to be non-nil")
 	} else if node.Value != 2 {
-		t.Errorf("Expected node value to be 2, but got %v", node.Value)
+		t.Errorf(errExpectedNodeValue, 2, node.Value)
 	}
 
 	// Test finding a value that doesn't exist
@@ -923,12 +929,12 @@ func TestFindLast(t *testing.T) {
 		return value == 4
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestFindAllIndexes(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -972,7 +978,7 @@ func TestFindAllIndexes(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -980,25 +986,25 @@ func TestFind(t *testing.T) {
 	// Test finding a value that exists in the list
 	node, err := list.Find(2)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errExpectedNoError, err)
 	}
 	if node.Value != 2 {
-		t.Errorf("Expected node value to be 2, but got %v", node.Value)
+		t.Errorf(errExpectedNodeValue, 2, node.Value)
 	}
 
 	// Test finding a value that doesn't exist in the list
 	_, err = list.Find(4)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
 func TestFindEmptyList(t *testing.T) {
-	list := New[int]()
+	list := NewLinkList[int]()
 
 	// Test finding a value in an empty list
 	_, err := list.Find(1)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }

@@ -32,7 +32,7 @@ type Stack[T comparable] struct {
 }
 
 // New creates a new Stack.
-func New[T comparable]() *Stack[T] {
+func NewStack[T comparable]() *Stack[T] {
 	return &Stack[T]{}
 }
 
@@ -119,7 +119,7 @@ func (s *Stack[T]) Contains(item T) bool {
 
 // Copy returns a new Stack with the same items.
 func (s *Stack[T]) Copy() *Stack[T] {
-	stack := New[T]()
+	stack := NewStack[T]()
 	for _, item := range s.items {
 		stack.Push(item)
 	}
@@ -203,7 +203,7 @@ func (s *Stack[T]) Filter(predicate func(T) bool) {
 
 // Map creates a new stack with the results of applying the function to each item.
 func (s *Stack[T]) Map(fn func(T) T) *Stack[T] {
-	stack := New[T]()
+	stack := NewStack[T]()
 	for _, item := range s.items {
 		stack.Push(fn(item))
 	}

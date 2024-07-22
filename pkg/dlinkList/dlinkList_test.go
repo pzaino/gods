@@ -21,12 +21,14 @@ import (
 )
 
 const (
-	errListNotEmpty = "Expected list to be empty, but it was not"
-	errListIsEmpty  = "Expected list to not be empty, but it was"
-	errWrongSize    = "Expected list to have size %v, but got %v"
-	errNoError      = "Expected no error, but got %v"
-	errYesError     = "Expected an error, but got nil"
-	errWrongValue   = "Expected value to be %v, but got %v"
+	errListNotEmpty    = "Expected list to be empty, but it was not"
+	errListIsEmpty     = "Expected list to not be empty, but it was"
+	errWrongSize       = "Expected list to have size %v, but got %v"
+	errNoError         = "Expected no error, but got %v"
+	errYesError        = "Expected an error, but got nil"
+	errWrongValue      = "Expected value to be %v, but got %v"
+	errExpectedX       = "Expected %v, but got %v"
+	errExpectedValToBe = "Expected value at index %d to be %v, but got %v"
 )
 
 func TestNew(t *testing.T) {
@@ -93,7 +95,7 @@ func TestIsEmptyAfterAppend(t *testing.T) {
 func TestSize(t *testing.T) {
 	list := New[int]()
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+		t.Errorf(errWrongSize, 0, list.Size())
 	}
 	list.Append(1)
 	if list.Size() != 1 {
@@ -199,7 +201,7 @@ func TestInsertAt(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 }
 
@@ -235,26 +237,27 @@ func TestInsertAtHead(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 0 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 2, item.Value)
 	}
 }
 
 func TestInsertAtTail(t *testing.T) {
 	list := New[int]()
 	list.Append(1)
-	err := list.InsertAt(1, 2)
+	list.Append(2)
+	err := list.InsertAt(2, 2)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+	if list.Size() != 3 {
+		t.Errorf(errWrongSize, 3, list.Size())
 	}
-	item, err := list.GetAt(1)
+	item, err := list.GetAt(2)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 }
 
@@ -267,14 +270,14 @@ func TestInsertAtMiddle(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if list.Size() != 3 {
-		t.Errorf("Expected list to have size 3, but got %v", list.Size())
+		t.Errorf(errWrongSize, 3, list.Size())
 	}
 	item, err := list.GetAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 }
 
@@ -282,20 +285,19 @@ func TestRemoveAt(t *testing.T) {
 	list := New[int]()
 	list.Append(1)
 	list.Append(2)
-	list.Append(3)
 	err := list.RemoveAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+	if list.Size() != 1 {
+		t.Errorf(errWrongSize, 2, list.Size())
 	}
-	item, err := list.GetAt(1)
+	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	if item.Value != 3 {
-		t.Errorf("Expected value at index 1 to be 3, but got %v", item.Value)
+	if item.Value != 1 {
+		t.Errorf(errExpectedValToBe, 1, 3, item.Value)
 	}
 }
 
@@ -325,14 +327,14 @@ func TestRemoveAtHead(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 0 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 2, item.Value)
 	}
 }
 
@@ -345,14 +347,14 @@ func TestRemoveAtTail(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -366,14 +368,14 @@ func TestRemoveAtMiddle(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+		t.Errorf(errWrongSize, 2, list.Size())
 	}
 	item, err := list.GetAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 3 {
-		t.Errorf("Expected value at index 1 to be 3, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 3, item.Value)
 	}
 }
 
@@ -388,21 +390,21 @@ func TestReverse(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 3 {
-		t.Errorf("Expected value at index 0 to be 3, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 3, item.Value)
 	}
 	item, err = list.GetAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 	item, err = list.GetAt(2)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 2 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 2, 1, item.Value)
 	}
 }
 
@@ -423,7 +425,7 @@ func TestReverseSingle(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -437,14 +439,14 @@ func TestReverseDouble(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 0 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 2, item.Value)
 	}
 	item, err = list.GetAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 1 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 1, item.Value)
 	}
 }
 
@@ -459,21 +461,21 @@ func TestReverseTriple(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 3 {
-		t.Errorf("Expected value at index 0 to be 3, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 3, item.Value)
 	}
 	item, err = list.GetAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 	item, err = list.GetAt(2)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 2 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 2, 1, item.Value)
 	}
 }
 
@@ -496,7 +498,7 @@ func TestCopy(t *testing.T) {
 			t.Errorf(errNoError, err)
 		}
 		if item.Value != newItem.Value {
-			t.Errorf("Expected value at index %v to be %v, but got %v", i, item.Value, newItem.Value)
+			t.Errorf(errExpectedValToBe, i, item.Value, newItem.Value)
 		}
 	}
 }
@@ -512,7 +514,7 @@ func TestMerge(t *testing.T) {
 	newList.Append(6)
 	list.Merge(newList)
 	if list.Size() != 6 {
-		t.Errorf("Expected list to have size 6, but got %v", list.Size())
+		t.Errorf(errWrongSize, 6, list.Size())
 	}
 	for i := 0; i < list.Size(); i++ {
 		item, err := list.GetAt(i)
@@ -520,7 +522,7 @@ func TestMerge(t *testing.T) {
 			t.Errorf(errNoError, err)
 		}
 		if item.Value != i+1 {
-			t.Errorf("Expected value at index %v to be %v, but got %v", i, i+1, item.Value)
+			t.Errorf(errExpectedValToBe, i, i+1, item.Value)
 		}
 	}
 }
@@ -540,14 +542,14 @@ func TestMergeEmptyList(t *testing.T) {
 	newList := New[int]()
 	list.Merge(newList)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -557,14 +559,14 @@ func TestMergeEmptyList2(t *testing.T) {
 	newList.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -574,14 +576,14 @@ func TestMergeEmptyList3(t *testing.T) {
 	list.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -591,14 +593,14 @@ func TestMergeEmptyList4(t *testing.T) {
 	newList.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -608,14 +610,14 @@ func TestMergeEmptyList5(t *testing.T) {
 	list.Append(1)
 	newList.Merge(list)
 	if newList.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", newList.Size())
+		t.Errorf(errWrongSize, 1, newList.Size())
 	}
 	item, err := newList.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -625,14 +627,14 @@ func TestMergeEmptyList6(t *testing.T) {
 	newList.Append(1)
 	newList.Merge(list)
 	if newList.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", newList.Size())
+		t.Errorf(errWrongSize, 1, newList.Size())
 	}
 	item, err := newList.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -683,14 +685,14 @@ func TestMergeEmptyList11(t *testing.T) {
 	list.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -700,14 +702,14 @@ func TestMergeEmptyList12(t *testing.T) {
 	newList.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -717,14 +719,14 @@ func TestMergeEmptyList13(t *testing.T) {
 	list.Append(1)
 	newList.Merge(list)
 	if newList.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", newList.Size())
+		t.Errorf(errWrongSize, 1, newList.Size())
 	}
 	item, err := newList.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -734,14 +736,14 @@ func TestMergeEmptyList14(t *testing.T) {
 	newList.Append(1)
 	newList.Merge(list)
 	if newList.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", newList.Size())
+		t.Errorf(errWrongSize, 1, newList.Size())
 	}
 	item, err := newList.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -907,7 +909,7 @@ func TestFind(t *testing.T) {
 	// Test case 1: Value exists in the list
 	node, err := list.Find(2)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if node.Value != 2 {
 		t.Errorf("Expected value to be 2, but got %v", node.Value)
@@ -916,7 +918,7 @@ func TestFind(t *testing.T) {
 	// Test case 2: Value does not exist in the list
 	_, err = list.Find(4)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
@@ -929,7 +931,7 @@ func TestDelete(t *testing.T) {
 	// Test deleting a value that exists in the list
 	list.Delete(2)
 	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+		t.Errorf(errWrongSize, 2, list.Size())
 	}
 	if list.Contains(2) {
 		t.Error("Expected list to not contain value 2")
@@ -938,13 +940,13 @@ func TestDelete(t *testing.T) {
 	// Test deleting a value that doesn't exist in the list
 	list.Delete(4)
 	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+		t.Errorf(errWrongSize, 2, list.Size())
 	}
 
 	// Test deleting the first value in the list
 	list.Delete(1)
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 	if list.Contains(1) {
 		t.Error("Expected list to not contain value 1")
@@ -953,7 +955,7 @@ func TestDelete(t *testing.T) {
 	// Test deleting the last value in the list
 	list.Delete(3)
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+		t.Errorf(errWrongSize, 0, list.Size())
 	}
 	if list.Contains(3) {
 		t.Error("Expected list to not contain value 3")
@@ -964,7 +966,7 @@ func TestDeleteEmpty(t *testing.T) {
 	list := New[int]()
 	list.Delete(1)
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+		t.Errorf(errWrongSize, 0, list.Size())
 	}
 }
 
@@ -973,14 +975,14 @@ func TestInsertEmpty(t *testing.T) {
 
 	err := list.Insert(1)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 
 	expected := []int{1}
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -996,7 +998,7 @@ func TestInsertAfter(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1012,7 +1014,7 @@ func TestInsertAfterNotFound(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1028,7 +1030,7 @@ func TestInsertBefore(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1044,7 +1046,7 @@ func TestInsertBeforeNotFound(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1056,7 +1058,7 @@ func TestDeleteLast(t *testing.T) {
 
 	list.DeleteLast()
 	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+		t.Errorf(errWrongSize, 2, list.Size())
 	}
 
 	item, err := list.GetAt(1)
@@ -1064,12 +1066,12 @@ func TestDeleteLast(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 
 	list.DeleteLast()
 	if list.Size() != 1 {
-		t.Errorf("Expected list to have size 1, but got %v", list.Size())
+		t.Errorf(errWrongSize, 1, list.Size())
 	}
 
 	item, err = list.GetAt(0)
@@ -1077,12 +1079,12 @@ func TestDeleteLast(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 0 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 
 	list.DeleteLast()
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have size 0, but got %v", list.Size())
+		t.Errorf(errWrongSize, 0, list.Size())
 	}
 
 	if !list.IsEmpty() {
@@ -1107,7 +1109,7 @@ func TestDeleteFirst(t *testing.T) {
 	list.DeleteFirst()
 
 	if list.Size() != 2 {
-		t.Errorf("Expected list to have size 2, but got %v", list.Size())
+		t.Errorf(errWrongSize, 2, list.Size())
 	}
 
 	if list.GetFirst().Value != 2 {
@@ -1125,7 +1127,7 @@ func TestToSliceReverse(t *testing.T) {
 	result := list.ToSliceReverse()
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1136,7 +1138,7 @@ func TestToSliceReverseEmpty(t *testing.T) {
 	result := list.ToSliceReverse()
 
 	if result != nil {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1148,7 +1150,7 @@ func TestToSliceReverseSingle(t *testing.T) {
 	result := list.ToSliceReverse()
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1161,7 +1163,7 @@ func TestToSliceReverseDouble(t *testing.T) {
 	result := list.ToSliceReverse()
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1176,7 +1178,7 @@ func TestToSliceReverseTriple(t *testing.T) {
 	result := list.ToSliceReverse()
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1221,42 +1223,42 @@ func TestToSliceReverseFromIndex(t *testing.T) {
 	expected := []int{5, 4, 3, 2, 1}
 	result := list.ToSliceReverseFromIndex(0)
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test from index 1
 	expected = []int{4, 3, 2, 1}
 	result = list.ToSliceReverseFromIndex(1)
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test from index 2
 	expected = []int{3, 2, 1}
 	result = list.ToSliceReverseFromIndex(2)
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test from index 3
 	expected = []int{2, 1}
 	result = list.ToSliceReverseFromIndex(3)
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test from index 4
 	expected = []int{1}
 	result = list.ToSliceReverseFromIndex(4)
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test from index 5 (out of bounds)
 	expected = []int{}
 	result = list.ToSliceReverseFromIndex(5)
 	if result != nil {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1552,7 +1554,7 @@ func TestReverseCopy(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 3 {
-		t.Errorf("Expected value at index 0 to be 3, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 0, 3, item.Value)
 	}
 
 	item, err = reverseCopy.GetAt(1)
@@ -1560,7 +1562,7 @@ func TestReverseCopy(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 2 {
-		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 
 	item, err = reverseCopy.GetAt(2)
@@ -1568,7 +1570,7 @@ func TestReverseCopy(t *testing.T) {
 		t.Errorf(errNoError, err)
 	}
 	if item.Value != 1 {
-		t.Errorf("Expected value at index 2 to be 1, but got %v", item.Value)
+		t.Errorf(errExpectedValToBe, 2, 1, item.Value)
 	}
 }
 
@@ -1589,7 +1591,7 @@ func TestReverseMerge(t *testing.T) {
 	actual := list1.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1607,7 +1609,7 @@ func TestReverseMergeEmptyList(t *testing.T) {
 	actual := list1.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1622,7 +1624,7 @@ func TestReverseMergeEmptyLists(t *testing.T) {
 	actual := list1.ToSlice()
 
 	if actual != nil {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1678,7 +1680,7 @@ func TestSwap(t *testing.T) {
 	expected := []int{3, 2, 1}
 	actual := list.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 
 	// Swap nodes at index 1 and 1 (same index)
@@ -1691,20 +1693,20 @@ func TestSwap(t *testing.T) {
 	expected = []int{3, 2, 1}
 	actual = list.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 
 	// Swap nodes at out-of-bound indices
 	err = list.Swap(-1, 3)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 
 	// Verify the values after swapping (no change)
 	expected = []int{3, 2, 1}
 	actual = list.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1724,7 +1726,7 @@ func TestSort(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1752,7 +1754,7 @@ func TestSortSingle(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1770,7 +1772,7 @@ func TestSortAlreadySorted(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1788,7 +1790,7 @@ func TestSortDescendingOrder(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1815,7 +1817,7 @@ func TestSortCustomType(t *testing.T) {
 	actual := list.ToSlice()
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -1856,7 +1858,7 @@ func TestFindLast(t *testing.T) {
 		return value == 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if node.Value != 2 {
 		t.Errorf("Expected value to be 2, but got %v", node.Value)
@@ -1867,7 +1869,7 @@ func TestFindLast(t *testing.T) {
 		return value == 4
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 

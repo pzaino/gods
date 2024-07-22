@@ -34,8 +34,8 @@ type CSStack[T comparable] struct {
 	items []T
 }
 
-// CSStackNew creates a new CSStack.
-func CSStackNew[T comparable]() *CSStack[T] {
+// NewCSStack creates a new CSStack.
+func NewCSStack[T comparable]() *CSStack[T] {
 	return &CSStack[T]{}
 }
 
@@ -84,7 +84,7 @@ func (s *CSStack[T]) ToSlice() []T {
 
 // ToStack converts a CSStack to a Stack.
 func (s *CSStack[T]) ToStack() *stack.Stack[T] {
-	ns := stack.New[T]()
+	ns := stack.NewStack[T]()
 	for _, item := range s.ToSlice() {
 		ns.Push(item)
 	}
@@ -169,7 +169,7 @@ func (s *CSStack[T]) Copy() *CSStack[T] {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	stack := CSStackNew[T]()
+	stack := NewCSStack[T]()
 	for _, item := range s.items {
 		stack.Push(item)
 	}
@@ -286,7 +286,7 @@ func (s *CSStack[T]) Map(fn func(T) T) *CSStack[T] {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	stack := CSStackNew[T]()
+	stack := NewCSStack[T]()
 	for _, item := range s.items {
 		stack.Push(fn(item))
 	}

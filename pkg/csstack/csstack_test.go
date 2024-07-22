@@ -23,7 +23,7 @@ import (
 
 // TestCSStack tests the CSStack type.
 func TestCSStack(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	if !s.IsEmpty() {
 		t.Errorf("IsEmpty() = false; want true")
@@ -80,7 +80,7 @@ func TestCSStack(t *testing.T) {
 
 // TestCSStackTop tests the CSStack Top method.
 func TestCSStackTop(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	_, err := s.Top()
 	if err == nil {
@@ -102,7 +102,7 @@ func TestCSStackTop(t *testing.T) {
 
 // TestCSStackPeek tests the CSStack Peek method.
 func TestCSStackPeek(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	_, err := s.Peek()
 	if err == nil {
@@ -124,7 +124,7 @@ func TestCSStackPeek(t *testing.T) {
 
 // TestCSStackSize tests the CSStack Size method.
 func TestCSStackSize(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	if size := s.Size(); size != 0 {
 		t.Errorf("Size() = %v; want 0", size)
@@ -141,7 +141,7 @@ func TestCSStackSize(t *testing.T) {
 
 // TestCSStackClear tests the CSStack Clear method.
 func TestCSStackClear(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	s.Push(1)
 	s.Push(2)
@@ -156,7 +156,7 @@ func TestCSStackClear(t *testing.T) {
 
 // TestCSStackContains tests the CSStack Contains method.
 func TestCSStackContains(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	if contains := s.Contains(1); contains {
 		t.Errorf("Contains() = true; want false")
@@ -173,7 +173,7 @@ func TestCSStackContains(t *testing.T) {
 
 // TestCSStackCopy tests the CSStack Copy method.
 func TestCSStackCopy(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	s.Push(1)
 	s.Push(2)
@@ -216,8 +216,8 @@ func TestCSStackCopy(t *testing.T) {
 
 // TestCSStackEqual tests the CSStack Equal method.
 func TestCSStackEqual(t *testing.T) {
-	s1 := CSStackNew[int]()
-	s2 := CSStackNew[int]()
+	s1 := NewCSStack[int]()
+	s2 := NewCSStack[int]()
 
 	if equal := s1.Equal(s2); !equal {
 		t.Errorf("Equal() = false; want true")
@@ -242,7 +242,7 @@ func TestCSStackEqual(t *testing.T) {
 
 // TestCSStackString tests the CSStack String method.
 func TestCSStackString(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	if str := s.String(); str != "[]" {
 		t.Errorf("String() = %v; want []", str)
@@ -259,7 +259,7 @@ func TestCSStackString(t *testing.T) {
 
 // TestCSStackConcurrent tests the CSStack type in a concurrent environment.
 func TestCSStackConcurrent(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	const n = 100
 	const m = 10
@@ -314,7 +314,7 @@ func TestCSStackConcurrent(t *testing.T) {
 
 // TestCSStackPopN tests the CSStack PopN method.
 func TestCSStackPopN(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	_, err := s.PopN(1)
 	if err == nil {
@@ -363,7 +363,7 @@ func TestCSStackPopN(t *testing.T) {
 
 // TestCSStackPushN tests the CSStack PushN method.
 func TestCSStackPushN(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	s.PushN(1, 2, 3)
 
@@ -402,7 +402,7 @@ func TestCSStackPushN(t *testing.T) {
 
 // TestCSStackPopAll tests the CSStack PopAll method.
 func TestCSStackPopAll(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	items := s.PopAll()
 	if len(items) != 0 {
@@ -434,7 +434,7 @@ func TestCSStackPopAll(t *testing.T) {
 
 // TestCSStackPushAll tests the CSStack PushAll method.
 func TestCSStackPushAll(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	items := []int{1, 2, 3}
 	s.PushAll(items)
@@ -474,7 +474,7 @@ func TestCSStackPushAll(t *testing.T) {
 
 // TestCSStackFilter tests the CSStack Filter method.
 func TestCSStackFilter(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test filtering an empty stack
 	s.Filter(func(item int) bool {
@@ -503,7 +503,7 @@ func TestCSStackFilter(t *testing.T) {
 
 // TestCSStackMap tests the CSStack Map method.
 func TestCSStackMap(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	s.Push(1)
 	s.Push(2)
@@ -542,7 +542,7 @@ func TestCSStackMap(t *testing.T) {
 
 // TestCSStackReduce tests the CSStack Reduce method.
 func TestCSStackReduce(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test reducing an empty stack
 	_, err := s.Reduce(func(a, b int) int { return a + b })
@@ -584,7 +584,7 @@ func TestCSStackReduce(t *testing.T) {
 
 // TestCSStackForEach tests the CSStack ForEach method.
 func TestCSStackForEach(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test ForEach on an empty stack
 	s.ForEach(func(item *int) {
@@ -608,7 +608,7 @@ func TestCSStackForEach(t *testing.T) {
 
 // TestCSStackAny tests the CSStack Any method.
 func TestCSStackAny(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test with an empty stack
 	any := s.Any(func(item int) bool {
@@ -640,7 +640,7 @@ func TestCSStackAny(t *testing.T) {
 
 // TestCSStackAll tests the CSStack All method.
 func TestCSStackAll(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test with an empty stack
 	if all := s.All(func(item int) bool {
@@ -677,7 +677,7 @@ func TestCSStackAll(t *testing.T) {
 
 // TestCSStackFind tests the CSStack Find method.
 func TestCSStackFind(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test finding an item in an empty stack
 	item, err := s.Find(func(i int) bool {
@@ -719,7 +719,7 @@ func TestCSStackFind(t *testing.T) {
 
 // TestCSStackFindIndex tests the CSStack FindIndex method.
 func TestCSStackFindIndex(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test finding an item in an empty stack
 	index, err := s.FindIndex(func(item int) bool {
@@ -761,7 +761,7 @@ func TestCSStackFindIndex(t *testing.T) {
 
 // TestCSStackFindLast tests the CSStack FindLast method.
 func TestCSStackFindLast(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test finding in an empty stack
 	item, err := s.FindLast(func(i int) bool {
@@ -803,7 +803,7 @@ func TestCSStackFindLast(t *testing.T) {
 
 // TestCSStackFindLastIndex tests the CSStack FindLastIndex method.
 func TestCSStackFindLastIndex(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test finding the last index of an item in an empty stack
 	index, err := s.FindLastIndex(func(item int) bool {
@@ -845,7 +845,7 @@ func TestCSStackFindLastIndex(t *testing.T) {
 
 // TestCSStackFindAll tests the CSStack FindAll method.
 func TestCSStackFindAll(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test finding all items in an empty stack
 	items := s.FindAll(func(item int) bool {
@@ -884,7 +884,7 @@ func TestCSStackFindAll(t *testing.T) {
 
 // TestCSStackFindIndices tests the CSStack FindIndices method.
 func TestCSStackFindIndices(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test finding indices in an empty stack
 	indices := s.FindIndices(func(item int) bool {
@@ -917,7 +917,7 @@ func TestCSStackFindIndices(t *testing.T) {
 }
 
 func TestCSStackToStack(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 	s.Push(1)
 	s.Push(2)
 	s.Push(3)
@@ -959,7 +959,7 @@ func TestCSStackToStack(t *testing.T) {
 
 // TestCSStackReverse tests the CSStack Reverse method.
 func TestCSStackReverse(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test reversing an empty stack
 	s.Reverse()
@@ -1014,7 +1014,7 @@ func TestCSStackReverse(t *testing.T) {
 
 // TestCSStackSwap tests the CSStack Swap method.
 func TestCSStackSwap(t *testing.T) {
-	s := CSStackNew[int]()
+	s := NewCSStack[int]()
 
 	// Test swapping an empty stack
 	err := s.Swap()

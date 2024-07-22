@@ -33,7 +33,7 @@ type LinkList[T comparable] struct {
 }
 
 // New creates a new LinkList
-func New[T comparable]() *LinkList[T] {
+func NewLinkList[T comparable]() *LinkList[T] {
 	return &LinkList[T]{}
 }
 
@@ -266,7 +266,7 @@ func (l *LinkList[T]) Clear() {
 
 // Copy returns a copy of the list
 func (l *LinkList[T]) Copy() *LinkList[T] {
-	newList := New[T]()
+	newList := NewLinkList[T]()
 
 	current := l.Head
 	for current != nil {
@@ -442,7 +442,7 @@ func (l *LinkList[T]) FindLastIndex(f func(T) bool) int {
 
 // FindAll returns all nodes that match the predicate
 func (l *LinkList[T]) FindAll(f func(T) bool) *LinkList[T] {
-	newList := New[T]()
+	newList := NewLinkList[T]()
 
 	current := l.Head
 	for current != nil {

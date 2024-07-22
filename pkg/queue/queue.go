@@ -17,6 +17,7 @@ package queue
 
 import (
 	"errors"
+	"strings"
 )
 
 // Queue is a FIFO data structure
@@ -25,7 +26,7 @@ type Queue[T comparable] struct {
 }
 
 // New creates a new Queue
-func New[T comparable]() *Queue[T] {
+func NewQueue[T comparable]() *Queue[T] {
 	return &Queue[T]{}
 }
 
@@ -99,10 +100,8 @@ func (q *Queue[T]) Equals(other *Queue[T]) bool {
 
 // Copy returns a copy of the queue
 func (q *Queue[T]) Copy() *Queue[T] {
-	copy := New[T]()
-	for _, e := range q.data {
-		copy.Enqueue(e)
-	}
+	copy := NewQueue[T]()
+	copy.data = append(copy.data, q.data...)
 	return copy
 }
 
@@ -112,25 +111,148 @@ func (q *Queue[T]) String(f func(T) string) string {
 }
 
 func (q *Queue[T]) dataString(f func(T) string) string {
-	str := "["
+	var sb strings.Builder
+	sb.WriteString("[")
 	for i, e := range q.data {
-		str += f(e)
+		sb.WriteString(f(e))
 		if i < len(q.data)-1 {
-			str += ", "
+			sb.WriteString(", ")
 		}
 	}
-	str += "]"
-	return str
+	sb.WriteString("]")
+	return sb.String()
 }
 
-// StringWithFormat returns a string representation of the queue using a custom format
-func (q *Queue[T]) StringWithFormat(format func(T) string) string {
-	return q.dataString(format)
+// Map applies the function to all the elements in the queue
+func (q *Queue[T]) Map(f func(T) T) {
+	for i, e := range q.data {
+		q.data[i] = f(e)
+	}
 }
 
-// StringWithFormatAndSeparator returns a string representation of the queue using a custom format and separator
-func (q *Queue[T]) StringWithFormatAndSeparator(format func(T) string, separator string) string {
-	return q.dataString(func(e T) string {
-		return format(e) + separator
-	})
+// Filter removes elements from the queue that don't match the predicate
+func (q *Queue[T]) Filter(f func(T) bool) {
+	var newData []T
+	for _, e := range q.data {
+		if f(e) {
+			newData = append(newData, e)
+		}
+	}
+	q.data = newData
+}
+
+// Reduce reduces the queue to a single value
+func (q *Queue[T]) Reduce(f func(T, T) T, initial T) T {
+	result := initial
+	for _, e := range q.data {
+		result = f(result, e)
+	}
+	return result
+}
+
+// ForEach applies the function to all the elements in the queue
+func (q *Queue[T]) ForEach(f func(*T)) {
+	for i := range q.data {
+		f(&q.data[i])
+	}
+}
+
+// Any checks if any element in the queue matches the predicate
+func (q *Queue[T]) Any(f func(T) bool) bool {
+	for _, e := range q.data {
+		if f(e) {
+			return true
+		}
+	}
+	return false
+}
+
+// All checks if all elements in the queue match the predicate
+func (q *Queue[T]) All(f func(T) bool) bool {
+	for _, e := range q.data {
+		if !f(e) {
+			return false
+		}
+	}
+	return true
+}
+
+// IndexOf returns the index of the first element with the given value
+func (q *Queue[T]) IndexOf(value T) int {
+	for i, e := range q.data {
+		if e == value {
+			return i
+		}
+	}
+	return -1
+}
+
+// LastIndexOf returns the index of the last element with the given value
+func (q *Queue[T]) LastIndexOf(value T) int {
+	index := -1
+	for i, e := range q.data {
+		if e == value {
+			index = i
+		}
+	}
+	return index
+}
+
+// FindIndex returns the index of the first element that matches the predicate
+func (q *Queue[T]) FindIndex(f func(T) bool) int {
+	for i, e := range q.data {
+		if f(e) {
+			return i
+		}
+	}
+	return -1
+}
+
+// FindLastIndex returns the index of the last element that matches the predicate
+func (q *Queue[T]) FindLastIndex(f func(T) bool) int {
+	index := -1
+	for i, e := range q.data {
+		if f(e) {
+			index = i
+		}
+	}
+	return index
+}
+
+// FindAll returns all elements that match the predicate
+func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
+	newQueue := NewQueue[T]()
+	for _, e := range q.data {
+		if f(e) {
+			newQueue.Enqueue(e)
+		}
+	}
+	return newQueue
+}
+
+// FindLast returns the last element that matches the predicate
+func (q *Queue[T]) FindLast(f func(T) bool) (T, error) {
+	var result T
+	found := false
+	for _, e := range q.data {
+		if f(e) {
+			result = e
+			found = true
+		}
+	}
+	if !found {
+		return result, errors.New("value not found")
+	}
+	return result, nil
+}
+
+// FindAllIndexes returns the indexes of all elements that match the predicate
+func (q *Queue[T]) FindAllIndexes(f func(T) bool) []int {
+	var result []int
+	for i, e := range q.data {
+		if f(e) {
+			result = append(result, i)
+		}
+	}
+	return result
 }
