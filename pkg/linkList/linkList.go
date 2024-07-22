@@ -32,7 +32,7 @@ type LinkList[T comparable] struct {
 	Head *Node[T]
 }
 
-// New creates a new LinkList
+// NewLinkList creates a new LinkList
 func NewLinkList[T comparable]() *LinkList[T] {
 	return &LinkList[T]{}
 }

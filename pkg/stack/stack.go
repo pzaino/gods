@@ -31,7 +31,7 @@ type Stack[T comparable] struct {
 	items []T
 }
 
-// New creates a new Stack.
+// NewStack creates a new Stack.
 func NewStack[T comparable]() *Stack[T] {
 	return &Stack[T]{}
 }

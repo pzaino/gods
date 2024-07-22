@@ -25,7 +25,7 @@ type Queue[T comparable] struct {
 	data []T
 }
 
-// New creates a new Queue
+// NewQueue creates a new Queue
 func NewQueue[T comparable]() *Queue[T] {
 	return &Queue[T]{}
 }

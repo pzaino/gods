@@ -36,8 +36,8 @@ type CSLinkList[T comparable] struct {
 	Head *Node[T]
 }
 
-// CSLinkListNew creates a new CSLinkList
-func CSLinkListNew[T comparable]() *CSLinkList[T] {
+// NewCSLinkList creates a new CSLinkList
+func NewCSLinkList[T comparable]() *CSLinkList[T] {
 	return &CSLinkList[T]{}
 }
 
@@ -311,7 +311,7 @@ func (l *CSLinkList[T]) Copy() *CSLinkList[T] {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	newList := CSLinkListNew[T]()
+	newList := NewCSLinkList[T]()
 	current := l.Head
 	for current != nil {
 		newList.Append(current.Value)
@@ -515,7 +515,7 @@ func (l *CSLinkList[T]) FindAll(f func(T) bool) *CSLinkList[T] {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	newList := CSLinkListNew[T]()
+	newList := NewCSLinkList[T]()
 	current := l.Head
 	for current != nil {
 		if f(current.Value) {

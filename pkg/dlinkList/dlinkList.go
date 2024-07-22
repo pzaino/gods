@@ -32,8 +32,8 @@ type DLinkList[T comparable] struct {
 	Tail *Node[T]
 }
 
-// New creates a new doubly linked list
-func New[T comparable]() *DLinkList[T] {
+// NewDLinkList creates a new doubly linked list
+func NewDLinkList[T comparable]() *DLinkList[T] {
 	return &DLinkList[T]{}
 }
 
@@ -507,7 +507,7 @@ func (l *DLinkList[T]) LastIndexOf(value T) int {
 
 // Filter returns a new doubly linked list containing only the nodes that satisfy the given function
 func (l *DLinkList[T]) Filter(f func(T) bool) *DLinkList[T] {
-	result := New[T]()
+	result := NewDLinkList[T]()
 
 	current := l.Head
 	for current != nil {
@@ -522,7 +522,7 @@ func (l *DLinkList[T]) Filter(f func(T) bool) *DLinkList[T] {
 
 // Map returns a new doubly linked list containing the result of applying the given function to each node
 func (l *DLinkList[T]) Map(f func(T) T) *DLinkList[T] {
-	result := New[T]()
+	result := NewDLinkList[T]()
 
 	current := l.Head
 	for current != nil {
@@ -552,7 +552,7 @@ func (l *DLinkList[T]) Reduce(f func(T, T) T) T {
 
 // Copy returns a new doubly linked list with the same nodes as the original doubly linked list
 func (l *DLinkList[T]) Copy() *DLinkList[T] {
-	newList := New[T]()
+	newList := NewDLinkList[T]()
 
 	current := l.Head
 	for current != nil {
@@ -577,7 +577,7 @@ func (l *DLinkList[T]) Merge(list *DLinkList[T]) {
 
 // ReverseCopy returns a new doubly linked list with the nodes of the original doubly linked list in reverse order
 func (l *DLinkList[T]) ReverseCopy() *DLinkList[T] {
-	newList := New[T]()
+	newList := NewDLinkList[T]()
 
 	current := l.Tail
 	for current != nil {
@@ -688,7 +688,7 @@ func partition[T comparable](nodes []*Node[T], f func(T, T) bool, low, high int)
 
 // FindAll returns a new doubly linked list containing all nodes that satisfy the given function
 func (l *DLinkList[T]) FindAll(f func(T) bool) *DLinkList[T] {
-	newList := New[T]()
+	newList := NewDLinkList[T]()
 
 	current := l.Head
 	for current != nil {

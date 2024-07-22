@@ -27,14 +27,14 @@ const (
 )
 
 func TestNew(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	if list == nil {
 		t.Error("Expected list to be initialized, but got nil")
 	}
 }
 
 func TestAppend(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -45,7 +45,7 @@ func TestAppend(t *testing.T) {
 }
 
 func TestPrepend(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -56,7 +56,7 @@ func TestPrepend(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -65,7 +65,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRemoveEmpty(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Remove(1)
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -73,14 +73,14 @@ func TestRemoveEmpty(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
 	}
 }
 
 func TestIsEmptyAfterAppend(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -88,7 +88,7 @@ func TestIsEmptyAfterAppend(t *testing.T) {
 }
 
 func TestIsEmptyAfterPrepend(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -96,7 +96,7 @@ func TestIsEmptyAfterPrepend(t *testing.T) {
 }
 
 func TestIsEmptyAfterRemove(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -110,7 +110,7 @@ func TestIsEmptyAfterRemove(t *testing.T) {
 // Test concurrent operations on the list
 
 func TestConcurrentAppend(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	var wg sync.WaitGroup
 
 	// Append 1000 items concurrently
@@ -130,7 +130,7 @@ func TestConcurrentAppend(t *testing.T) {
 }
 
 func TestConcurrentPrepend(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	var wg sync.WaitGroup
 
 	// Prepend 1000 items concurrently
@@ -150,7 +150,7 @@ func TestConcurrentPrepend(t *testing.T) {
 }
 
 func TestConcurrentDeleteWithValue(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Append 1000 items
 	for i := 0; i < 1000; i++ {
@@ -176,7 +176,7 @@ func TestConcurrentDeleteWithValue(t *testing.T) {
 }
 
 func TestInsertAt(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(3)
 
@@ -195,7 +195,7 @@ func TestInsertAt(t *testing.T) {
 }
 
 func TestInsertAtOutOfBounds(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 
@@ -214,7 +214,7 @@ func TestInsertAtOutOfBounds(t *testing.T) {
 }
 
 func TestInsertAtEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	err := list.InsertAt(0, 1)
 	if err != nil {
@@ -236,7 +236,7 @@ func TestInsertAtComplexObjects(t *testing.T) {
 		Age  int
 	}
 
-	list := CSLinkListNew[ComplexObject]()
+	list := NewCSLinkList[ComplexObject]()
 	list.Append(ComplexObject{"Alice", 25})
 	list.Append(ComplexObject{"Bob", 30})
 
@@ -268,7 +268,7 @@ func TestInsertAtComplexObjects(t *testing.T) {
 }
 
 func TestConcurrentInsertAt(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	var wg sync.WaitGroup
 
 	// Insert 1000 items at the beginning concurrently
@@ -291,7 +291,7 @@ func TestConcurrentInsertAt(t *testing.T) {
 }
 
 func TestConcurrentGetAt(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Append 1000 items
 	for i := 0; i < 1000; i++ {
@@ -324,7 +324,7 @@ func TestConcurrentGetAt(t *testing.T) {
 }
 
 func TestConcurrentClear(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Append 1000 items
 	for i := 0; i < 1000; i++ {
@@ -350,8 +350,8 @@ func TestConcurrentClear(t *testing.T) {
 }
 
 func TestConcurrentMerge(t *testing.T) {
-	list1 := CSLinkListNew[int]()
-	list2 := CSLinkListNew[int]()
+	list1 := NewCSLinkList[int]()
+	list2 := NewCSLinkList[int]()
 
 	// Append 500 items to each list
 	for i := 0; i < 500; i++ {
@@ -379,7 +379,7 @@ func TestConcurrentMerge(t *testing.T) {
 }
 
 func TestConcurrentFind(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Append 1000 items
 	for i := 0; i < 1000; i++ {
@@ -412,7 +412,7 @@ func TestConcurrentFind(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -429,7 +429,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestToSlice(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -449,7 +449,7 @@ func TestToSlice(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -463,7 +463,7 @@ func TestReverse(t *testing.T) {
 }
 
 func TestReverseEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	list.Reverse()
 
@@ -474,7 +474,7 @@ func TestReverseEmptyList(t *testing.T) {
 }
 
 func TestReverseConcurrent(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	const max = 100
 
@@ -511,7 +511,7 @@ func TestReverseConcurrent(t *testing.T) {
 }
 
 func TestGetFirst(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -525,7 +525,7 @@ func TestGetFirst(t *testing.T) {
 }
 
 func TestGetFirstEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	first := list.GetFirst()
 	if first != nil {
@@ -534,7 +534,7 @@ func TestGetFirstEmptyList(t *testing.T) {
 }
 
 func TestGetLast(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -548,7 +548,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestGetLastEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	last := list.GetLast()
 	if last != nil {
@@ -557,7 +557,7 @@ func TestGetLastEmptyList(t *testing.T) {
 }
 
 func TestDeleteAt(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -577,7 +577,7 @@ func TestDeleteAt(t *testing.T) {
 }
 
 func TestDeleteAtOutOfBounds(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -597,7 +597,7 @@ func TestDeleteAtOutOfBounds(t *testing.T) {
 }
 
 func TestDeleteAtEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	err := list.DeleteAt(0)
 	if err == nil {
@@ -610,7 +610,7 @@ func TestDeleteAtEmptyList(t *testing.T) {
 }
 
 func TestDeleteAtConcurrent(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	const max = 100
 
@@ -641,7 +641,7 @@ func TestDeleteAtConcurrent(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -667,7 +667,7 @@ func TestCopy(t *testing.T) {
 }
 
 func TestCopyEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	copyList := list.Copy()
 
@@ -678,7 +678,7 @@ func TestCopyEmptyList(t *testing.T) {
 }
 
 func TestCopyConcurrent(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	const max = 100
 
@@ -705,7 +705,7 @@ func TestCopyConcurrent(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -734,7 +734,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestMapEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Define the mapping function
 	mapFunc := func(value int) int {
@@ -751,7 +751,7 @@ func TestMapEmptyList(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -774,7 +774,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestFilterEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Filter on an empty list
 	list.Filter(func(value int) bool {
@@ -788,7 +788,7 @@ func TestFilterEmptyList(t *testing.T) {
 }
 
 func TestFilterAll(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -807,7 +807,7 @@ func TestFilterAll(t *testing.T) {
 }
 
 func TestFilterNone(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -831,7 +831,7 @@ func TestFilterNone(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -847,7 +847,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestReduceEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	sum := list.Reduce(func(acc, val int) int {
 		return acc + val
@@ -859,7 +859,7 @@ func TestReduceEmptyList(t *testing.T) {
 }
 
 func TestReduceWithInitialValue(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -875,7 +875,7 @@ func TestReduceWithInitialValue(t *testing.T) {
 }
 
 func TestReduceConcurrent(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	const max = 100
 
@@ -904,7 +904,7 @@ func TestReduceConcurrent(t *testing.T) {
 }
 
 func TestAny(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -934,7 +934,7 @@ func TestAny(t *testing.T) {
 	}
 
 	// Test with an empty list
-	emptyList := CSLinkListNew[int]()
+	emptyList := NewCSLinkList[int]()
 	emptyResult := emptyList.Any(func(value int) bool {
 		return true
 	})
@@ -944,7 +944,7 @@ func TestAny(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -974,7 +974,7 @@ func TestAll(t *testing.T) {
 	}
 
 	// Test with an empty list
-	emptyList := CSLinkListNew[int]()
+	emptyList := NewCSLinkList[int]()
 	emptyResult := emptyList.All(func(value int) bool {
 		return true
 	})
@@ -984,7 +984,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1001,7 +1001,7 @@ func TestContains(t *testing.T) {
 }
 
 func TestContainsEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Test for non-existing value in an empty list
 	if list.Contains(1) {
@@ -1010,7 +1010,7 @@ func TestContainsEmptyList(t *testing.T) {
 }
 
 func TestIndexOf(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1027,7 +1027,7 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestIndexOfEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	index := list.IndexOf(1)
 	if index != -1 {
@@ -1036,7 +1036,7 @@ func TestIndexOfEmptyList(t *testing.T) {
 }
 
 func TestIndexOfDuplicateValues(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(2)
@@ -1054,7 +1054,7 @@ func TestIndexOfDuplicateValues(t *testing.T) {
 }
 
 func TestLastIndexOf(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1074,7 +1074,7 @@ func TestLastIndexOf(t *testing.T) {
 }
 
 func TestLastIndexOfEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	index := list.LastIndexOf(1)
 	expectedIndex := -1
@@ -1084,7 +1084,7 @@ func TestLastIndexOfEmptyList(t *testing.T) {
 }
 
 func TestLastIndexOfConcurrent(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	const max = 100
 
@@ -1111,7 +1111,7 @@ func TestLastIndexOfConcurrent(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1142,7 +1142,7 @@ func TestFindIndex(t *testing.T) {
 	}
 
 	// Test case 4: FindIndex returns -1 for an empty list
-	emptyList := CSLinkListNew[int]()
+	emptyList := NewCSLinkList[int]()
 	index4 := emptyList.FindIndex(func(value int) bool {
 		return value == 1
 	})
@@ -1152,7 +1152,7 @@ func TestFindIndex(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1185,7 +1185,7 @@ func TestFindLastIndex(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1194,7 +1194,7 @@ func TestFindAll(t *testing.T) {
 	result1 := list.FindAll(func(value int) bool {
 		return value%2 == 0
 	})
-	expectedResult1 := CSLinkListNew[int]()
+	expectedResult1 := NewCSLinkList[int]()
 	expectedResult1.Append(2)
 	if !reflect.DeepEqual(result1.ToSlice(), expectedResult1.ToSlice()) {
 		t.Errorf("Expected result1 to be %v, but got %v", expectedResult1.ToSlice(), result1.ToSlice())
@@ -1204,7 +1204,7 @@ func TestFindAll(t *testing.T) {
 	result2 := list.FindAll(func(value int) bool {
 		return value > 3
 	})
-	expectedResult2 := CSLinkListNew[int]()
+	expectedResult2 := NewCSLinkList[int]()
 	if !reflect.DeepEqual(result2.ToSlice(), expectedResult2.ToSlice()) {
 		t.Errorf("Expected result2 to be %v, but got %v", expectedResult2.ToSlice(), result2.ToSlice())
 	}
@@ -1220,7 +1220,7 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindLast(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1251,7 +1251,7 @@ func TestFindLast(t *testing.T) {
 }
 
 func TestFindLastEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	// Test case: Find the last node in an empty list
 	node, err := list.FindLast(func(value int) bool {
@@ -1266,7 +1266,7 @@ func TestFindLastEmptyList(t *testing.T) {
 }
 
 func TestFindAllIndexes(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1292,7 +1292,7 @@ func TestFindAllIndexes(t *testing.T) {
 }
 
 func TestFindAllIndexesEmptyList(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 
 	indexes := list.FindAllIndexes(func(value int) bool {
 		return value == 2
@@ -1304,7 +1304,7 @@ func TestFindAllIndexesEmptyList(t *testing.T) {
 }
 
 func TestFindAllIndexesNoMatches(t *testing.T) {
-	list := CSLinkListNew[int]()
+	list := NewCSLinkList[int]()
 	list.Append(1)
 	list.Append(3)
 	list.Append(5)
