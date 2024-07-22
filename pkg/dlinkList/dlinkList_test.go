@@ -1372,3 +1372,571 @@ func TestIndexOf(t *testing.T) {
 		t.Errorf("Expected index of 4 to be -1, but got %v", index)
 	}
 }
+
+func TestLastIndexOf(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(2)
+	list.Append(4)
+
+	index := list.LastIndexOf(2)
+	if index != 3 {
+		t.Errorf("Expected last index of 2 to be 3, but got %v", index)
+	}
+
+	index = list.LastIndexOf(5)
+	if index != -1 {
+		t.Errorf("Expected last index of 5 to be -1, but got %v", index)
+	}
+
+	index = list.LastIndexOf(4)
+	if index != 4 {
+		t.Errorf("Expected last index of 4 to be 4, but got %v", index)
+	}
+}
+
+func TestFilter(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test filtering even numbers
+	filtered := list.Filter(func(value int) bool {
+		return value%2 == 0
+	})
+
+	expected := []int{2, 4}
+	actual := filtered.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected filtered list to be %v, but got %v", expected, actual)
+	}
+
+	// Test filtering odd numbers
+	filtered = list.Filter(func(value int) bool {
+		return value%2 != 0
+	})
+
+	expected = []int{1, 3, 5}
+	actual = filtered.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected filtered list to be %v, but got %v", expected, actual)
+	}
+
+	// Test filtering with an empty list
+	emptyList := New[int]()
+	filtered = emptyList.Filter(func(value int) bool {
+		return value > 0
+	})
+
+	expected = []int{}
+	actual = filtered.ToSlice()
+	if actual != nil {
+		t.Errorf("Expected filtered list to be %v, but got %v", expected, actual)
+	}
+}
+
+func TestMap(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	mappedList := list.Map(func(value int) int {
+		return value * 2
+	})
+
+	expectedList := New[int]()
+	expectedList.Append(2)
+	expectedList.Append(4)
+	expectedList.Append(6)
+
+	if !mappedList.Equal(expectedList) {
+		t.Errorf("Expected mapped list to be equal to %v, but got %v", expectedList.ToSlice(), mappedList.ToSlice())
+	}
+}
+
+func TestMapEmptyList(t *testing.T) {
+	list := New[int]()
+
+	mappedList := list.Map(func(value int) int {
+		return value * 2
+	})
+
+	if !mappedList.IsEmpty() {
+		t.Error("Expected mapped list to be empty")
+	}
+}
+
+func TestReduce(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	sum := list.Reduce(func(a, b int) int {
+		return a + b
+	})
+
+	if sum != 6 {
+		t.Errorf("Expected sum to be 6, but got %v", sum)
+	}
+
+	product := list.Reduce(func(a, b int) int {
+		return a * b
+	})
+
+	if product != 6 {
+		t.Errorf("Expected product to be 6, but got %v", product)
+	}
+
+	max := list.Reduce(func(a, b int) int {
+		if a > b {
+			return a
+		}
+		return b
+	})
+
+	if max != 3 {
+		t.Errorf("Expected max to be 3, but got %v", max)
+	}
+
+	min := list.Reduce(func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
+	})
+
+	if min != 1 {
+		t.Errorf("Expected min to be 1, but got %v", min)
+	}
+}
+
+func TestReduceEmptyList(t *testing.T) {
+	list := New[int]()
+
+	sum := list.Reduce(func(a, b int) int {
+		return a + b
+	})
+
+	if sum != 0 {
+		t.Errorf("Expected sum to be 0, but got %v", sum)
+	}
+}
+
+func TestReverseCopy(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	reverseCopy := list.ReverseCopy()
+
+	// Check if the original list is not modified
+	if list.Size() != 3 {
+		t.Errorf("Expected original list to have size 3, but got %v", list.Size())
+	}
+
+	// Check if the reverse copy is correct
+	if reverseCopy.Size() != 3 {
+		t.Errorf("Expected reverse copy to have size 3, but got %v", reverseCopy.Size())
+	}
+
+	item, err := reverseCopy.GetAt(0)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 3 {
+		t.Errorf("Expected value at index 0 to be 3, but got %v", item.Value)
+	}
+
+	item, err = reverseCopy.GetAt(1)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 2 {
+		t.Errorf("Expected value at index 1 to be 2, but got %v", item.Value)
+	}
+
+	item, err = reverseCopy.GetAt(2)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	if item.Value != 1 {
+		t.Errorf("Expected value at index 2 to be 1, but got %v", item.Value)
+	}
+}
+
+func TestReverseMerge(t *testing.T) {
+	list1 := New[int]()
+	list1.Append(1)
+	list1.Append(2)
+	list1.Append(3)
+
+	list2 := New[int]()
+	list2.Append(4)
+	list2.Append(5)
+	list2.Append(6)
+
+	list1.ReverseMerge(list2)
+
+	expected := []int{1, 2, 3, 6, 5, 4}
+	actual := list1.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestReverseMergeEmptyList(t *testing.T) {
+	list1 := New[int]()
+
+	list2 := New[int]()
+	list2.Append(1)
+	list2.Append(2)
+	list2.Append(3)
+
+	list1.ReverseMerge(list2)
+
+	expected := []int{3, 2, 1}
+	actual := list1.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestReverseMergeEmptyLists(t *testing.T) {
+	list1 := New[int]()
+
+	list2 := New[int]()
+
+	list1.ReverseMerge(list2)
+
+	expected := []int{}
+	actual := list1.ToSlice()
+
+	if actual != nil {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestEqual(t *testing.T) {
+	list1 := New[int]()
+	list2 := New[int]()
+
+	// Test when both lists are empty
+	if !list1.Equal(list2) {
+		t.Error("Expected two empty lists to be equal")
+	}
+
+	// Test when one list is empty and the other is not
+	list1.Append(1)
+	if list1.Equal(list2) {
+		t.Error("Expected list with one element to not be equal to an empty list")
+	}
+
+	// Test when both lists have the same elements in the same order
+	list2.Append(1)
+	if !list1.Equal(list2) {
+		t.Error("Expected two lists with the same elements to be equal")
+	}
+
+	// Test when both lists have the same elements in a different order
+	list1.Append(2)
+	list2.Prepend(2)
+	if list1.Equal(list2) {
+		t.Error("Expected two lists with the same elements in a different order to not be equal")
+	}
+
+	// Test when both lists have different elements
+	list2.DeleteFirst()
+	list2.Append(3)
+	if list1.Equal(list2) {
+		t.Error("Expected two lists with different elements to not be equal")
+	}
+}
+
+func TestSwap(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Swap nodes at index 0 and 2
+	err := list.Swap(0, 2)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// Verify the values after swapping
+	expected := []int{3, 2, 1}
+	actual := list.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+
+	// Swap nodes at index 1 and 1 (same index)
+	err = list.Swap(1, 1)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// Verify the values after swapping (no change)
+	expected = []int{3, 2, 1}
+	actual = list.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+
+	// Swap nodes at out-of-bound indices
+	err = list.Swap(-1, 3)
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Verify the values after swapping (no change)
+	expected = []int{3, 2, 1}
+	actual = list.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestSort(t *testing.T) {
+	list := New[int]()
+	list.Append(3)
+	list.Append(1)
+	list.Append(2)
+	list.Append(5)
+	list.Append(4)
+
+	list.Sort(func(a, b int) bool {
+		return a < b
+	})
+
+	expected := []int{1, 2, 3, 4, 5}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestSortEmpty(t *testing.T) {
+	list := New[int]()
+
+	list.Sort(func(a, b int) bool {
+		return a < b
+	})
+
+	if !list.IsEmpty() {
+		t.Error(errListNotEmpty)
+	}
+}
+
+func TestSortSingle(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+
+	list.Sort(func(a, b int) bool {
+		return a < b
+	})
+
+	expected := []int{1}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestSortAlreadySorted(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.Sort(func(a, b int) bool {
+		return a < b
+	})
+
+	expected := []int{1, 2, 3}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestSortDescendingOrder(t *testing.T) {
+	list := New[int]()
+	list.Append(3)
+	list.Append(2)
+	list.Append(1)
+
+	list.Sort(func(a, b int) bool {
+		return a < b
+	})
+
+	expected := []int{1, 2, 3}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestSortCustomType(t *testing.T) {
+	type Person struct {
+		Name string
+		Age  int
+	}
+
+	list := New[Person]()
+	list.Append(Person{Name: "Alice", Age: 25})
+	list.Append(Person{Name: "Bob", Age: 20})
+	list.Append(Person{Name: "Charlie", Age: 30})
+
+	list.Sort(func(a, b Person) bool {
+		return a.Age < b.Age
+	})
+
+	expected := []Person{
+		{Name: "Bob", Age: 20},
+		{Name: "Alice", Age: 25},
+		{Name: "Charlie", Age: 30},
+	}
+	actual := list.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestFindAll(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test case 1: FindAll returns a new doubly linked list containing all nodes that satisfy the given function
+	result := list.FindAll(func(value int) bool {
+		return value%2 == 0
+	})
+	expectedResult := New[int]()
+	expectedResult.Append(2)
+	if !expectedResult.Equal(result) {
+		t.Errorf("Expected result to be %v, but got %v", expectedResult.ToSlice(), result.ToSlice())
+	}
+
+	// Test case 2: FindAll returns an empty doubly linked list if no nodes satisfy the given function
+	result = list.FindAll(func(value int) bool {
+		return value > 10
+	})
+	expectedResult = New[int]()
+	if !expectedResult.Equal(result) {
+		t.Errorf("Expected result to be %v, but got %v", expectedResult.ToSlice(), result.ToSlice())
+	}
+}
+
+func TestFindLast(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test case 1: Value exists in the list
+	node, err := list.FindLast(func(value int) bool {
+		return value == 2
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	if node.Value != 2 {
+		t.Errorf("Expected value to be 2, but got %v", node.Value)
+	}
+
+	// Test case 2: Value does not exist in the list
+	_, err = list.FindLast(func(value int) bool {
+		return value == 4
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}
+
+func TestFindLastIndex(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(2)
+	list.Append(4)
+
+	index := list.FindLastIndex(func(value int) bool {
+		return value == 2
+	})
+
+	if index != 3 {
+		t.Errorf("Expected index to be 3, but got %v", index)
+	}
+
+	index = list.FindLastIndex(func(value int) bool {
+		return value == 5
+	})
+
+	if index != -1 {
+		t.Errorf("Expected index to be -1, but got %v", index)
+	}
+}
+
+func TestFindLastIndexEmpty(t *testing.T) {
+	list := New[int]()
+	index := list.FindLastIndex(func(value int) bool {
+		return value == 1
+	})
+
+	if index != -1 {
+		t.Errorf("Expected index to be -1, but got %v", index)
+	}
+}
+
+func TestFindIndex(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	index := list.FindIndex(func(value int) bool {
+		return value == 2
+	})
+
+	if index != 1 {
+		t.Errorf("Expected index to be 1, but got %v", index)
+	}
+
+	index = list.FindIndex(func(value int) bool {
+		return value == 4
+	})
+
+	if index != -1 {
+		t.Errorf("Expected index to be -1, but got %v", index)
+	}
+}
+
+func TestFindIndexEmpty(t *testing.T) {
+	list := New[int]()
+	index := list.FindIndex(func(value int) bool {
+		return value == 1
+	})
+
+	if index != -1 {
+		t.Errorf("Expected index to be -1, but got %v", index)
+	}
+}

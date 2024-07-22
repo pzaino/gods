@@ -970,3 +970,35 @@ func TestFindAllIndexes(t *testing.T) {
 		}
 	}
 }
+
+func TestFind(t *testing.T) {
+	list := New[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test finding a value that exists in the list
+	node, err := list.Find(2)
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	if node.Value != 2 {
+		t.Errorf("Expected node value to be 2, but got %v", node.Value)
+	}
+
+	// Test finding a value that doesn't exist in the list
+	_, err = list.Find(4)
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}
+
+func TestFindEmptyList(t *testing.T) {
+	list := New[int]()
+
+	// Test finding a value in an empty list
+	_, err := list.Find(1)
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}

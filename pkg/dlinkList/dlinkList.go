@@ -634,7 +634,11 @@ func (l *DLinkList[T]) Swap(i, j int) error {
 // for example, to sort a list of integers in ascending order, use:
 // list.Sort(func(a, b int) bool { return a < b })
 func (l *DLinkList[T]) Sort(f func(T, T) bool) {
-	if l.Size() <= 1 {
+	if l.IsEmpty() {
+		return
+	}
+
+	if l.Size() < 2 {
 		return
 	}
 
@@ -650,10 +654,12 @@ func (l *DLinkList[T]) Sort(f func(T, T) bool) {
 	l.Head = nodes[0]
 	l.Tail = nodes[len(nodes)-1]
 
-	for i := 0; i < len(nodes)-1; i++ {
+	var i int
+	for i = 0; i < len(nodes)-1; i++ {
 		nodes[i].Next = nodes[i+1]
 		nodes[i+1].Prev = nodes[i]
 	}
+	nodes[i].Next = nil
 }
 
 func quickSort[T comparable](nodes []*Node[T], f func(T, T) bool, low, high int) {
