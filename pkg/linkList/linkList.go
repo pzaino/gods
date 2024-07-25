@@ -288,13 +288,63 @@ func (l *LinkList[T]) Merge(list *LinkList[T]) {
 	list.Clear()
 }
 
-// Map applies the function to all the nodes in the list
-func (l *LinkList[T]) Map(f func(T) T) {
+// Map generates a new list by applying the function to all the nodes in the list
+func (l *LinkList[T]) Map(f func(T) T) *LinkList[T] {
+	newList := NewLinkList[T]()
 	current := l.Head
 	for current != nil {
-		current.Value = f(current.Value)
+		newList.Append(f(current.Value))
 		current = current.Next
 	}
+	return newList
+}
+
+// MapFrom generates a new list by applying the function to all the nodes in the list starting from the specified index
+func (l *LinkList[T]) MapFrom(start int, f func(T) T) (*LinkList[T], error) {
+	if start < 0 {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	newList := NewLinkList[T]()
+	current, err := l.GetAt(start)
+	if err != nil {
+		return nil, err
+	}
+
+	for current != nil {
+		newList.Append(f(current.Value))
+		current = current.Next
+	}
+
+	return newList, nil
+}
+
+// MapRange generates a new list by applying the function to all the nodes in the list within the specified range
+func (l *LinkList[T]) MapRange(start, end int, f func(T) T) (*LinkList[T], error) {
+	if start < 0 || end < 0 {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	if start > end {
+		return nil, errors.New("start index cannot be greater than end index")
+	}
+
+	if end >= l.Size() {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	newList := NewLinkList[T]()
+	current, err := l.GetAt(start)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := start; i <= end; i++ {
+		newList.Append(f(current.Value))
+		current = current.Next
+	}
+
+	return newList, nil
 }
 
 // Filter removes nodes from the list that don't match the predicate
@@ -303,16 +353,16 @@ func (l *LinkList[T]) Filter(f func(T) bool) {
 		return
 	}
 
-	if !f(l.Head.Value) {
+	for l.Head != nil && !f(l.Head.Value) {
 		l.Head = l.Head.Next
 	}
 
 	current := l.Head
-	for current.Next != nil {
-		if f(current.Next.Value) {
-			current = current.Next
-		} else {
+	for current != nil && current.Next != nil {
+		if !f(current.Next.Value) {
 			current.Next = current.Next.Next
+		} else {
+			current = current.Next
 		}
 	}
 }
@@ -339,6 +389,52 @@ func (l *LinkList[T]) ForEach(f func(*T)) {
 	}
 }
 
+// ForRange applies the function to all the nodes in the list within the specified range
+func (l *LinkList[T]) ForRange(start, end int, f func(*T)) error {
+	if start < 0 || end < 0 {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	if start > end {
+		return errors.New("start index cannot be greater than end index")
+	}
+
+	if end >= l.Size() {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	current, err := l.GetAt(start)
+	if err != nil {
+		return err
+	}
+
+	for i := start; i <= end; i++ {
+		f(&current.Value)
+		current = current.Next
+	}
+
+	return nil
+}
+
+// ForFrom applies the function to all the nodes in the list starting from the specified index
+func (l *LinkList[T]) ForFrom(start int, f func(*T)) error {
+	if start < 0 {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	current, err := l.GetAt(start)
+	if err != nil {
+		return err
+	}
+
+	for current != nil {
+		f(&current.Value)
+		current = current.Next
+	}
+
+	return nil
+}
+
 // Any checks if any node in the list matches the predicate
 func (l *LinkList[T]) Any(f func(T) bool) bool {
 	current := l.Head
@@ -354,6 +450,13 @@ func (l *LinkList[T]) Any(f func(T) bool) bool {
 
 // All checks if all nodes in the list match the predicate
 func (l *LinkList[T]) All(f func(T) bool) bool {
+	if l == nil {
+		return false
+	}
+	if l.Head == nil {
+		return false
+	}
+
 	current := l.Head
 	for current != nil {
 		if !f(current.Value) {
@@ -361,7 +464,6 @@ func (l *LinkList[T]) All(f func(T) bool) bool {
 		}
 		current = current.Next
 	}
-
 	return true
 }
 

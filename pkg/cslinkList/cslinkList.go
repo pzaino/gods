@@ -12,553 +12,290 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cslinkList provides a concurrent-safe linked list.
+// Package cslinkList provides a concurrency-safe linked list using linkList package.
 package cslinkList
 
 import (
-	"errors"
 	"sync"
+
+	linkList "github.com/pzaino/gods/pkg/linkList"
 )
 
-const (
-	errIndexOutOfBound = "index out of bounds"
-)
-
-// Node represents a node in the linked list
-type Node[T comparable] struct {
-	Value T
-	Next  *Node[T]
-}
-
-// CSLinkList represents a concurrent-safe linked list
+// CSLinkList is a concurrency-safe linked list.
 type CSLinkList[T comparable] struct {
-	mu   sync.Mutex
-	Head *Node[T]
+	mu sync.Mutex
+	l  *linkList.LinkList[T]
 }
 
-// NewCSLinkList creates a new CSLinkList
+// NewCSLinkList creates a new concurrency-safe linked list.
 func NewCSLinkList[T comparable]() *CSLinkList[T] {
-	return &CSLinkList[T]{}
+	return &CSLinkList[T]{l: linkList.NewLinkList[T]()}
 }
 
-// Append adds a new node to the end of the list
-// note: it's just a concurrent-safe wrapper around the append private function
-func (l *CSLinkList[T]) Append(value T) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	privAppend(l, value)
+// Append adds a new node to the end of the list.
+func (cs *CSLinkList[T]) Append(value T) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.Append(value)
 }
 
-func privAppend[T comparable](l *CSLinkList[T], value T) {
-	newNode := &Node[T]{Value: value}
-
-	if l.Head == nil {
-		l.Head = newNode
-		return
-	}
-
-	current := l.Head
-	for current.Next != nil {
-		current = current.Next
-	}
-
-	current.Next = newNode
+// Prepend adds a new node to the beginning of the list.
+func (cs *CSLinkList[T]) Prepend(value T) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.Prepend(value)
 }
 
-// Prepend adds a new node to the beginning of the list
-// note: it's just a concurrent-safe wrapper around the prepend private function
-func (l *CSLinkList[T]) Prepend(value T) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	prepend(l, value)
+// DeleteWithValue deletes the first node with the given value.
+func (cs *CSLinkList[T]) DeleteWithValue(value T) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.DeleteWithValue(value)
 }
 
-func prepend[T comparable](l *CSLinkList[T], value T) {
-	newNode := &Node[T]{Value: value}
-	newNode.Next = l.Head
-	l.Head = newNode
+// ToSlice returns the list as a slice.
+func (cs *CSLinkList[T]) ToSlice() []T {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.ToSlice()
 }
 
-// DeleteWithValue deletes the first node with the given value
-func (l *CSLinkList[T]) DeleteWithValue(value T) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if l.Head == nil {
-		return
-	}
-
-	if l.Head.Value == value {
-		l.Head = l.Head.Next
-		return
-	}
-
-	current := l.Head
-	for current.Next != nil {
-		if current.Next.Value == value {
-			current.Next = current.Next.Next
-			return
-		}
-		current = current.Next
-	}
+// IsEmpty checks if the list is empty.
+func (cs *CSLinkList[T]) IsEmpty() bool {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.IsEmpty()
 }
 
-// ToSlice returns the list as a slice
-func (l *CSLinkList[T]) ToSlice() []T {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	var result []T
-	current := l.Head
-	for current != nil {
-		result = append(result, current.Value)
-		current = current.Next
-	}
-	return result
+// Find returns the first node with the given value.
+func (cs *CSLinkList[T]) Find(value T) (*linkList.Node[T], error) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.Find(value)
 }
 
-// IsEmpty checks if the list is empty
-func (l *CSLinkList[T]) IsEmpty() bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	return l.Head == nil
+// Reverse reverses the list.
+func (cs *CSLinkList[T]) Reverse() {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.Reverse()
 }
 
-// Find returns the first node with the given value
-func (l *CSLinkList[T]) Find(value T) (*Node[T], error) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	for current != nil {
-		if current.Value == value {
-			return current, nil
-		}
-		current = current.Next
-	}
-	return nil, errors.New("value not found")
+// Size returns the number of nodes in the list.
+func (cs *CSLinkList[T]) Size() int {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.Size()
 }
 
-// Reverse reverses the list
-func (l *CSLinkList[T]) Reverse() {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if l.Head == nil {
-		return
-	}
-
-	var prev *Node[T]
-	current := l.Head
-	// reverse the list
-	for current != nil {
-		next := current.Next
-		current.Next = prev
-		prev = current
-		current = next
-	}
-	l.Head = prev
+// GetFirst returns the first node in the list.
+func (cs *CSLinkList[T]) GetFirst() *linkList.Node[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.GetFirst()
 }
 
-// Size returns the number of nodes in the list
-func (l *CSLinkList[T]) Size() int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	size := 0
-	current := l.Head
-	for current != nil {
-		size++
-		current = current.Next
-	}
-	return size
+// GetLast returns the last node in the list.
+func (cs *CSLinkList[T]) GetLast() *linkList.Node[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.GetLast()
 }
 
-// GetFirst returns the first node in the list
-func (l *CSLinkList[T]) GetFirst() *Node[T] {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	return l.Head
+// GetAt returns the node at the given index.
+func (cs *CSLinkList[T]) GetAt(index int) (*linkList.Node[T], error) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.GetAt(index)
 }
 
-// GetLast returns the last node in the list
-func (l *CSLinkList[T]) GetLast() *Node[T] {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if l.Head == nil {
-		return nil
-	}
-
-	current := l.Head
-	for current.Next != nil {
-		current = current.Next
-	}
-	return current
+// InsertAt inserts a new node at the given index.
+func (cs *CSLinkList[T]) InsertAt(index int, value T) error {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.InsertAt(index, value)
 }
 
-// GetAt returns the node at the given index
-func (l *CSLinkList[T]) GetAt(index int) (*Node[T], error) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if index < 0 {
-		return nil, errors.New(errIndexOutOfBound)
-	}
-
-	if l.Head == nil {
-		return nil, nil
-	}
-
-	current := l.Head
-	for i := 0; i < index; i++ {
-		if current == nil {
-			return nil, errors.New(errIndexOutOfBound)
-		}
-		current = current.Next
-	}
-	if current == nil {
-		return nil, errors.New(errIndexOutOfBound)
-	}
-	return current, nil
+// DeleteAt deletes the node at the given index.
+func (cs *CSLinkList[T]) DeleteAt(index int) error {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.DeleteAt(index)
 }
 
-// InsertAt inserts a new node at the given index
-func (l *CSLinkList[T]) InsertAt(index int, value T) error {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	if index == 0 {
-		prepend(l, value)
-		return nil
-	}
-
-	current := l.Head
-	for i := 0; i < index-1; i++ {
-		if current == nil {
-			return errors.New(errIndexOutOfBound)
-		}
-		current = current.Next
-	}
-
-	if current == nil {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	newNode := &Node[T]{Value: value}
-	newNode.Next = current.Next
-	current.Next = newNode
-
-	return nil
+// Remove is just an alias for DeleteWithValue.
+func (cs *CSLinkList[T]) Remove(value T) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.Remove(value)
 }
 
-// DeleteAt deletes the node at the given index
-func (l *CSLinkList[T]) DeleteAt(index int) error {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	if index == 0 {
-		if l.Head == nil {
-			return errors.New(errIndexOutOfBound)
-		}
-		l.Head = l.Head.Next
-		return nil
-	}
-
-	current := l.Head
-	for i := 0; i < index-1; i++ {
-		if current == nil {
-			return errors.New(errIndexOutOfBound)
-		}
-		current = current.Next
-	}
-
-	if current == nil || current.Next == nil {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	current.Next = current.Next.Next
-	return nil
+// Clear removes all nodes from the list.
+func (cs *CSLinkList[T]) Clear() {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.Clear()
 }
 
-// Remove is an alias for DeleteWithValue
-func (l *CSLinkList[T]) Remove(value T) {
-	l.DeleteWithValue(value)
+// Copy returns a copy of the list.
+func (cs *CSLinkList[T]) Copy() *CSLinkList[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return &CSLinkList[T]{l: cs.l.Copy()}
 }
 
-// Clear removes all nodes from the list
-func (l *CSLinkList[T]) Clear() {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	l.Head = nil
-}
-
-// Copy returns a copy of the list
-func (l *CSLinkList[T]) Copy() *CSLinkList[T] {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	newList := NewCSLinkList[T]()
-	current := l.Head
-	for current != nil {
-		newList.Append(current.Value)
-		current = current.Next
-	}
-	return newList
-}
-
-// Merge appends all the nodes from another list to the current list
-func (l *CSLinkList[T]) Merge(list *CSLinkList[T]) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+// Merge appends all the nodes from another list to the current list.
+func (cs *CSLinkList[T]) Merge(list *CSLinkList[T]) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
 	list.mu.Lock()
 	defer list.mu.Unlock()
-
-	current := list.Head
-	for current != nil {
-		privAppend(l, current.Value)
-		current = current.Next
-	}
+	cs.l.Merge(list.l)
+	list.l.Clear()
 }
 
-// Map applies the function to all the nodes in the list
-func (l *CSLinkList[T]) Map(f func(T) T) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+// Map generates a new list by applying the function to all the nodes in the list.
+func (cs *CSLinkList[T]) Map(f func(T) T) *CSLinkList[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
 
-	current := l.Head
-	for current != nil {
-		current.Value = f(current.Value)
-		current = current.Next
-	}
+	newList := cs.l.Map(f)
+	newCSList := NewCSLinkList[T]()
+	newCSList.l = newList
+	return newCSList
 }
 
-// Filter removes nodes from the list that don't match the predicate
-func (l *CSLinkList[T]) Filter(f func(T) bool) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+// MapFrom generates a new list by applying the function to all the nodes in the list starting from the specified index.
+func (cs *CSLinkList[T]) MapFrom(start int, f func(T) T) (*CSLinkList[T], error) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
 
-	for l.Head != nil && !f(l.Head.Value) {
-		l.Head = l.Head.Next
+	newList, err := cs.l.MapFrom(start, f)
+	if err != nil {
+		return nil, err
 	}
 
-	current := l.Head
-	for current != nil && current.Next != nil {
-		if !f(current.Next.Value) {
-			current.Next = current.Next.Next
-		} else {
-			current = current.Next
-		}
-	}
+	newCSList := NewCSLinkList[T]()
+	newCSList.l = newList
+	return newCSList, nil
 }
 
-// Reduce reduces the list to a single value
-func (l *CSLinkList[T]) Reduce(f func(T, T) T, initial T) T {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+// MapRange generates a new list by applying the function to all the nodes in the list in the range [start, end).
+func (cs *CSLinkList[T]) MapRange(start, end int, f func(T) T) (*CSLinkList[T], error) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
 
-	result := initial
-	current := l.Head
-	for current != nil {
-		result = f(result, current.Value)
-		current = current.Next
+	newList, err := cs.l.MapRange(start, end, f)
+	if err != nil {
+		return nil, err
 	}
-	return result
+
+	newCSList := NewCSLinkList[T]()
+	newCSList.l = newList
+	return newCSList, nil
 }
 
-// ForEach applies the function to all the nodes in the list
-func (l *CSLinkList[T]) ForEach(f func(*T)) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	for current != nil {
-		f(&current.Value)
-		current = current.Next
-	}
+// Filter removes nodes from the list that don't match the predicate.
+func (cs *CSLinkList[T]) Filter(f func(T) bool) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.Filter(f)
 }
 
-// Any checks if any node in the list matches the predicate
-func (l *CSLinkList[T]) Any(f func(T) bool) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	for current != nil {
-		if f(current.Value) {
-			return true
-		}
-		current = current.Next
-	}
-	return false
+// Reduce reduces the list to a single value.
+func (cs *CSLinkList[T]) Reduce(f func(T, T) T, initial T) T {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.Reduce(f, initial)
 }
 
-// All checks if all nodes in the list match the predicate
-func (l *CSLinkList[T]) All(f func(T) bool) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if l.Head == nil {
-		return false
-	}
-
-	current := l.Head
-	for current != nil {
-		if !f(current.Value) {
-			return false
-		}
-		current = current.Next
-	}
-	return true
+// ForEach applies the function to all the nodes in the list.
+func (cs *CSLinkList[T]) ForEach(f func(*T)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.ForEach(f)
 }
 
-// Contains checks if the list contains the given value
-func (l *CSLinkList[T]) Contains(value T) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	for current != nil {
-		if current.Value == value {
-			return true
-		}
-		current = current.Next
-	}
-	return false
+// ForRange applies the function to all the nodes in the list in the range [start, end).
+func (cs *CSLinkList[T]) ForRange(start, end int, f func(*T)) error {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.ForRange(start, end, f)
 }
 
-// IndexOf returns the index of the first node with the given value
-func (l *CSLinkList[T]) IndexOf(value T) int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	index := 0
-	for current != nil {
-		if current.Value == value {
-			return index
-		}
-		current = current.Next
-		index++
-	}
-	return -1
+// ForFrom applies the function to all the nodes in the list starting from the index.
+func (cs *CSLinkList[T]) ForFrom(start int, f func(*T)) error {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.ForFrom(start, f)
 }
 
-// LastIndexOf returns the index of the last node with the given value
-func (l *CSLinkList[T]) LastIndexOf(value T) int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	index := -1
-	i := 0
-	for current != nil {
-		if current.Value == value {
-			index = i
-		}
-		current = current.Next
-		i++
-	}
-	return index
+// Any checks if any node in the list matches the predicate.
+func (cs *CSLinkList[T]) Any(f func(T) bool) bool {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.Any(f)
 }
 
-// FindIndex returns the index of the first node that matches the predicate
-func (l *CSLinkList[T]) FindIndex(f func(T) bool) int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	index := 0
-	for current != nil {
-		if f(current.Value) {
-			return index
-		}
-		current = current.Next
-		index++
-	}
-	return -1
+// All checks if all nodes in the list match the predicate.
+func (cs *CSLinkList[T]) All(f func(T) bool) bool {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.All(f)
 }
 
-// FindLastIndex returns the index of the last node that matches the predicate
-func (l *CSLinkList[T]) FindLastIndex(f func(T) bool) int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	current := l.Head
-	index := -1
-	i := 0
-	for current != nil {
-		if f(current.Value) {
-			index = i
-		}
-		current = current.Next
-		i++
-	}
-	return index
+// Contains checks if the list contains the given value.
+func (cs *CSLinkList[T]) Contains(value T) bool {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.Contains(value)
 }
 
-// FindAll returns all nodes that match the predicate
-func (l *CSLinkList[T]) FindAll(f func(T) bool) *CSLinkList[T] {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	newList := NewCSLinkList[T]()
-	current := l.Head
-	for current != nil {
-		if f(current.Value) {
-			newList.Append(current.Value)
-		}
-		current = current.Next
-	}
-	return newList
+// IndexOf returns the index of the first node with the given value.
+func (cs *CSLinkList[T]) IndexOf(value T) int {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.IndexOf(value)
 }
 
-// FindLast returns the last node that matches the predicate
-func (l *CSLinkList[T]) FindLast(f func(T) bool) (*Node[T], error) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	var result *Node[T]
-	current := l.Head
-	for current != nil {
-		if f(current.Value) {
-			result = current
-		}
-		current = current.Next
-	}
-	if result == nil {
-		return nil, errors.New("value not found")
-	}
-	return result, nil
+// LastIndexOf returns the index of the last node with the given value.
+func (cs *CSLinkList[T]) LastIndexOf(value T) int {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.LastIndexOf(value)
 }
 
-// FindAllIndexes returns the indexes of all nodes that match the predicate
-func (l *CSLinkList[T]) FindAllIndexes(f func(T) bool) []int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+// FindIndex returns the index of the first node that matches the predicate.
+func (cs *CSLinkList[T]) FindIndex(f func(T) bool) int {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.FindIndex(f)
+}
 
-	var result []int
-	current := l.Head
-	index := 0
-	for current != nil {
-		if f(current.Value) {
-			result = append(result, index)
-		}
-		current = current.Next
-		index++
-	}
-	return result
+// FindLastIndex returns the index of the last node that matches the predicate.
+func (cs *CSLinkList[T]) FindLastIndex(f func(T) bool) int {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.FindLastIndex(f)
+}
+
+// FindAll returns all nodes that match the predicate.
+func (cs *CSLinkList[T]) FindAll(f func(T) bool) *CSLinkList[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return &CSLinkList[T]{l: cs.l.FindAll(f)}
+}
+
+// FindLast returns the last node that matches the predicate.
+func (cs *CSLinkList[T]) FindLast(f func(T) bool) (*linkList.Node[T], error) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.FindLast(f)
+}
+
+// FindAllIndexes returns the indexes of all nodes that match the predicate.
+func (cs *CSLinkList[T]) FindAllIndexes(f func(T) bool) []int {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return cs.l.FindAllIndexes(f)
 }

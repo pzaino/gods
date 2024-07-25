@@ -16,6 +16,7 @@
 package linkList
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -515,11 +516,11 @@ func TestMap(t *testing.T) {
 	list.Append(3)
 
 	// Test mapping the values to their squares
-	list.Map(func(value int) int {
+	newList := list.Map(func(value int) int {
 		return value * value
 	})
 
-	slice := list.ToSlice()
+	slice := newList.ToSlice()
 	expected := []int{1, 4, 9}
 
 	if len(slice) != len(expected) {
@@ -570,6 +571,27 @@ func TestFilter(t *testing.T) {
 		if slice[i] != expected[i] {
 			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
+	}
+}
+
+func TestFilterCleanList(t *testing.T) {
+	list := NewLinkList[int]()
+	list.Append(1)
+	list.Append(3)
+	list.Append(5)
+
+	// Filter out the full list (basically return an empty list)
+	list.Filter(func(value int) bool {
+		return false
+	})
+
+	slice := list.ToSlice()
+
+	if len(slice) != 0 {
+		for i := 0; i < len(slice); i++ {
+			fmt.Printf(" element: %v\n", slice[i])
+		}
+		t.Errorf(errExpectedSliceLength, 0, len(slice))
 	}
 }
 
@@ -718,8 +740,8 @@ func TestAll(t *testing.T) {
 	allEmpty := emptyList.All(func(value int) bool {
 		return value == 0
 	})
-	if !allEmpty {
-		t.Error("Expected all elements to be empty in an empty list")
+	if allEmpty {
+		t.Error("Expected no elements to be checked in an empty list")
 	}
 }
 
