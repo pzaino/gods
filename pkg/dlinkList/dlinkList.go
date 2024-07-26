@@ -442,10 +442,123 @@ func (l *DLinkList[T]) Contains(value T) bool {
 
 // ForEach traverses the doubly linked list and applies the given function to each node
 func (l *DLinkList[T]) ForEach(f func(*T)) {
+	if l.IsEmpty() {
+		return
+	}
+
 	current := l.Head
 	for current != nil {
 		f(&current.Value)
 		current = current.Next
+	}
+}
+
+// ForFrom traverses the doubly linked list starting from the given index and applies the given function to each node
+func (l *DLinkList[T]) ForFrom(index int, f func(*T)) {
+	if index < 0 {
+		return
+	}
+
+	if l.IsEmpty() {
+		return
+	}
+
+	current, err := l.GetAt(index)
+	if err != nil {
+		return
+	}
+
+	for current != nil {
+		f(&current.Value)
+		current = current.Next
+		if current == nil {
+			break
+		}
+	}
+}
+
+// ForEachReverse traverses the doubly linked list in reverse order and applies the given function to each node
+func (l *DLinkList[T]) ForEachReverse(f func(*T)) {
+	if l.IsEmpty() {
+		return
+	}
+
+	current := l.Tail
+	for current != nil {
+		f(&current.Value)
+		current = current.Prev
+	}
+}
+
+// ForReverseFrom traverses the doubly linked list in reverse order starting from the given index and applies the given function to each node
+func (l *DLinkList[T]) ForReverseFrom(index int, f func(*T)) {
+	if index < 0 {
+		return
+	}
+
+	if l.IsEmpty() {
+		return
+	}
+
+	current, err := l.GetAt((l.Size() - 1) - index)
+	if err != nil {
+		return
+	}
+
+	for current != nil {
+		f(&current.Value)
+		current = current.Prev
+		if current == nil {
+			break
+		}
+	}
+}
+
+// ForRange traverses the doubly linked list from the start index to the end index and applies the given function to each node
+func (l *DLinkList[T]) ForRange(start, end int, f func(*T)) {
+	if start < 0 || end < 0 || start > end {
+		return
+	}
+
+	if l.IsEmpty() {
+		return
+	}
+
+	current, err := l.GetAt(start)
+	if err != nil {
+		return
+	}
+
+	for i := start; i <= end; i++ {
+		f(&current.Value)
+		current = current.Next
+		if current == nil {
+			break
+		}
+	}
+}
+
+// ForReverseRange traverses the doubly linked list in reverse order from the start index to the end index and applies the given function to each node
+func (l *DLinkList[T]) ForReverseRange(start, end int, f func(*T)) {
+	if start < 0 || end < 0 || start > end {
+		return
+	}
+
+	if l.IsEmpty() {
+		return
+	}
+
+	current, err := l.GetAt((l.Size() - 1) - start)
+	if err != nil {
+		return
+	}
+
+	for i := start; i <= end; i++ {
+		f(&current.Value)
+		current = current.Prev
+		if current == nil {
+			break
+		}
 	}
 }
 
@@ -528,6 +641,62 @@ func (l *DLinkList[T]) Map(f func(T) T) *DLinkList[T] {
 	for current != nil {
 		result.Append(f(current.Value))
 		current = current.Next
+	}
+
+	return result
+}
+
+// MapFrom returns a new doubly linked list containing the result of applying the given function to each node starting from the given index
+func (l *DLinkList[T]) MapFrom(index int, f func(T) T) *DLinkList[T] {
+	result := NewDLinkList[T]()
+
+	if index < 0 {
+		return result
+	}
+
+	if l.IsEmpty() {
+		return result
+	}
+
+	current, err := l.GetAt(index)
+	if err != nil {
+		return result
+	}
+
+	for current != nil {
+		result.Append(f(current.Value))
+		current = current.Next
+		if current == nil {
+			break
+		}
+	}
+
+	return result
+}
+
+// MapRange returns a new doubly linked list containing the result of applying the given function to each node in the range [start, end)
+func (l *DLinkList[T]) MapRange(start, end int, f func(T) T) *DLinkList[T] {
+	result := NewDLinkList[T]()
+
+	if start < 0 || end < 0 || start > end {
+		return result
+	}
+
+	if l.IsEmpty() {
+		return result
+	}
+
+	current, err := l.GetAt(start)
+	if err != nil {
+		return result
+	}
+
+	for i := start; i <= end; i++ {
+		result.Append(f(current.Value))
+		current = current.Next
+		if current == nil {
+			break
+		}
 	}
 
 	return result

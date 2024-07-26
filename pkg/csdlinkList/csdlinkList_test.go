@@ -188,6 +188,22 @@ func TestCSDLinkListToSliceFrom(t *testing.T) {
 	})
 }
 
+func TestCSDLinkListToSliceReverseFromIndex(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	for i := 0; i < 1000; i++ {
+		cs.Append(i)
+	}
+	runConcurrent(t, 1000, func() {
+		test := cs.ToSliceReverseFromIndex(50)
+		if len(test) != 950 {
+			t.Fatalf("expected size 50, got %d", len(test))
+		}
+		if test[0] != 949 {
+			t.Fatalf("expected first element to be 950, got %d", test[0])
+		}
+	})
+}
+
 func TestCSDLinkListFind(t *testing.T) {
 	cs := csdlinkList.NewCSDLinkList[int]()
 	cs.Append(1)
@@ -281,6 +297,58 @@ func TestCSDLinkListForEach(t *testing.T) {
 	})
 }
 
+func TestCSDLinkListForEachReverse(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	for i := 1000; i > 0; i-- {
+		cs.Append(i)
+	}
+	runConcurrent(t, 1000, func() {
+		cs.ForEachReverse(func(item *int) {
+			*item = *item + 1
+		})
+	})
+}
+
+func TestCSDLinkListForRange(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	cs.Append(1)
+	runConcurrent(t, 1000, func() {
+		cs.ForRange(0, 1, func(item *int) {
+			*item = *item + 1
+		})
+	})
+}
+
+func TestCSDLinkListForFrom(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	cs.Append(1)
+	runConcurrent(t, 1000, func() {
+		cs.ForFrom(0, func(item *int) {
+			*item = *item + 1
+		})
+	})
+}
+
+func TestCSDLinkListForReverseFrom(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	cs.Append(1)
+	runConcurrent(t, 1000, func() {
+		cs.ForReverseFrom(0, func(item *int) {
+			*item = *item + 1
+		})
+	})
+}
+
+func TestCSDLinkListForReverseRange(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	cs.Append(1)
+	runConcurrent(t, 1000, func() {
+		cs.ForReverseRange(0, 1, func(item *int) {
+			*item = *item + 1
+		})
+	})
+}
+
 func TestCSDLinkListAny(t *testing.T) {
 	cs := csdlinkList.NewCSDLinkList[int]()
 	for i := 0; i < 1000; i++ {
@@ -344,6 +412,26 @@ func TestCSDLinkListMap(t *testing.T) {
 	}
 	runConcurrent(t, 1000, func() {
 		cs.Map(func(item int) int {
+			return item * 2
+		})
+	})
+}
+
+func TestCSDLinkListMapFrom(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	cs.Append(1)
+	runConcurrent(t, 1000, func() {
+		cs.MapFrom(0, func(item int) int {
+			return item * 2
+		})
+	})
+}
+
+func TestCSDLinkListMapRange(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	cs.Append(1)
+	runConcurrent(t, 1000, func() {
+		cs.MapRange(0, 1, func(item int) int {
 			return item * 2
 		})
 	})
