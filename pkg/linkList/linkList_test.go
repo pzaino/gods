@@ -1040,3 +1040,215 @@ func TestFindEmptyList(t *testing.T) {
 		t.Error(errExpectedErr)
 	}
 }
+
+func TestMapFrom(t *testing.T) {
+	list := NewLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test mapping from a valid index
+	newList, err := list.MapFrom(1, func(value int) int {
+		return value * 2
+	})
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
+
+	expected := []int{4, 6}
+	slice := newList.ToSlice()
+
+	if len(slice) != len(expected) {
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
+	}
+
+	for i := 0; i < len(slice); i++ {
+		if slice[i] != expected[i] {
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
+		}
+	}
+
+	// Test mapping from an index out of bounds
+	_, err = list.MapFrom(3, func(value int) int {
+		return value * 2
+	})
+	if err == nil {
+		t.Error(errExpectedErr)
+	}
+
+	// Test mapping from a negative index
+	_, err = list.MapFrom(-1, func(value int) int {
+		return value * 2
+	})
+	if err == nil {
+		t.Error(errExpectedErr)
+	}
+}
+
+func TestMapRange(t *testing.T) {
+	list := NewLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test mapping a range of nodes
+	newList, err := list.MapRange(1, 3, func(value int) int {
+		return value * 2
+	})
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	expected := []int{4, 6, 8}
+	slice := newList.ToSlice()
+
+	if len(slice) != len(expected) {
+		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+	}
+
+	for i := 0; i < len(slice); i++ {
+		if slice[i] != expected[i] {
+			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+		}
+	}
+
+	// Test mapping a range with start index out of bounds
+	_, err = list.MapRange(5, 7, func(value int) int {
+		return value * 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test mapping a range with end index out of bounds
+	_, err = list.MapRange(3, 6, func(value int) int {
+		return value * 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test mapping a range with start index greater than end index
+	_, err = list.MapRange(3, 1, func(value int) int {
+		return value * 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test mapping a range with an empty list
+	emptyList := NewLinkList[int]()
+	_, err = emptyList.MapRange(0, 2, func(value int) int {
+		return value * 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}
+
+func TestForRange(t *testing.T) {
+	list := NewLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test valid range
+	err := list.ForRange(1, 3, func(value *int) {
+		*value *= 2
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+
+	slice := list.ToSlice()
+	expected := []int{1, 4, 6, 8, 5}
+	if len(slice) != len(expected) {
+		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+	}
+	for i := 0; i < len(slice); i++ {
+		if slice[i] != expected[i] {
+			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+		}
+	}
+
+	// Test invalid range (start > end)
+	err = list.ForRange(3, 1, func(value *int) {
+		*value *= 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test invalid range (end out of bounds)
+	err = list.ForRange(2, 10, func(value *int) {
+		*value *= 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test invalid range (start out of bounds)
+	err = list.ForRange(10, 12, func(value *int) {
+		*value *= 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test empty list
+	emptyList := NewLinkList[int]()
+	err = emptyList.ForRange(0, 2, func(value *int) {
+		*value *= 2
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}
+
+func TestForFrom(t *testing.T) {
+	list := NewLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	// Test with a valid start index
+	err := list.ForFrom(1, func(value *int) {
+		*value *= 2
+	})
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
+
+	slice := list.ToSlice()
+	expected := []int{1, 4, 6}
+
+	if len(slice) != len(expected) {
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
+	}
+
+	for i := 0; i < len(slice); i++ {
+		if slice[i] != expected[i] {
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
+		}
+	}
+
+	// Test with a negative start index
+	err = list.ForFrom(-1, func(value *int) {
+		*value *= 2
+	})
+	if err == nil {
+		t.Error(errExpectedErr)
+	}
+
+	// Test with an out of bounds start index
+	err = list.ForFrom(3, func(value *int) {
+		*value *= 2
+	})
+	if err == nil {
+		t.Error(errExpectedErr)
+	}
+}

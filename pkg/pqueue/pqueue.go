@@ -54,11 +54,13 @@ func (pq *PriorityQueue[T]) Dequeue() (T, error) {
 		var rVal T
 		return rVal, errors.New("priority queue is empty")
 	}
+
 	element := pq.data[0]
 	lastIndex := len(pq.data) - 1
 	pq.data[0] = pq.data[lastIndex]
 	pq.data = pq.data[:lastIndex]
 	pq.downHeap(0)
+
 	return element.Value, nil
 }
 
@@ -141,6 +143,16 @@ func (pq *PriorityQueue[T]) dataString(f func(T) string) string {
 // Helper functions for heap operations
 
 func (pq *PriorityQueue[T]) upHeap(index int) {
+	if len(pq.data) == 0 {
+		return
+	}
+	if index < 0 {
+		return
+	}
+	if index >= len(pq.data) {
+		return
+	}
+
 	element := pq.data[index]
 	for index > 0 {
 		parent := (index - 1) / 2
@@ -154,6 +166,15 @@ func (pq *PriorityQueue[T]) upHeap(index int) {
 }
 
 func (pq *PriorityQueue[T]) downHeap(index int) {
+	if len(pq.data) == 0 {
+		return
+	}
+	if index < 0 {
+		return
+	}
+	if index >= len(pq.data) {
+		return
+	}
 	element := pq.data[index]
 	lastIndex := len(pq.data) - 1
 	for {
