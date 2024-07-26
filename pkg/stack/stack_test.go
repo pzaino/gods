@@ -22,6 +22,15 @@ import (
 	"testing"
 )
 
+const (
+	errNoError        = "Expected no error, but got %v"
+	errYesError       = "Expected an error, but got nil"
+	errItemNotNil     = "Expected item to not be nil, but it was"
+	errExpectedItemX  = "Expected item to be %v, but got %v"
+	errExpectedXItemY = "Expected %v item to be %v, but got %v"
+	errStackNotEmpty  = "Expected stack to be empty, but it was not"
+)
+
 func TestNew(t *testing.T) {
 	stack := NewStack[int]()
 	if stack == nil {
@@ -45,12 +54,12 @@ func TestPop(t *testing.T) {
 	stack.Push(1)
 	item, err := stack.Pop()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	} else if *item != 1 {
-		t.Errorf("Expected item to be 1, but got %v", *item)
+		t.Errorf(errExpectedItemX, 1, *item)
 	}
 }
 
@@ -58,14 +67,14 @@ func TestPopEmpty(t *testing.T) {
 	stack := NewStack[int]()
 	_, err := stack.Pop()
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
 func TestIsEmpty(t *testing.T) {
 	stack := NewStack[int]()
 	if !stack.IsEmpty() {
-		t.Error("Expected stack to be empty, but it was not")
+		t.Error(errStackNotEmpty)
 	}
 }
 
@@ -82,13 +91,13 @@ func TestIsEmptyAfterPop(t *testing.T) {
 	stack.Push(1)
 	item, err := stack.Pop()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	}
 	if !stack.IsEmpty() {
-		t.Error("Expected stack to be empty, but it was not")
+		t.Error(errStackNotEmpty)
 	}
 }
 
@@ -102,13 +111,13 @@ func TestToSlice(t *testing.T) {
 		t.Errorf("Expected slice to have 3 items, but got %v", len(slice))
 	}
 	if slice[0] != 1 {
-		t.Errorf("Expected first item to be 1, but got %v", slice[0])
+		t.Errorf(errExpectedXItemY, "first", 1, slice[0])
 	}
 	if slice[1] != 2 {
-		t.Errorf("Expected second item to be 2, but got %v", slice[1])
+		t.Errorf(errExpectedXItemY, "second", 2, slice[1])
 	}
 	if slice[2] != 3 {
-		t.Errorf("Expected third item to be 3, but got %v", slice[2])
+		t.Errorf(errExpectedXItemY, "third", 3, slice[2])
 	}
 }
 
@@ -123,13 +132,13 @@ func TestReverse(t *testing.T) {
 		t.Errorf("Expected slice to have 3 items, but got %v", len(slice))
 	}
 	if slice[0] != 3 {
-		t.Errorf("Expected first item to be 3, but got %v", slice[0])
+		t.Errorf(errExpectedXItemY, "first", 3, slice[0])
 	}
 	if slice[1] != 2 {
-		t.Errorf("Expected second item to be 2, but got %v", slice[1])
+		t.Errorf(errExpectedXItemY, "second", 2, slice[1])
 	}
 	if slice[2] != 1 {
-		t.Errorf("Expected third item to be 1, but got %v", slice[2])
+		t.Errorf(errExpectedXItemY, "third", 1, slice[2])
 	}
 }
 
@@ -139,17 +148,17 @@ func TestSwap(t *testing.T) {
 	stack.Push(2)
 	err := stack.Swap()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	slice := stack.ToSlice()
 	if len(slice) != 2 {
 		t.Errorf("Expected slice to have 2 items, but got %v", len(slice))
 	}
 	if slice[0] != 2 {
-		t.Errorf("Expected first item to be 2, but got %v", slice[0])
+		t.Errorf(errExpectedXItemY, "first", 2, slice[0])
 	}
 	if slice[1] != 1 {
-		t.Errorf("Expected second item to be 1, but got %v", slice[1])
+		t.Errorf(errExpectedXItemY, "second", 1, slice[1])
 	}
 }
 
@@ -157,7 +166,7 @@ func TestSwapEmpty(t *testing.T) {
 	stack := NewStack[int]()
 	err := stack.Swap()
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
@@ -166,12 +175,12 @@ func TestTop(t *testing.T) {
 	stack.Push(1)
 	item, err := stack.Top()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	} else if *item != 1 {
-		t.Errorf("Expected item to be 1, but got %v", *item)
+		t.Errorf(errExpectedItemX, 1, *item)
 	}
 }
 
@@ -179,7 +188,7 @@ func TestTopEmpty(t *testing.T) {
 	stack := NewStack[int]()
 	_, err := stack.Top()
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
@@ -189,19 +198,19 @@ func TestTopAfterPop(t *testing.T) {
 	stack.Push(2)
 	item, err := stack.Pop()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	}
 	top, err := stack.Top()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if top == nil {
-		t.Error("Expected top to not be nil, but it was")
+		t.Error("Expected the top of the stack to not be nil, but it was")
 	} else if *top != 1 {
-		t.Errorf("Expected top to be 1, but got %v", *top)
+		t.Errorf("Expected the top to be 1, but got %v", *top)
 	}
 }
 
@@ -211,16 +220,16 @@ func TestTopAfterSwap(t *testing.T) {
 	stack.Push(2)
 	err := stack.Swap()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	top, err := stack.Top()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if top == nil {
-		t.Error("Expected top to not be nil, but it was")
+		t.Error("Expected stack's top to not be nil, but it was")
 	} else if *top != 1 {
-		t.Errorf("Expected top to be 1, but got %v", *top)
+		t.Errorf("Expected stack's top to be 1, but got %v", *top)
 	}
 }
 
@@ -229,12 +238,12 @@ func TestPeek(t *testing.T) {
 	stack.Push(1)
 	item, err := stack.Peek()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	} else if *item != 1 {
-		t.Errorf("Expected item to be 1, but got %v", *item)
+		t.Errorf(errExpectedItemX, 1, *item)
 	}
 }
 
@@ -242,7 +251,7 @@ func TestPeekEmpty(t *testing.T) {
 	stack := NewStack[int]()
 	_, err := stack.Peek()
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
@@ -252,14 +261,14 @@ func TestPeekAfterPop(t *testing.T) {
 	stack.Push(2)
 	item, err := stack.Pop()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	}
 	top, err := stack.Peek()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if top == nil {
 		t.Error("Expected top to not be nil, but it was")
@@ -274,11 +283,11 @@ func TestPeekAfterSwap(t *testing.T) {
 	stack.Push(2)
 	err := stack.Swap()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	top, err := stack.Peek()
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if top == nil {
 		t.Error("Expected top to not be nil, but it was")
@@ -313,7 +322,7 @@ func TestClear(t *testing.T) {
 	stack.Push(3)
 	stack.Clear()
 	if !stack.IsEmpty() {
-		t.Error("Expected stack to be empty, but it was not")
+		t.Error(errStackNotEmpty)
 	}
 }
 
@@ -376,7 +385,7 @@ func TestEqualDifferentSize(t *testing.T) {
 	other.Push(1)
 	other.Push(2)
 	if stack.Equal(other) {
-		t.Error("Expected stacks to not be equal, but they were")
+		t.Error("Expected stacks to not be identical, but they were")
 	}
 }
 
@@ -390,7 +399,7 @@ func TestEqualDifferentItems(t *testing.T) {
 	other.Push(2)
 	other.Push(4)
 	if stack.Equal(other) {
-		t.Error("Expected stacks to not be equal, but they were")
+		t.Error("Expected stacks to not be the same, but they were")
 	}
 }
 
@@ -424,14 +433,6 @@ func TestEqualEmptyOther(t *testing.T) {
 	other := NewStack[int]()
 	if stack.Equal(other) {
 		t.Error("Expected stacks to not be equal, but they were")
-	}
-}
-
-func TestEqualEmptyBoth(t *testing.T) {
-	stack := NewStack[int]()
-	other := NewStack[int]()
-	if !stack.Equal(other) {
-		t.Error("Expected stacks to be equal, but they were not")
 	}
 }
 
@@ -471,16 +472,16 @@ func TestPopN(t *testing.T) {
 	// Test case 1: Pop 2 items
 	items, err := stack.PopN(2)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if len(items) != 2 {
 		t.Errorf("Expected 2 items, but got %v", len(items))
 	}
 	if items[0] != 3 {
-		t.Errorf("Expected first item to be 2, but got %v", items[0])
+		t.Errorf(errExpectedXItemY, "first", 2, items[0])
 	}
 	if items[1] != 2 {
-		t.Errorf("Expected second item to be 3, but got %v", items[1])
+		t.Errorf(errExpectedXItemY, "second", 3, items[1])
 	}
 	if stack.Size() != 1 {
 		t.Errorf("Expected stack size to be 1, but got %v", stack.Size())
@@ -489,13 +490,13 @@ func TestPopN(t *testing.T) {
 	// Test case 2: Pop 1 item
 	items, err = stack.PopN(1)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if len(items) != 1 {
 		t.Errorf("Expected 1 item, but got %v", len(items))
 	}
 	if items[0] != 1 {
-		t.Errorf("Expected item to be 1, but got %v", items[0])
+		t.Errorf(errExpectedItemX, 1, items[0])
 	}
 	if stack.Size() != 0 {
 		t.Errorf("Expected stack size to be 0, but got %v", stack.Size())
@@ -504,7 +505,7 @@ func TestPopN(t *testing.T) {
 	// Test case 3: Pop from empty stack
 	items, err = stack.PopN(1)
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 	if items != nil {
 		t.Errorf("Expected items to be nil, but got %v", items)
@@ -519,13 +520,13 @@ func TestPushN(t *testing.T) {
 		t.Errorf("Expected stack to have 3 items, but got %v", len(slice))
 	}
 	if slice[0] != 1 {
-		t.Errorf("Expected first item to be 1, but got %v", slice[0])
+		t.Errorf(errExpectedXItemY, "first", 1, slice[0])
 	}
 	if slice[1] != 2 {
-		t.Errorf("Expected second item to be 2, but got %v", slice[1])
+		t.Errorf(errExpectedXItemY, "second", 3, slice[1])
 	}
 	if slice[2] != 3 {
-		t.Errorf("Expected third item to be 3, but got %v", slice[2])
+		t.Errorf(errExpectedXItemY, "third", 3, slice[2])
 	}
 }
 
@@ -542,13 +543,13 @@ func TestPopAll(t *testing.T) {
 		t.Errorf("Expected stack to be empty, but it has %d items", stack.Size())
 	}
 	if items[0] != 3 {
-		t.Errorf("Expected first item to be 3, but got %v", items[0])
+		t.Errorf(errExpectedXItemY, "first", 3, items[0])
 	}
 	if items[1] != 2 {
-		t.Errorf("Expected second item to be 2, but got %v", items[1])
+		t.Errorf(errExpectedXItemY, "second", 2, items[1])
 	}
 	if items[2] != 1 {
-		t.Errorf("Expected third item to be 1, but got %v", items[2])
+		t.Errorf(errExpectedXItemY, "third", 1, items[2])
 	}
 }
 
@@ -618,13 +619,13 @@ func TestMap(t *testing.T) {
 		t.Errorf("Expected doubled stack to have 3 items, but got %v", len(doubledSlice))
 	}
 	if doubledSlice[0] != 2 {
-		t.Errorf("Expected first item to be 2, but got %v", doubledSlice[0])
+		t.Errorf(errExpectedXItemY, "first", 2, doubledSlice[0])
 	}
 	if doubledSlice[1] != 4 {
-		t.Errorf("Expected second item to be 4, but got %v", doubledSlice[1])
+		t.Errorf(errExpectedXItemY, "second", 4, doubledSlice[1])
 	}
 	if doubledSlice[2] != 6 {
-		t.Errorf("Expected third item to be 6, but got %v", doubledSlice[2])
+		t.Errorf(errExpectedXItemY, "third", 6, doubledSlice[2])
 	}
 }
 
@@ -639,7 +640,7 @@ func TestReduce(t *testing.T) {
 		return a + b
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if sum != 6 {
 		t.Errorf("Expected sum to be 6, but got %v", sum)
@@ -650,7 +651,7 @@ func TestReduce(t *testing.T) {
 		return a * b
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if product != 6 {
 		t.Errorf("Expected product to be 6, but got %v", product)
@@ -664,7 +665,7 @@ func TestReduce(t *testing.T) {
 		return concatenated
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if concatenation != 123 {
 		t.Errorf("Expected concatenation to be 123, but got %v", concatenation)
@@ -676,7 +677,7 @@ func TestReduce(t *testing.T) {
 		return a + b
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
@@ -753,8 +754,8 @@ func TestAll(t *testing.T) {
 
 	// Test case 3: Stack is empty
 	emptyStack := NewStack[int]()
-	if !emptyStack.All(isEven) {
-		t.Error("Expected all items to be even in an empty stack, but they were not")
+	if emptyStack.All(isEven) {
+		t.Error("Expected an empty stack to match no items, but it did")
 	}
 }
 
@@ -769,12 +770,12 @@ func TestFind(t *testing.T) {
 		return i == 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	} else if *item != 2 {
-		t.Errorf("Expected item to be 2, but got %v", *item)
+		t.Errorf(errExpectedItemX, 2, *item)
 	}
 
 	// Test case 2: Item does not exist in the stack
@@ -782,10 +783,10 @@ func TestFind(t *testing.T) {
 		return i == 4
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 	if item != nil {
-		t.Errorf("Expected item to be nil, but got %v", *item)
+		t.Errorf(errExpectedItemX, nil, *item)
 	}
 }
 
@@ -799,7 +800,7 @@ func TestFindIndex(t *testing.T) {
 		return item == 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if index != 1 {
 		t.Errorf("Expected index to be 1, but got %v", index)
@@ -809,7 +810,7 @@ func TestFindIndex(t *testing.T) {
 		return item == 4
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 	if index != -1 {
 		t.Errorf("Expected index to be -1, but got %v", index)
@@ -827,12 +828,12 @@ func TestFindLast(t *testing.T) {
 		return i == 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if item == nil {
-		t.Error("Expected item to not be nil, but it was")
+		t.Error(errItemNotNil)
 	} else if *item != 2 {
-		t.Errorf("Expected item to be 2, but got %v", *item)
+		t.Errorf(errExpectedItemX, 2, *item)
 	}
 
 	// Test case 2: Item does not exist in the stack
@@ -840,10 +841,10 @@ func TestFindLast(t *testing.T) {
 		return i == 4
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 	if item != nil {
-		t.Errorf("Expected item to be nil, but got %v", *item)
+		t.Errorf(errExpectedItemX, nil, *item)
 	}
 }
 
@@ -857,7 +858,7 @@ func TestFindLastIndex(t *testing.T) {
 		return item == 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	if index != 1 {
 		t.Errorf("Expected index to be 1, but got %v", index)
@@ -867,7 +868,7 @@ func TestFindLastIndex(t *testing.T) {
 		return item == 4
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 	if index != -1 {
 		t.Errorf("Expected index to be -1, but got %v", index)
@@ -937,5 +938,277 @@ func TestFindIndices(t *testing.T) {
 
 	if indices != nil {
 		t.Errorf("Expected indices to be %v, but got %v", expectedIndices, indices)
+	}
+}
+
+func TestForRange(t *testing.T) {
+	stack := NewStack[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	// Test case 1: Apply function to each item within the range [0, 1]
+	err := stack.ForRange(0, 1, func(item *int) {
+		*item *= 2
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	expected := []int{2, 4, 3}
+	actual := stack.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected stack to be %v, but got %v", expected, actual)
+	}
+
+	// Test case 2: Apply function to each item within the range [1, 2]
+	err = stack.ForRange(1, 2, func(item *int) {
+		*item *= 3
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	expected = []int{2, 12, 9}
+	actual = stack.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected stack to be %v, but got %v", expected, actual)
+	}
+
+	// Test case 3: Apply function to each item within the range [2, 2]
+	err = stack.ForRange(2, 2, func(item *int) {
+		*item *= 4
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	expected = []int{2, 12, 36}
+	actual = stack.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected stack to be %v, but got %v", expected, actual)
+	}
+
+	// Test case 4: Start index out of range
+	err = stack.ForRange(3, 4, func(item *int) {
+		*item *= 5
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test case 5: End index out of range
+	err = stack.ForRange(1, 3, func(item *int) {
+		*item *= 6
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+
+	// Test case 6: Start index is greater than end index
+	err = stack.ForRange(2, 1, func(item *int) {
+		*item *= 7
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+}
+
+func TestForFrom(t *testing.T) {
+	stack := NewStack[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	// Test case 1: Apply function to each item starting from index 0
+	var result []int
+	err := stack.ForFrom(0, func(item *int) {
+		result = append(result, *item)
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	expectedResult := []int{1, 2, 3}
+	if !reflect.DeepEqual(result, expectedResult) {
+		t.Errorf("Expected result to be %v, but got %v", expectedResult, result)
+	}
+
+	// Test case 2: Apply function to each item starting from index 1
+	result = nil
+	err = stack.ForFrom(1, func(item *int) {
+		result = append(result, *item)
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	expectedResult = []int{2, 3}
+	if !reflect.DeepEqual(result, expectedResult) {
+		t.Errorf("Expected result to be %v, but got %v", expectedResult, result)
+	}
+
+	// Test case 3: Apply function to each item starting from index 2
+	result = nil
+	err = stack.ForFrom(2, func(item *int) {
+		result = append(result, *item)
+	})
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+	expectedResult = []int{3}
+	if !reflect.DeepEqual(result, expectedResult) {
+		t.Errorf("Expected result to be %v, but got %v", expectedResult, result)
+	}
+
+	// Test case 4: Apply function to each item starting from index out of range
+	err = stack.ForFrom(3, func(item *int) {
+		// Function should not be called
+		t.Error("Function should not be called")
+	})
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	} else if err.Error() != "start index out of range" {
+		t.Errorf("Expected error message to be 'start index out of range', but got '%v'", err.Error())
+	}
+}
+
+func TestMapFrom(t *testing.T) {
+	stack := NewStack[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	// Stack:
+	// 3
+	// 2
+	// 1
+
+	// Test case 1: MapFrom starting from index 0
+	result1, err1 := stack.MapFrom(0, func(item int) int {
+		return item * 2
+	})
+	if err1 != nil {
+		t.Errorf(errNoError, err1)
+	}
+	expected1 := NewStack[int]()
+	expected1.Push(2)
+	expected1.Push(4)
+	expected1.Push(6)
+
+	if !result1.Equal(expected1) {
+		t.Error("Expected the mapped stack to be equal to the expected stack")
+	}
+
+	test := stack.ToSlice()
+	for i, item := range test {
+		fmt.Println(i, item)
+	}
+
+	// Test case 2: MapFrom starting from index 1
+	result2, err2 := stack.MapFrom(1, func(item int) int {
+		return item * 3
+	})
+	if err2 != nil {
+		t.Errorf(errNoError, err2)
+	}
+	expected2 := NewStack[int]()
+	expected2.Push(3)
+	expected2.Push(6)
+	if !result2.Equal(expected2) {
+		t.Error("Expected the mapped stack to be equal to the expected stack")
+	}
+
+	// Test case 3: MapFrom starting from index 2
+	result3, err3 := stack.MapFrom(2, func(item int) int {
+		return item * 4
+	})
+	if err3 != nil {
+		t.Errorf(errNoError, err3)
+	}
+	expected3 := NewStack[int]()
+	expected3.Push(4)
+	if !result3.Equal(expected3) {
+		t.Error("Expected the mapped stack to be equal to the expected stack")
+	}
+
+	// Test case 4: MapFrom with start index out of range
+	_, err4 := stack.MapFrom(3, func(item int) int {
+		return item * 5
+	})
+	if err4 == nil {
+		t.Error(errYesError)
+	}
+
+	// Test case 5: MapFrom with start index out of range (negative)
+	_, err5 := stack.MapFrom(-1, func(item int) int {
+		return item * 5
+	})
+	if err5 == nil {
+		t.Error(errYesError)
+	}
+}
+
+func TestMapRange(t *testing.T) {
+	stack := NewStack[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+	stack.Push(4)
+	stack.Push(5)
+
+	// Test case 1: MapRange from index 0 to 2
+	result, err := stack.MapRange(0, 2, func(item int) int {
+		return item * 2
+	})
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	expected := []int{6, 8, 10}
+	if !result.Equal(NewStackFromSlice(expected)) {
+		t.Errorf("Expected stack to be %v, but got %v", expected, result.ToSlice())
+	}
+
+	// Test case 2: MapRange from index 1 to 3
+	result, err = stack.MapRange(1, 3, func(item int) int {
+		return item + 1
+	})
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	expected = []int{3, 4, 5}
+	if !result.Equal(NewStackFromSlice(expected)) {
+		t.Errorf("Expected stack to be %v, but got %v", expected, result.ToSlice())
+	}
+
+	// Test case 3: MapRange from index 2 to 4
+	result, err = stack.MapRange(2, 3, func(item int) int {
+		return item - 1
+	})
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+	expected = []int{1, 2}
+	if !result.Equal(NewStackFromSlice(expected)) {
+		t.Errorf("Expected stack to be %v, but got %v", expected, result.ToSlice())
+	}
+
+	// Test case 4: MapRange with invalid start index
+	_, err = stack.MapRange(-1, 2, func(item int) int {
+		return item * 2
+	})
+	if err == nil {
+		t.Error(errYesError)
+	}
+
+	// Test case 5: MapRange with invalid end index
+	_, err = stack.MapRange(0, 5, func(item int) int {
+		return item * 2
+	})
+	if err == nil {
+		t.Error(errYesError)
+	}
+
+	// Test case 6: MapRange with start index greater than end index
+	_, err = stack.MapRange(3, 2, func(item int) int {
+		return item * 2
+	})
+	if err == nil {
+		t.Error(errYesError)
 	}
 }

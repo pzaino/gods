@@ -568,11 +568,14 @@ func (l *DLinkList[T]) Merge(list *DLinkList[T]) {
 	if list.IsEmpty() {
 		return
 	}
+
 	current := list.Head
 	for current != nil {
 		l.Append(current.Value)
 		current = current.Next
 	}
+	// clear the list
+	list.Clear()
 }
 
 // ReverseCopy returns a new doubly linked list with the nodes of the original doubly linked list in reverse order
@@ -590,11 +593,17 @@ func (l *DLinkList[T]) ReverseCopy() *DLinkList[T] {
 
 // ReverseMerge appends the nodes of the given doubly linked list to the original doubly linked list in reverse order
 func (l *DLinkList[T]) ReverseMerge(list *DLinkList[T]) {
+	if list.IsEmpty() {
+		return
+	}
+
 	current := list.Tail
 	for current != nil {
 		l.Append(current.Value)
 		current = current.Prev
 	}
+	// clear the list
+	list.Clear()
 }
 
 // Equal returns true if the given doubly linked list is equal to the original doubly linked list

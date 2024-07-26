@@ -22,8 +22,10 @@ import (
 
 // Error messages
 const (
-	errItemNotFound = "item not found"
-	errStackIsEmpty = "stack is empty"
+	errItemNotFound  = "item not found"
+	errStackIsEmpty  = "stack is empty"
+	errStartIndexOOR = "start index out of range"
+	errEndIndexOOR   = "end index out of range"
 )
 
 // Stack is a non-concurrent-safe stack.
@@ -34,6 +36,13 @@ type Stack[T comparable] struct {
 // NewStack creates a new Stack.
 func NewStack[T comparable]() *Stack[T] {
 	return &Stack[T]{}
+}
+
+// NewStackFromSlice creates a new Stack from a slice.
+func NewStackFromSlice[T comparable](items []T) *Stack[T] {
+	stack := NewStack[T]()
+	stack.PushAll(items)
+	return stack
 }
 
 // Push adds an item to the stack.
@@ -109,8 +118,8 @@ func (s *Stack[T]) Clear() {
 
 // Contains checks if the stack contains an item.
 func (s *Stack[T]) Contains(item T) bool {
-	for _, v := range s.items {
-		if v == item {
+	for i := s.Size() - 1; i >= 0; i-- {
+		if s.items[i] == item {
 			return true
 		}
 	}
@@ -140,8 +149,10 @@ func (s *Stack[T]) Equal(other *Stack[T]) bool {
 		return false
 	}
 
-	for i, v := range s.items {
-		if v != other.items[i] {
+	//fmt.Printf("Starting equals...\n")
+	for i := s.Size() - 1; i >= 0; i-- {
+		//fmt.Printf("i: %d, s.items[i]: %v, other.items[i]: %v\n", i, s.items[i], other.items[i])
+		if s.items[i] != other.items[i] {
 			return false
 		}
 	}
@@ -204,10 +215,56 @@ func (s *Stack[T]) Filter(predicate func(T) bool) {
 // Map creates a new stack with the results of applying the function to each item.
 func (s *Stack[T]) Map(fn func(T) T) *Stack[T] {
 	stack := NewStack[T]()
-	for _, item := range s.items {
-		stack.Push(fn(item))
+	for i := 0; i < len(s.items); i++ {
+		stack.Push(fn(s.items[i]))
 	}
 	return stack
+}
+
+// MapFrom creates a new stack with the results of applying the function to each item starting from the specified index.
+// Please note: the start index is the top of the stack.
+func (s *Stack[T]) MapFrom(start int, fn func(T) T) (*Stack[T], error) {
+	if start < 0 || start >= len(s.items) {
+		return nil, errors.New(errStartIndexOOR)
+	}
+
+	// calculate stack start index
+	stackStart := len(s.items) - start - 1
+
+	stack := NewStack[T]()
+	stack.items = make([]T, len(s.items)-(start))
+	j := 0
+	for i := stackStart; i >= 0; i-- {
+		stack.items[i] = fn(s.items[i])
+		j++
+	}
+	return stack, nil
+}
+
+// MapRange creates a new stack with the results of applying the function to each item within the specified range.
+// Please note: start and end are inclusive and on a stack this means that the start index is the top of the stack.
+func (s *Stack[T]) MapRange(start, end int, fn func(T) T) (*Stack[T], error) {
+	if start < 0 || start >= len(s.items) {
+		return nil, errors.New(errStartIndexOOR)
+	}
+
+	if end < 0 || end >= len(s.items) {
+		return nil, errors.New(errEndIndexOOR)
+	}
+
+	if start > end {
+		return nil, errors.New("start index is greater than end index")
+	}
+
+	// Convert the start and end index to the stack indexes
+	stackStart := (len(s.items) - start) - 1
+	stackEnd := (len(s.items) - end) - 1
+
+	stack := NewStack[T]()
+	for i := stackEnd; i <= stackStart; i++ {
+		stack.Push(fn(s.items[i]))
+	}
+	return stack, nil
 }
 
 // Reduce reduces the stack to a single value.
@@ -231,10 +288,49 @@ func (s *Stack[T]) ForEach(fn func(*T)) {
 	}
 }
 
+// ForRange applies the function to each item in the stack within the specified range.
+func (s *Stack[T]) ForRange(start, end int, fn func(*T)) error {
+	if start < 0 || start >= len(s.items) {
+		return errors.New(errStartIndexOOR)
+	}
+
+	if end < 0 || end >= len(s.items) {
+		return errors.New(errEndIndexOOR)
+	}
+
+	if start > end {
+		return errors.New("start index is greater than end index")
+	}
+
+	for i := start; i <= end; i++ {
+		fn(&s.items[i])
+	}
+	return nil
+}
+
+// ForFrom applies the function to each item in the stack starting from the specified index.
+func (s *Stack[T]) ForFrom(start int, fn func(*T)) error {
+	if start < 0 || start >= len(s.items) {
+		return errors.New(errStartIndexOOR)
+	}
+
+	for i := start; i < len(s.items); i++ {
+		fn(&s.items[i])
+	}
+	return nil
+}
+
 // Any checks if any item in the stack matches the predicate.
 func (s *Stack[T]) Any(predicate func(T) bool) bool {
-	for _, item := range s.items {
-		if predicate(item) {
+	if s == nil {
+		return false
+	}
+	if len(s.items) == 0 {
+		return false
+	}
+
+	for i := 0; i < len(s.items); i++ {
+		if predicate(s.items[i]) {
 			return true
 		}
 	}
@@ -243,8 +339,15 @@ func (s *Stack[T]) Any(predicate func(T) bool) bool {
 
 // All checks if all items in the stack match the predicate.
 func (s *Stack[T]) All(predicate func(T) bool) bool {
-	for _, item := range s.items {
-		if !predicate(item) {
+	if s == nil {
+		return false
+	}
+	if len(s.items) == 0 {
+		return false
+	}
+
+	for i := 0; i < len(s.items); i++ {
+		if !predicate(s.items[i]) {
 			return false
 		}
 	}
@@ -253,9 +356,16 @@ func (s *Stack[T]) All(predicate func(T) bool) bool {
 
 // Find returns the first item that matches the predicate.
 func (s *Stack[T]) Find(predicate func(T) bool) (*T, error) {
-	for _, item := range s.items {
-		if predicate(item) {
-			return &item, nil
+	if s == nil {
+		return nil, errors.New(errItemNotFound)
+	}
+	if len(s.items) == 0 {
+		return nil, errors.New(errItemNotFound)
+	}
+
+	for i := 0; i < len(s.items); i++ {
+		if predicate(s.items[i]) {
+			return &s.items[i], nil
 		}
 	}
 	return nil, errors.New(errItemNotFound)

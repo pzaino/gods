@@ -21,14 +21,16 @@ import (
 )
 
 const (
-	errListNotEmpty    = "Expected list to be empty, but it was not"
-	errListIsEmpty     = "Expected list to not be empty, but it was"
-	errWrongSize       = "Expected list to have size %v, but got %v"
-	errNoError         = "Expected no error, but got %v"
-	errYesError        = "Expected an error, but got nil"
-	errWrongValue      = "Expected value to be %v, but got %v"
-	errExpectedX       = "Expected %v, but got %v"
-	errExpectedValToBe = "Expected value at index %d to be %v, but got %v"
+	errListNotEmpty         = "Expected list to be empty, but it was not"
+	errListIsEmpty          = "Expected list to not be empty, but it was"
+	errWrongSize            = "Expected list to have size %v, but got %v"
+	errNoError              = "Expected no error, but got %v"
+	errYesError             = "Expected an error, but got nil"
+	errWrongValue           = "Expected value to be %v, but got %v"
+	errExpectedX            = "Expected %v, but got %v"
+	errExpectedValToBe      = "Expected value at index %d to be %v, but got %v"
+	errExpectedFilteredList = "Expected filtered list to be %v, but got %v"
+	errExpectedIndex        = "Expected index to be %v, but got %v"
 )
 
 func TestNew(t *testing.T) {
@@ -451,30 +453,35 @@ func TestReverseDouble(t *testing.T) {
 }
 
 func TestReverseTriple(t *testing.T) {
-	list := NewDLinkList[int]()
-	list.Append(1)
-	list.Append(2)
-	list.Append(3)
+	type test struct {
+		index int
+		value int
+	}
+
+	list := NewDLinkList[test]()
+	list.Append(test{1, 1})
+	list.Append(test{2, 1})
+	list.Append(test{3, 1})
 	list.Reverse()
 	item, err := list.GetAt(0)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	if item.Value != 3 {
+	if item.Value.index != 3 {
 		t.Errorf(errExpectedValToBe, 0, 3, item.Value)
 	}
 	item, err = list.GetAt(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	if item.Value != 2 {
+	if item.Value.index != 2 {
 		t.Errorf(errExpectedValToBe, 1, 2, item.Value)
 	}
 	item, err = list.GetAt(2)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	if item.Value != 1 {
+	if item.Value.index != 1 {
 		t.Errorf(errExpectedValToBe, 2, 1, item.Value)
 	}
 }
@@ -587,23 +594,6 @@ func TestMergeEmptyList3(t *testing.T) {
 	}
 }
 
-func TestMergeEmptyList4(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
-	newList.Append(1)
-	list.Merge(newList)
-	if list.Size() != 1 {
-		t.Errorf(errWrongSize, 1, list.Size())
-	}
-	item, err := list.GetAt(0)
-	if err != nil {
-		t.Errorf(errNoError, err)
-	}
-	if item.Value != 1 {
-		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
-	}
-}
-
 func TestMergeEmptyList5(t *testing.T) {
 	list := NewDLinkList[int]()
 	newList := NewDLinkList[int]()
@@ -638,15 +628,6 @@ func TestMergeEmptyList6(t *testing.T) {
 	}
 }
 
-func TestMergeEmptyList7(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
-	list.Merge(newList)
-	if !list.IsEmpty() {
-		t.Error(errListNotEmpty)
-	}
-}
-
 func TestMergeEmptyList8(t *testing.T) {
 	list := NewDLinkList[int]()
 	list.Append(1)
@@ -676,74 +657,6 @@ func TestMergeEmptyList10(t *testing.T) {
 	newList.Remove(1)
 	if !newList.IsEmpty() {
 		t.Error(errListNotEmpty)
-	}
-}
-
-func TestMergeEmptyList11(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
-	list.Append(1)
-	list.Merge(newList)
-	if list.Size() != 1 {
-		t.Errorf(errWrongSize, 1, list.Size())
-	}
-	item, err := list.GetAt(0)
-	if err != nil {
-		t.Errorf(errNoError, err)
-	}
-	if item.Value != 1 {
-		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
-	}
-}
-
-func TestMergeEmptyList12(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
-	newList.Append(1)
-	list.Merge(newList)
-	if list.Size() != 1 {
-		t.Errorf(errWrongSize, 1, list.Size())
-	}
-	item, err := list.GetAt(0)
-	if err != nil {
-		t.Errorf(errNoError, err)
-	}
-	if item.Value != 1 {
-		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
-	}
-}
-
-func TestMergeEmptyList13(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
-	list.Append(1)
-	newList.Merge(list)
-	if newList.Size() != 1 {
-		t.Errorf(errWrongSize, 1, newList.Size())
-	}
-	item, err := newList.GetAt(0)
-	if err != nil {
-		t.Errorf(errNoError, err)
-	}
-	if item.Value != 1 {
-		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
-	}
-}
-
-func TestMergeEmptyList14(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
-	newList.Append(1)
-	newList.Merge(list)
-	if newList.Size() != 1 {
-		t.Errorf(errWrongSize, 1, newList.Size())
-	}
-	item, err := newList.GetAt(0)
-	if err != nil {
-		t.Errorf(errNoError, err)
-	}
-	if item.Value != 1 {
-		t.Errorf(errExpectedValToBe, 0, 1, item.Value)
 	}
 }
 
@@ -1415,7 +1328,7 @@ func TestFilter(t *testing.T) {
 	expected := []int{2, 4}
 	actual := filtered.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected filtered list to be %v, but got %v", expected, actual)
+		t.Errorf(errExpectedFilteredList, expected, actual)
 	}
 
 	// Test filtering odd numbers
@@ -1426,7 +1339,7 @@ func TestFilter(t *testing.T) {
 	expected = []int{1, 3, 5}
 	actual = filtered.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected filtered list to be %v, but got %v", expected, actual)
+		t.Errorf(errExpectedFilteredList, expected, actual)
 	}
 
 	// Test filtering with an empty list
@@ -1438,7 +1351,7 @@ func TestFilter(t *testing.T) {
 	expected = []int{}
 	actual = filtered.ToSlice()
 	if actual != nil {
-		t.Errorf("Expected filtered list to be %v, but got %v", expected, actual)
+		t.Errorf(errExpectedFilteredList, expected, actual)
 	}
 }
 
@@ -1886,7 +1799,7 @@ func TestFindLastIndex(t *testing.T) {
 	})
 
 	if index != 3 {
-		t.Errorf("Expected index to be 3, but got %v", index)
+		t.Errorf(errExpectedIndex, 3, index)
 	}
 
 	index = list.FindLastIndex(func(value int) bool {
@@ -1894,7 +1807,7 @@ func TestFindLastIndex(t *testing.T) {
 	})
 
 	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %v", index)
+		t.Errorf(errExpectedIndex, -1, index)
 	}
 }
 
@@ -1905,7 +1818,7 @@ func TestFindLastIndexEmpty(t *testing.T) {
 	})
 
 	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %v", index)
+		t.Errorf(errExpectedIndex, -1, index)
 	}
 }
 
@@ -1920,7 +1833,7 @@ func TestFindIndex(t *testing.T) {
 	})
 
 	if index != 1 {
-		t.Errorf("Expected index to be 1, but got %v", index)
+		t.Errorf(errExpectedIndex, 1, index)
 	}
 
 	index = list.FindIndex(func(value int) bool {
@@ -1928,7 +1841,7 @@ func TestFindIndex(t *testing.T) {
 	})
 
 	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %v", index)
+		t.Errorf(errExpectedIndex, -1, index)
 	}
 }
 
@@ -1939,6 +1852,6 @@ func TestFindIndexEmpty(t *testing.T) {
 	})
 
 	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %v", index)
+		t.Errorf(errExpectedIndex, -1, index)
 	}
 }

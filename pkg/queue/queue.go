@@ -77,8 +77,8 @@ func (q *Queue[T]) Values() []T {
 
 // Contains returns true if the queue contains the given element
 func (q *Queue[T]) Contains(elem T) bool {
-	for _, e := range q.data {
-		if e == elem {
+	for i := 0; i < len(q.data); i++ {
+		if q.data[i] == elem {
 			return true
 		}
 	}
@@ -123,19 +123,21 @@ func (q *Queue[T]) dataString(f func(T) string) string {
 	return sb.String()
 }
 
-// Map applies the function to all the elements in the queue
-func (q *Queue[T]) Map(f func(T) T) {
-	for i, e := range q.data {
-		q.data[i] = f(e)
+// Map creates a new queue with the results of applying the function to all elements in the queue
+func (q *Queue[T]) Map(f func(T) T) *Queue[T] {
+	newQueue := NewQueue[T]()
+	for i := 0; i < len(q.data); i++ {
+		newQueue.Enqueue(f(q.data[i]))
 	}
+	return newQueue
 }
 
 // Filter removes elements from the queue that don't match the predicate
 func (q *Queue[T]) Filter(f func(T) bool) {
 	var newData []T
-	for _, e := range q.data {
-		if f(e) {
-			newData = append(newData, e)
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
+			newData = append(newData, q.data[i])
 		}
 	}
 	q.data = newData
@@ -144,23 +146,23 @@ func (q *Queue[T]) Filter(f func(T) bool) {
 // Reduce reduces the queue to a single value
 func (q *Queue[T]) Reduce(f func(T, T) T, initial T) T {
 	result := initial
-	for _, e := range q.data {
-		result = f(result, e)
+	for i := 0; i < len(q.data); i++ {
+		result = f(result, q.data[i])
 	}
 	return result
 }
 
 // ForEach applies the function to all the elements in the queue
 func (q *Queue[T]) ForEach(f func(*T)) {
-	for i := range q.data {
+	for i := 0; i < len(q.data); i++ {
 		f(&q.data[i])
 	}
 }
 
 // Any checks if any element in the queue matches the predicate
 func (q *Queue[T]) Any(f func(T) bool) bool {
-	for _, e := range q.data {
-		if f(e) {
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
 			return true
 		}
 	}
@@ -169,8 +171,8 @@ func (q *Queue[T]) Any(f func(T) bool) bool {
 
 // All checks if all elements in the queue match the predicate
 func (q *Queue[T]) All(f func(T) bool) bool {
-	for _, e := range q.data {
-		if !f(e) {
+	for i := 0; i < len(q.data); i++ {
+		if !f(q.data[i]) {
 			return false
 		}
 	}
@@ -179,8 +181,8 @@ func (q *Queue[T]) All(f func(T) bool) bool {
 
 // IndexOf returns the index of the first element with the given value
 func (q *Queue[T]) IndexOf(value T) int {
-	for i, e := range q.data {
-		if e == value {
+	for i := 0; i < len(q.data); i++ {
+		if q.data[i] == value {
 			return i
 		}
 	}
@@ -190,8 +192,8 @@ func (q *Queue[T]) IndexOf(value T) int {
 // LastIndexOf returns the index of the last element with the given value
 func (q *Queue[T]) LastIndexOf(value T) int {
 	index := -1
-	for i, e := range q.data {
-		if e == value {
+	for i := 0; i < len(q.data); i++ {
+		if q.data[i] == value {
 			index = i
 		}
 	}
@@ -200,8 +202,8 @@ func (q *Queue[T]) LastIndexOf(value T) int {
 
 // FindIndex returns the index of the first element that matches the predicate
 func (q *Queue[T]) FindIndex(f func(T) bool) int {
-	for i, e := range q.data {
-		if f(e) {
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
 			return i
 		}
 	}
@@ -211,8 +213,8 @@ func (q *Queue[T]) FindIndex(f func(T) bool) int {
 // FindLastIndex returns the index of the last element that matches the predicate
 func (q *Queue[T]) FindLastIndex(f func(T) bool) int {
 	index := -1
-	for i, e := range q.data {
-		if f(e) {
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
 			index = i
 		}
 	}
@@ -222,9 +224,9 @@ func (q *Queue[T]) FindLastIndex(f func(T) bool) int {
 // FindAll returns all elements that match the predicate
 func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
 	newQueue := NewQueue[T]()
-	for _, e := range q.data {
-		if f(e) {
-			newQueue.Enqueue(e)
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
+			newQueue.Enqueue(q.data[i])
 		}
 	}
 	return newQueue
@@ -234,9 +236,9 @@ func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
 func (q *Queue[T]) FindLast(f func(T) bool) (T, error) {
 	var result T
 	found := false
-	for _, e := range q.data {
-		if f(e) {
-			result = e
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
+			result = q.data[i]
 			found = true
 		}
 	}
@@ -249,8 +251,8 @@ func (q *Queue[T]) FindLast(f func(T) bool) (T, error) {
 // FindAllIndexes returns the indexes of all elements that match the predicate
 func (q *Queue[T]) FindAllIndexes(f func(T) bool) []int {
 	var result []int
-	for i, e := range q.data {
-		if f(e) {
+	for i := 0; i < len(q.data); i++ {
+		if f(q.data[i]) {
 			result = append(result, i)
 		}
 	}
