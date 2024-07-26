@@ -37,6 +37,15 @@ func NewLinkList[T comparable]() *LinkList[T] {
 	return &LinkList[T]{}
 }
 
+// NewLinkListFromSlice creates a new LinkList from a slice
+func NewLinkListFromSlice[T comparable](items []T) *LinkList[T] {
+	l := NewLinkList[T]()
+	for i := 0; i < len(items); i++ {
+		l.Append(items[i])
+	}
+	return l
+}
+
 // Append adds a new node to the end of the list
 func (l *LinkList[T]) Append(value T) {
 	newNode := &Node[T]{Value: value}

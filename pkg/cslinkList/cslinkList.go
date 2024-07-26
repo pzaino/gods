@@ -32,6 +32,13 @@ func NewCSLinkList[T comparable]() *CSLinkList[T] {
 	return &CSLinkList[T]{l: linkList.NewLinkList[T]()}
 }
 
+// NewCSLinkListFromSlice creates a new concurrency-safe linked list from a slice.
+func NewCSLinkListFromSlice[T comparable](items []T) *CSLinkList[T] {
+	cs := NewCSLinkList[T]()
+	cs.l = linkList.NewLinkListFromSlice(items)
+	return cs
+}
+
 // Append adds a new node to the end of the list.
 func (cs *CSLinkList[T]) Append(value T) {
 	cs.mu.Lock()

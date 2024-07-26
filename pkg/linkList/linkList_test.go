@@ -38,6 +38,16 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestNewFromSlice(t *testing.T) {
+	list := NewLinkListFromSlice[int]([]int{1, 2, 3})
+	if list == nil {
+		t.Error("Expected list to be initialized, but got nil")
+	}
+	if list.Size() != 3 {
+		t.Errorf("Expected list to have 3 items, but got %v", list.Size())
+	}
+}
+
 func TestAppend(t *testing.T) {
 	list := NewLinkList[int]()
 	list.Append(1)

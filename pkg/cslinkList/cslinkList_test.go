@@ -34,6 +34,13 @@ func runConcurrent(_ *testing.T, n int, fn func()) {
 	wg.Wait()
 }
 
+func TestCSLinkListFromSlice(t *testing.T) {
+	cs := cslinkList.NewCSLinkListFromSlice[int]([]int{1, 2, 3, 4, 5})
+	if cs.Size() != 5 {
+		t.Fatalf("expected size 5, got %d", cs.Size())
+	}
+}
+
 func TestCSLinkListAppend(t *testing.T) {
 	cs := cslinkList.NewCSLinkList[int]()
 	runConcurrent(t, 1000, func() {
