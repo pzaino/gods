@@ -217,6 +217,41 @@ func (cs *CSDLinkList[T]) ForEach(f func(*T)) {
 	cs.l.ForEach(f)
 }
 
+// ForFrom traverses the doubly linked list starting from the given index and applies the given function to each node.
+func (cs *CSDLinkList[T]) ForFrom(index int, f func(*T)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.ForFrom(index, f)
+}
+
+// ForReverseFrom traverses the doubly linked list in reverse order starting from the given index and applies the given function to each node.
+func (cs *CSDLinkList[T]) ForReverseFrom(index int, f func(*T)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.ForReverseFrom(index, f)
+}
+
+// ForEachReverse traverses the doubly linked list in reverse order and applies the given function to each node.
+func (cs *CSDLinkList[T]) ForEachReverse(f func(*T)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.ForEachReverse(f)
+}
+
+// ForRange traverses the doubly linked list in the given range and applies the given function to each node.
+func (cs *CSDLinkList[T]) ForRange(start, end int, f func(*T)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.ForRange(start, end, f)
+}
+
+// ForReverseRange traverses the doubly linked list in reverse order in the given range and applies the given function to each node.
+func (cs *CSDLinkList[T]) ForReverseRange(start, end int, f func(*T)) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.l.ForReverseRange(start, end, f)
+}
+
 // Any returns true if the given function returns true for any node in the doubly linked list.
 func (cs *CSDLinkList[T]) Any(f func(T) bool) bool {
 	cs.mu.Lock()
@@ -257,6 +292,20 @@ func (cs *CSDLinkList[T]) Map(f func(T) T) *CSDLinkList[T] {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return &CSDLinkList[T]{l: cs.l.Map(f)}
+}
+
+// MapFrom returns a new doubly linked list containing the result of applying the given function to each node starting from the given index.
+func (cs *CSDLinkList[T]) MapFrom(index int, f func(T) T) *CSDLinkList[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return &CSDLinkList[T]{l: cs.l.MapFrom(index, f)}
+}
+
+// MapRange returns a new doubly linked list containing the result of applying the given function to each node in the given range.
+func (cs *CSDLinkList[T]) MapRange(start, end int, f func(T) T) *CSDLinkList[T] {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	return &CSDLinkList[T]{l: cs.l.MapRange(start, end, f)}
 }
 
 // Reduce reduces the doubly linked list to a single value using the given function.
