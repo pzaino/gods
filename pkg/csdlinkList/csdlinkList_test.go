@@ -25,7 +25,7 @@ func TestCSDLinkListAppend(t *testing.T) {
 		cs.Append(1)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf("expected the size to be 1000, got %d", cs.Size())
 	}
 }
 
@@ -35,7 +35,7 @@ func TestCSDLinkListPrepend(t *testing.T) {
 		cs.Prepend(1)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf("expected size to be 1000, got %d", cs.Size())
 	}
 }
 
@@ -44,11 +44,11 @@ func TestCSDLinkListInsert(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		err := cs.Insert(1)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf("unexpected error: %v ", err)
 		}
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf("expected size  1000, got %d", cs.Size())
 	}
 }
 
@@ -73,7 +73,7 @@ func TestCSDLinkListInsertAt(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		err := cs.InsertAt(0, 1)
 		if err != nil && err.Error() != "index out of bounds" {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf("unexpected error:  %v", err)
 		}
 	})
 }
@@ -99,7 +99,7 @@ func TestCSDLinkListRemoveAt(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		err := cs.RemoveAt(500)
 		if err != nil && err.Error() != "index out of bounds" {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf("unexpected error:  %v ", err)
 		}
 	})
 }
@@ -126,7 +126,7 @@ func TestCSDLinkListDeleteLast(t *testing.T) {
 		cs.DeleteLast()
 	})
 	if cs.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs.Size())
+		t.Fatalf("expected list size 0, got %d", cs.Size())
 	}
 }
 
@@ -139,7 +139,7 @@ func TestCSDLinkListDeleteFirst(t *testing.T) {
 		cs.DeleteFirst()
 	})
 	if cs.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs.Size())
+		t.Fatalf("expected  size 0, got %d", cs.Size())
 	}
 }
 
@@ -151,7 +151,7 @@ func TestCSDLinkListToSlice(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		test := cs.ToSlice()
 		if len(test) != 1000 {
-			t.Fatalf("expected size 1000, got %d", len(test))
+			t.Fatalf("expected size 1000 , got %d", len(test))
 		}
 	})
 }
@@ -164,7 +164,7 @@ func TestCSDLinkListToSliceReverse(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		test := cs.ToSliceReverse()
 		if len(test) != 1000 {
-			t.Fatalf("expected size 1000, got %d", len(test))
+			t.Fatalf("expected size  1000 , got %d", len(test))
 		}
 		if test[0] != 999 {
 			t.Fatalf("expected first element to be 999, got %d", test[0])
@@ -210,7 +210,7 @@ func TestCSDLinkListFind(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.Find(1)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf("unexpected test error: %v", err)
 		}
 	})
 }
@@ -227,11 +227,13 @@ func TestCSDLinkListReverse(t *testing.T) {
 
 func TestCSDLinkListSize(t *testing.T) {
 	cs := csdlinkList.NewCSDLinkList[int]()
+
 	runConcurrent(t, 1000, func() {
-		cs.Append(1)
+		cs.Append(2)
 	})
+
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf("expected the size to be 1000, got %d", cs.Size())
 	}
 }
 
@@ -259,7 +261,7 @@ func TestCSDLinkListGetAt(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.GetAt(500)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf("unexpected test error:  %v", err)
 		}
 	})
 }
@@ -273,7 +275,7 @@ func TestCSDLinkListClear(t *testing.T) {
 		cs.Clear()
 	})
 	if cs.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs.Size())
+		t.Fatalf("expected the size to be 0, got %d", cs.Size())
 	}
 }
 

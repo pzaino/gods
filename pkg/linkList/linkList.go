@@ -420,6 +420,9 @@ func (l *LinkList[T]) ForRange(start, end int, f func(*T)) error {
 	for i := start; i <= end; i++ {
 		f(&current.Value)
 		current = current.Next
+		if current == nil {
+			break
+		}
 	}
 
 	return nil
@@ -439,6 +442,9 @@ func (l *LinkList[T]) ForFrom(start int, f func(*T)) error {
 	for current != nil {
 		f(&current.Value)
 		current = current.Next
+		if current == nil {
+			break
+		}
 	}
 
 	return nil
