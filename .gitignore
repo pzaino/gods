@@ -4,7 +4,7 @@
 
 # SAST/DAST
 .scannerwork/
-sonar-properties
+sonar-project.properties
 sonar-report.json
 
 # Go lang
