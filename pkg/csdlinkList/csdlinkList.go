@@ -68,7 +68,7 @@ func (cs *CSDLinkList[T]) InsertBefore(value, newValue T) {
 }
 
 // InsertAt inserts a new node with the given value at the given index.
-func (cs *CSDLinkList[T]) InsertAt(index int, value T) error {
+func (cs *CSDLinkList[T]) InsertAt(index uint64, value T) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.InsertAt(index, value)
@@ -87,7 +87,7 @@ func (cs *CSDLinkList[T]) Remove(value T) {
 }
 
 // RemoveAt deletes the node at the given index.
-func (cs *CSDLinkList[T]) RemoveAt(index int) error {
+func (cs *CSDLinkList[T]) RemoveAt(index uint64) error {
 	return cs.DeleteAt(index)
 }
 
@@ -113,7 +113,7 @@ func (cs *CSDLinkList[T]) DeleteFirst() {
 }
 
 // DeleteAt deletes the node at the given index.
-func (cs *CSDLinkList[T]) DeleteAt(index int) error {
+func (cs *CSDLinkList[T]) DeleteAt(index uint64) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.DeleteAt(index)
@@ -134,14 +134,14 @@ func (cs *CSDLinkList[T]) ToSliceReverse() []T {
 }
 
 // ToSliceFromIndex converts the doubly linked list to a slice starting from the given index.
-func (cs *CSDLinkList[T]) ToSliceFromIndex(index int) []T {
+func (cs *CSDLinkList[T]) ToSliceFromIndex(index uint64) []T {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.ToSliceFromIndex(index)
 }
 
 // ToSliceReverseFromIndex converts the doubly linked list to a slice in reverse order starting from the given index.
-func (cs *CSDLinkList[T]) ToSliceReverseFromIndex(index int) []T {
+func (cs *CSDLinkList[T]) ToSliceReverseFromIndex(index uint64) []T {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.ToSliceReverseFromIndex(index)
@@ -169,7 +169,7 @@ func (cs *CSDLinkList[T]) IsEmpty() bool {
 }
 
 // GetAt returns the node at the given index.
-func (cs *CSDLinkList[T]) GetAt(index int) (*dlinkList.Node[T], error) {
+func (cs *CSDLinkList[T]) GetAt(index uint64) (*dlinkList.Node[T], error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.GetAt(index)
@@ -190,7 +190,7 @@ func (cs *CSDLinkList[T]) GetFirst() *dlinkList.Node[T] {
 }
 
 // Size returns the number of nodes in the doubly linked list.
-func (cs *CSDLinkList[T]) Size() int {
+func (cs *CSDLinkList[T]) Size() uint64 {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.Size()
@@ -218,14 +218,14 @@ func (cs *CSDLinkList[T]) ForEach(f func(*T)) {
 }
 
 // ForFrom traverses the doubly linked list starting from the given index and applies the given function to each node.
-func (cs *CSDLinkList[T]) ForFrom(index int, f func(*T)) {
+func (cs *CSDLinkList[T]) ForFrom(index uint64, f func(*T)) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	cs.l.ForFrom(index, f)
 }
 
 // ForReverseFrom traverses the doubly linked list in reverse order starting from the given index and applies the given function to each node.
-func (cs *CSDLinkList[T]) ForReverseFrom(index int, f func(*T)) {
+func (cs *CSDLinkList[T]) ForReverseFrom(index uint64, f func(*T)) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	cs.l.ForReverseFrom(index, f)
@@ -239,14 +239,14 @@ func (cs *CSDLinkList[T]) ForEachReverse(f func(*T)) {
 }
 
 // ForRange traverses the doubly linked list in the given range and applies the given function to each node.
-func (cs *CSDLinkList[T]) ForRange(start, end int, f func(*T)) {
+func (cs *CSDLinkList[T]) ForRange(start, end uint64, f func(*T)) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	cs.l.ForRange(start, end, f)
 }
 
 // ForReverseRange traverses the doubly linked list in reverse order in the given range and applies the given function to each node.
-func (cs *CSDLinkList[T]) ForReverseRange(start, end int, f func(*T)) {
+func (cs *CSDLinkList[T]) ForReverseRange(start, end uint64, f func(*T)) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	cs.l.ForReverseRange(start, end, f)
@@ -274,7 +274,7 @@ func (cs *CSDLinkList[T]) IndexOf(value T) int {
 }
 
 // LastIndexOf returns the index of the last occurrence of the given value in the doubly linked list.
-func (cs *CSDLinkList[T]) LastIndexOf(value T) int {
+func (cs *CSDLinkList[T]) LastIndexOf(value T) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.LastIndexOf(value)
@@ -295,14 +295,14 @@ func (cs *CSDLinkList[T]) Map(f func(T) T) *CSDLinkList[T] {
 }
 
 // MapFrom returns a new doubly linked list containing the result of applying the given function to each node starting from the given index.
-func (cs *CSDLinkList[T]) MapFrom(index int, f func(T) T) *CSDLinkList[T] {
+func (cs *CSDLinkList[T]) MapFrom(index uint64, f func(T) T) *CSDLinkList[T] {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return &CSDLinkList[T]{l: cs.l.MapFrom(index, f)}
 }
 
 // MapRange returns a new doubly linked list containing the result of applying the given function to each node in the given range.
-func (cs *CSDLinkList[T]) MapRange(start, end int, f func(T) T) *CSDLinkList[T] {
+func (cs *CSDLinkList[T]) MapRange(start, end uint64, f func(T) T) *CSDLinkList[T] {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return &CSDLinkList[T]{l: cs.l.MapRange(start, end, f)}
@@ -357,7 +357,7 @@ func (cs *CSDLinkList[T]) Equal(list *CSDLinkList[T]) bool {
 }
 
 // Swap swaps the nodes at the given indices.
-func (cs *CSDLinkList[T]) Swap(i, j int) error {
+func (cs *CSDLinkList[T]) Swap(i, j uint64) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.Swap(i, j)

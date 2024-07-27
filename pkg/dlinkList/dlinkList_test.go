@@ -495,7 +495,7 @@ func TestCopy(t *testing.T) {
 	if list.Size() != newList.Size() {
 		t.Errorf("Expected new list to have size %v, but got %v", list.Size(), newList.Size())
 	}
-	for i := 0; i < list.Size(); i++ {
+	for i := uint64(0); i < list.size; i++ {
 		item, err := list.GetAt(i)
 		if err != nil {
 			t.Errorf(errNoError, err)
@@ -523,12 +523,12 @@ func TestMerge(t *testing.T) {
 	if list.Size() != 6 {
 		t.Errorf(errWrongSize, 6, list.Size())
 	}
-	for i := 0; i < list.Size(); i++ {
+	for i := uint64(0); i < list.size; i++ {
 		item, err := list.GetAt(i)
 		if err != nil {
 			t.Errorf(errNoError, err)
 		}
-		if item.Value != i+1 {
+		if item.Value != int(i)+1 {
 			t.Errorf(errExpectedValToBe, i, i+1, item.Value)
 		}
 	}
@@ -1117,7 +1117,7 @@ func TestToSliceFromIndex(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := list.ToSliceFromIndex(test.index)
+		result := list.ToSliceFromIndex(uint64(test.index))
 		if result == nil && (test.index != 5 && test.index != 6) {
 			t.Errorf("Expected ToSliceFromIndex(%d) to return %v, but got %v", test.index, test.expected, result)
 		}
@@ -1296,17 +1296,23 @@ func TestLastIndexOf(t *testing.T) {
 	list.Append(2)
 	list.Append(4)
 
-	index := list.LastIndexOf(2)
+	index, err := list.LastIndexOf(2)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
 	if index != 3 {
 		t.Errorf("Expected last index of 2 to be 3, but got %v", index)
 	}
 
-	index = list.LastIndexOf(5)
-	if index != -1 {
-		t.Errorf("Expected last index of 5 to be -1, but got %v", index)
+	_, err = list.LastIndexOf(5)
+	if err == nil {
+		t.Errorf(errYesError)
 	}
 
-	index = list.LastIndexOf(4)
+	index, err = list.LastIndexOf(4)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
 	if index != 4 {
 		t.Errorf("Expected last index of 4 to be 4, but got %v", index)
 	}
@@ -1610,7 +1616,7 @@ func TestSwap(t *testing.T) {
 	}
 
 	// Swap nodes at out-of-bound indices
-	err = list.Swap(-1, 3)
+	err = list.Swap(20, 3)
 	if err == nil {
 		t.Error(errYesError)
 	}
@@ -1868,7 +1874,7 @@ func TestForFrom(t *testing.T) {
 
 	expected := []int{2, 3}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -1917,7 +1923,7 @@ func TestForRange(t *testing.T) {
 
 	expected := []int{1, 2, 3}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test case 2: start = 1, end = 3
@@ -1928,7 +1934,7 @@ func TestForRange(t *testing.T) {
 
 	expected = []int{2, 3, 4}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test case 3: start = 2, end = 4
@@ -1939,7 +1945,7 @@ func TestForRange(t *testing.T) {
 
 	expected = []int{3, 4, 5}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test case 4: start = 0, end = 0
@@ -1950,7 +1956,7 @@ func TestForRange(t *testing.T) {
 
 	expected = []int{1}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test case 5: start = 4, end = 4
@@ -1961,7 +1967,7 @@ func TestForRange(t *testing.T) {
 
 	expected = []int{5}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test case 6: start = 0, end = 5 (out of bounds)
@@ -1972,7 +1978,7 @@ func TestForRange(t *testing.T) {
 
 	expected = []int{1, 2, 3, 4, 5}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test case 7: start = 5, end = 0 (invalid range)
@@ -1983,7 +1989,7 @@ func TestForRange(t *testing.T) {
 
 	expected = []int{}
 	if result != nil {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -2069,7 +2075,7 @@ func TestForReverseFrom(t *testing.T) {
 
 	expected := []int{2, 1}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 
 	// Test with empty list

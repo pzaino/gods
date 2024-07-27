@@ -30,6 +30,7 @@ type Node[T comparable] struct {
 type DLinkList[T comparable] struct {
 	Head *Node[T]
 	Tail *Node[T]
+	size uint64
 }
 
 // NewDLinkList creates a new doubly linked list
@@ -44,12 +45,14 @@ func (l *DLinkList[T]) Append(value T) {
 	if l.Head == nil {
 		l.Head = newNode
 		l.Tail = newNode
+		l.size++
 		return
 	}
 
 	newNode.Prev = l.Tail
 	l.Tail.Next = newNode
 	l.Tail = newNode
+	l.size++
 }
 
 // Prepend adds a new node to the beginning of the doubly linked list
@@ -59,20 +62,22 @@ func (l *DLinkList[T]) Prepend(value T) {
 	if l.Head == nil {
 		l.Head = newNode
 		l.Tail = newNode
+		l.size++
 		return
 	}
 
 	newNode.Next = l.Head
 	l.Head.Prev = newNode
 	l.Head = newNode
+	l.size++
 }
 
 // Insert inserts a new node with the given value at first available index
 // note: this is just an alias for Append
 func (l *DLinkList[T]) Insert(value T) error {
-	ln := l.Size()
+	ln := l.size
 	l.Append(value)
-	if ln == l.Size() {
+	if ln == l.size {
 		return errors.New("failed to insert")
 	}
 	return nil
@@ -111,8 +116,8 @@ func (l *DLinkList[T]) InsertBefore(value, newValue T) {
 }
 
 // InsertAt inserts a new node with the given value at the given index
-func (l *DLinkList[T]) InsertAt(index int, value T) error {
-	if index < 0 {
+func (l *DLinkList[T]) InsertAt(index uint64, value T) error {
+	if index > l.size {
 		return errors.New(errIndexOutOfBound)
 	}
 
@@ -122,7 +127,7 @@ func (l *DLinkList[T]) InsertAt(index int, value T) error {
 	}
 
 	current := l.Head
-	for i := 0; i < index-1; i++ {
+	for i := uint64(0); i < index-1; i++ {
 		if current == nil {
 			return errors.New(errIndexOutOfBound)
 		}
@@ -140,6 +145,7 @@ func (l *DLinkList[T]) InsertAt(index int, value T) error {
 	if newNode.Next != nil {
 		newNode.Next.Prev = newNode
 	}
+	l.size++
 
 	return nil
 }
@@ -155,6 +161,7 @@ func (l *DLinkList[T]) DeleteWithValue(value T) {
 		if l.Head != nil {
 			l.Head.Prev = nil
 		}
+		l.size--
 		return
 	}
 
@@ -168,6 +175,7 @@ func (l *DLinkList[T]) DeleteWithValue(value T) {
 			if current.Next != nil {
 				current.Next.Prev = current
 			}
+			l.size--
 			return
 		}
 		current = current.Next
@@ -178,7 +186,7 @@ func (l *DLinkList[T]) Remove(value T) {
 	l.DeleteWithValue(value)
 }
 
-func (l *DLinkList[T]) RemoveAt(index int) error {
+func (l *DLinkList[T]) RemoveAt(index uint64) error {
 	return l.DeleteAt(index)
 }
 
@@ -194,17 +202,20 @@ func (l *DLinkList[T]) Delete(value T) {
 		if l.Head != nil {
 			l.Head.Prev = nil
 		}
+		l.size--
 		return
 	}
 
 	if node.Next == nil {
 		l.Tail = node.Prev
 		l.Tail.Next = nil
+		l.size--
 		return
 	}
 
 	node.Prev.Next = node.Next
 	node.Next.Prev = node.Prev
+	l.size--
 }
 
 // DeleteLast deletes the last node in the doubly linked list
@@ -216,11 +227,13 @@ func (l *DLinkList[T]) DeleteLast() {
 	if l.Tail.Prev == nil {
 		l.Head = nil
 		l.Tail = nil
+		l.size--
 		return
 	}
 
 	l.Tail = l.Tail.Prev
 	l.Tail.Next = nil
+	l.size--
 }
 
 // DeleteFirst deletes the first node in the doubly linked list
@@ -232,47 +245,57 @@ func (l *DLinkList[T]) DeleteFirst() {
 	if l.Head.Next == nil {
 		l.Head = nil
 		l.Tail = nil
+		l.size--
 		return
 	}
 
 	l.Head = l.Head.Next
 	l.Head.Prev = nil
+	l.size--
 }
 
 // DeleteAt deletes the node at the given index
-func (l *DLinkList[T]) DeleteAt(index int) error {
-	if index < 0 {
+func (l *DLinkList[T]) DeleteAt(index uint64) error {
+	if index > l.size {
 		return errors.New(errIndexOutOfBound)
 	}
 
+	// delete the first node
 	if index == 0 {
 		if l.Head == nil {
 			return errors.New(errIndexOutOfBound)
 		}
 		l.Head = l.Head.Next
 		l.Head.Prev = nil
+		l.size--
 		return nil
 	}
 
+	// find the node at the given index
 	current := l.Head
-	for i := 0; i < index; i++ {
+	for i := uint64(0); i < index; i++ {
 		if current == nil {
 			return errors.New(errIndexOutOfBound)
 		}
 		current = current.Next
 	}
 
+	// Check if the node is valid
 	if current == nil {
 		return errors.New(errIndexOutOfBound)
 	}
 
+	// this is the last node
 	if current.Next == nil {
 		current.Prev.Next = nil
+		l.size--
 		return nil
 	}
 
+	// regular node in the middle
 	current.Prev.Next = current.Next
 	current.Next.Prev = current.Prev
+	l.size--
 
 	return nil
 }
@@ -304,7 +327,7 @@ func (l *DLinkList[T]) ToSliceReverse() []T {
 }
 
 // ToSliceFromIndex converts the doubly linked list to a slice starting from the given index
-func (l *DLinkList[T]) ToSliceFromIndex(index int) []T {
+func (l *DLinkList[T]) ToSliceFromIndex(index uint64) []T {
 	var result []T
 
 	current, err := l.GetAt(index)
@@ -321,8 +344,12 @@ func (l *DLinkList[T]) ToSliceFromIndex(index int) []T {
 }
 
 // ToSliceReverseFromIndex converts the doubly linked list to a slice in reverse order starting from the given index
-func (l *DLinkList[T]) ToSliceReverseFromIndex(index int) []T {
+func (l *DLinkList[T]) ToSliceReverseFromIndex(index uint64) []T {
 	var result []T
+
+	if index > l.size {
+		return result
+	}
 
 	current, err := l.GetAt((l.Size() - 1) - index)
 	if err != nil {
@@ -363,7 +390,7 @@ func (l *DLinkList[T]) Find(value T) (*Node[T], error) {
 		current = current.Next
 	}
 
-	return nil, errors.New("value not found")
+	return nil, errors.New("value  not found")
 }
 
 // IsEmpty returns true if the doubly linked list is empty
@@ -372,8 +399,8 @@ func (l *DLinkList[T]) IsEmpty() bool {
 }
 
 // GetAt returns the node at the given index
-func (l *DLinkList[T]) GetAt(index int) (*Node[T], error) {
-	if index < 0 {
+func (l *DLinkList[T]) GetAt(index uint64) (*Node[T], error) {
+	if index > l.size {
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
@@ -385,7 +412,7 @@ func (l *DLinkList[T]) GetAt(index int) (*Node[T], error) {
 		return current, nil
 	}
 
-	for i := 0; i < index; i++ {
+	for i := uint64(0); i < index; i++ {
 		if current == nil {
 			return nil, errors.New(errIndexOutOfBound)
 		}
@@ -410,21 +437,27 @@ func (l *DLinkList[T]) GetFirst() *Node[T] {
 }
 
 // Size returns the number of nodes in the doubly linked list
-func (l *DLinkList[T]) Size() int {
-	size := 0
+func (l *DLinkList[T]) Size() uint64 {
+	return l.size
+}
+
+// CheckSize recalculates the size of the doubly linked list
+func (l *DLinkList[T]) CheckSize() {
+	size := uint64(0)
 	current := l.Head
 	for current != nil {
 		size++
 		current = current.Next
 	}
 
-	return size
+	l.size = size
 }
 
 // Clear removes all nodes from the doubly linked list
 func (l *DLinkList[T]) Clear() {
 	l.Head = nil
 	l.Tail = nil
+	l.size = 0
 }
 
 // Contains returns true if the doubly linked list contains the given value
@@ -454,8 +487,8 @@ func (l *DLinkList[T]) ForEach(f func(*T)) {
 }
 
 // ForFrom traverses the doubly linked list starting from the given index and applies the given function to each node
-func (l *DLinkList[T]) ForFrom(index int, f func(*T)) {
-	if index < 0 {
+func (l *DLinkList[T]) ForFrom(index uint64, f func(*T)) {
+	if index > l.size {
 		return
 	}
 
@@ -491,8 +524,8 @@ func (l *DLinkList[T]) ForEachReverse(f func(*T)) {
 }
 
 // ForReverseFrom traverses the doubly linked list in reverse order starting from the given index and applies the given function to each node
-func (l *DLinkList[T]) ForReverseFrom(index int, f func(*T)) {
-	if index < 0 {
+func (l *DLinkList[T]) ForReverseFrom(index uint64, f func(*T)) {
+	if index > l.size {
 		return
 	}
 
@@ -515,8 +548,8 @@ func (l *DLinkList[T]) ForReverseFrom(index int, f func(*T)) {
 }
 
 // ForRange traverses the doubly linked list from the start index to the end index and applies the given function to each node
-func (l *DLinkList[T]) ForRange(start, end int, f func(*T)) {
-	if start < 0 || end < 0 || start > end {
+func (l *DLinkList[T]) ForRange(start, end uint64, f func(*T)) {
+	if start > end || start > l.size || end > l.size {
 		return
 	}
 
@@ -539,8 +572,8 @@ func (l *DLinkList[T]) ForRange(start, end int, f func(*T)) {
 }
 
 // ForReverseRange traverses the doubly linked list in reverse order from the start index to the end index and applies the given function to each node
-func (l *DLinkList[T]) ForReverseRange(start, end int, f func(*T)) {
-	if start < 0 || end < 0 || start > end {
+func (l *DLinkList[T]) ForReverseRange(start, end uint64, f func(*T)) {
+	if start > end {
 		return
 	}
 
@@ -557,10 +590,6 @@ func (l *DLinkList[T]) ForReverseRange(start, end int, f func(*T)) {
 	}
 
 	if end < start {
-		return
-	}
-
-	if end < 0 {
 		return
 	}
 
@@ -625,18 +654,18 @@ func (l *DLinkList[T]) IndexOf(value T) int {
 }
 
 // LastIndexOf returns the index of the last occurrence of the given value in the doubly linked list
-func (l *DLinkList[T]) LastIndexOf(value T) int {
+func (l *DLinkList[T]) LastIndexOf(value T) (uint64, error) {
 	current := l.Tail
 	index := l.Size() - 1
 	for current != nil {
 		if current.Value == value {
-			return index
+			return index, nil
 		}
 		index--
 		current = current.Prev
 	}
 
-	return -1
+	return 0, errors.New("value not found")
 }
 
 // Filter returns a new doubly linked list containing only the nodes that satisfy the given function
@@ -668,10 +697,10 @@ func (l *DLinkList[T]) Map(f func(T) T) *DLinkList[T] {
 }
 
 // MapFrom returns a new doubly linked list containing the result of applying the given function to each node starting from the given index
-func (l *DLinkList[T]) MapFrom(index int, f func(T) T) *DLinkList[T] {
+func (l *DLinkList[T]) MapFrom(index uint64, f func(T) T) *DLinkList[T] {
 	result := NewDLinkList[T]()
 
-	if index < 0 {
+	if index > l.size {
 		return result
 	}
 
@@ -696,10 +725,10 @@ func (l *DLinkList[T]) MapFrom(index int, f func(T) T) *DLinkList[T] {
 }
 
 // MapRange returns a new doubly linked list containing the result of applying the given function to each node in the range [start, end)
-func (l *DLinkList[T]) MapRange(start, end int, f func(T) T) *DLinkList[T] {
+func (l *DLinkList[T]) MapRange(start, end uint64, f func(T) T) *DLinkList[T] {
 	result := NewDLinkList[T]()
 
-	if start < 0 || end < 0 || start > end {
+	if start > end || start > l.size || end > l.size {
 		return result
 	}
 
@@ -813,7 +842,7 @@ func (l *DLinkList[T]) Equal(list *DLinkList[T]) bool {
 }
 
 // Swap swaps the nodes at the given indices
-func (l *DLinkList[T]) Swap(i, j int) error {
+func (l *DLinkList[T]) Swap(i, j uint64) error {
 	node1, err := l.GetAt(i)
 	if err != nil {
 		return err

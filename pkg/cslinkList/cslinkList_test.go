@@ -22,6 +22,10 @@ import (
 	cslinkList "github.com/pzaino/gods/pkg/cslinkList"
 )
 
+const (
+	errExpectedNoError = "expected no error, got %v"
+)
+
 func runConcurrent(_ *testing.T, n int, fn func()) {
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
@@ -353,7 +357,10 @@ func TestCSLinkListIndexOf(t *testing.T) {
 		cs.Append(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.IndexOf(500)
+		_, err := cs.IndexOf(500)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 	})
 }
 
@@ -363,7 +370,10 @@ func TestCSLinkListLastIndexOf(t *testing.T) {
 		cs.Append(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.LastIndexOf(500)
+		_, err := cs.LastIndexOf(500)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 	})
 }
 
@@ -373,9 +383,12 @@ func TestCSLinkListFindIndex(t *testing.T) {
 		cs.Append(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.FindIndex(func(item int) bool {
+		_, err := cs.FindIndex(func(item int) bool {
 			return item == 500
 		})
+		if err != nil {
+			t.Fatalf(errExpectedNoError, err)
+		}
 	})
 }
 
@@ -385,9 +398,12 @@ func TestCSLinkListFindLastIndex(t *testing.T) {
 		cs.Append(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.FindLastIndex(func(item int) bool {
+		_, err := cs.FindLastIndex(func(item int) bool {
 			return item == 500
 		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 	})
 }
 

@@ -26,6 +26,7 @@ const (
 	errExpectedIndex       = "Expected index %d, but got %d"
 	errExpectedSliceLength = "Expected slice length %d, but got %d"
 	errExpectedNoError     = "Expected no error, but got %v"
+	errExpectedYesError    = "Expected error, but got %v"
 	errExpectedErr         = "Expected an error, but got nil"
 	errExpectedSliceElem   = "Expected slice element %d to be %d, but got %d"
 	errExpectedNodeValue   = "Expected node value to be %v, but got %v"
@@ -278,18 +279,6 @@ func TestInsertAt(t *testing.T) {
 	}
 }
 
-func TestInsertAtNegativeIndex(t *testing.T) {
-	list := NewLinkList[int]()
-	list.Append(1)
-	list.Append(2)
-	list.Append(3)
-
-	err := list.InsertAt(-1, 4)
-	if err == nil {
-		t.Error(errExpectedErr)
-	}
-}
-
 func TestInsertAtOutOfBoundsIndex(t *testing.T) {
 	list := NewLinkList[int]()
 	list.Append(1)
@@ -371,18 +360,6 @@ func TestDeleteAt(t *testing.T) {
 		if slice[i] != expected[i] {
 			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
-	}
-}
-
-func TestDeleteAtNegativeIndex(t *testing.T) {
-	list := NewLinkList[int]()
-	list.Append(1)
-	list.Append(2)
-	list.Append(3)
-
-	err := list.DeleteAt(-1)
-	if err == nil {
-		t.Error(errExpectedErr)
 	}
 }
 
@@ -786,15 +763,15 @@ func TestIndexOf(t *testing.T) {
 	list.Append(2)
 
 	// Test finding an existing value
-	index := list.IndexOf(2)
-	if index != 1 {
+	index, err := list.IndexOf(2)
+	if err == nil && index != 1 {
 		t.Errorf("Expected index to be 1, but got %d", index)
 	}
 
 	// Test finding a non-existing value
-	index = list.IndexOf(4)
-	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %d", index)
+	index, err = list.IndexOf(4)
+	if err == nil {
+		t.Errorf("Expected an error, but got %d", index)
 	}
 }
 
@@ -802,9 +779,9 @@ func TestIndexOfEmptyList(t *testing.T) {
 	list := NewLinkList[int]()
 
 	// Test finding a value in an empty list
-	index := list.IndexOf(1)
-	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %d", index)
+	index, err := list.IndexOf(1)
+	if err == nil {
+		t.Errorf("Expected an error, but got %d", index)
 	}
 }
 
@@ -816,29 +793,28 @@ func TestLastIndexOf(t *testing.T) {
 	list.Append(2)
 	list.Append(4)
 
-	index := list.LastIndexOf(2)
-	expected := 3
+	index, err := list.LastIndexOf(2)
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
+	expected := uint64(3)
 
 	if index != expected {
 		t.Errorf(errExpectedIndex, expected, index)
 	}
 
-	index = list.LastIndexOf(5)
-	expected = -1
-
-	if index != expected {
-		t.Errorf(errExpectedIndex, expected, index)
+	index, err = list.LastIndexOf(5)
+	if err == nil {
+		t.Errorf(errExpectedYesError, index)
 	}
 }
 
 func TestLastIndexOfEmptyList(t *testing.T) {
 	list := NewLinkList[int]()
 
-	index := list.LastIndexOf(1)
-	expected := -1
-
-	if index != expected {
-		t.Errorf(errExpectedIndex, expected, index)
+	index, err := list.LastIndexOf(1)
+	if err == nil {
+		t.Errorf(errExpectedYesError, index)
 	}
 }
 
@@ -851,19 +827,22 @@ func TestFindIndex(t *testing.T) {
 	list.Append(5)
 
 	// Test finding an existing value
-	index := list.FindIndex(func(value int) bool {
+	index, err := list.FindIndex(func(value int) bool {
 		return value == 3
 	})
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
 	if index != 2 {
 		t.Errorf("Expected index 2, but got %d", index)
 	}
 
 	// Test finding a non-existing value
-	index = list.FindIndex(func(value int) bool {
+	index, err = list.FindIndex(func(value int) bool {
 		return value == 6
 	})
-	if index != -1 {
-		t.Errorf("Expected index -1, but got %d", index)
+	if err == nil {
+		t.Errorf(errExpectedYesError, index)
 	}
 }
 
@@ -876,19 +855,22 @@ func TestFindLastIndex(t *testing.T) {
 	list.Append(4)
 
 	// Test finding the last index of a value that exists in the list
-	index := list.FindLastIndex(func(value int) bool {
+	index, err := list.FindLastIndex(func(value int) bool {
 		return value == 2
 	})
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
 	if index != 3 {
 		t.Errorf("Expected last index of value 2 to be 3, but got %d", index)
 	}
 
 	// Test finding the last index of a value that doesn't exist in the list
-	index = list.FindLastIndex(func(value int) bool {
+	index, err = list.FindLastIndex(func(value int) bool {
 		return value == 5
 	})
-	if index != -1 {
-		t.Errorf("Expected last index of value 5 to be -1, but got %d", index)
+	if err == nil {
+		t.Errorf(errExpectedYesError, index)
 	}
 }
 
@@ -979,7 +961,7 @@ func TestFindAllIndexes(t *testing.T) {
 		return value == 2
 	})
 
-	expected := []int{1, 3, 5}
+	expected := []uint64{1, 3, 5}
 
 	if len(indexes) != len(expected) {
 		t.Errorf("Expected indexes length %d, but got %d", len(expected), len(indexes))
@@ -996,7 +978,7 @@ func TestFindAllIndexes(t *testing.T) {
 		return value == 5
 	})
 
-	expected = []int{}
+	expected = []uint64{}
 
 	if len(indexes) != len(expected) {
 		t.Errorf("Expected indexes length %d, but got %d", len(expected), len(indexes))
@@ -1070,14 +1052,6 @@ func TestMapFrom(t *testing.T) {
 
 	// Test mapping from an index out of bounds
 	_, err = list.MapFrom(3, func(value int) int {
-		return value * 2
-	})
-	if err == nil {
-		t.Error(errExpectedErr)
-	}
-
-	// Test mapping from a negative index
-	_, err = list.MapFrom(-1, func(value int) int {
 		return value * 2
 	})
 	if err == nil {
@@ -1234,14 +1208,6 @@ func TestForFrom(t *testing.T) {
 		if slice[i] != expected[i] {
 			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
-	}
-
-	// Test with a negative start index
-	err = list.ForFrom(-1, func(value *int) {
-		*value *= 2
-	})
-	if err == nil {
-		t.Error(errExpectedErr)
 	}
 
 	// Test with an out of bounds start index

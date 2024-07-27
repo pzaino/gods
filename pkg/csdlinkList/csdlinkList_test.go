@@ -22,6 +22,10 @@ import (
 	csdlinkList "github.com/pzaino/gods/pkg/csdlinkList"
 )
 
+const (
+	errExpectedNoError = "expected no error, got %v"
+)
+
 func runConcurrent(_ *testing.T, n int, fn func()) {
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
@@ -211,7 +215,7 @@ func TestCSDLinkListToSliceReverseFromIndex(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		test := cs.ToSliceReverseFromIndex(50)
 		if len(test) != 950 {
-			t.Fatalf("expected size 50, got %d", len(test))
+			t.Fatalf("expected size 950, got %d", len(test))
 		}
 		if test[0] != 949 {
 			t.Fatalf("expected first element to be 950, got %d", test[0])
@@ -406,7 +410,10 @@ func TestCSDLinkListLastIndexOf(t *testing.T) {
 		cs.Append(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.LastIndexOf(500)
+		_, err := cs.LastIndexOf(500)
+		if err != nil {
+			t.Fatalf(errExpectedNoError, err)
+		}
 	})
 }
 
