@@ -36,7 +36,7 @@ All data structures were designed to use generics, so some method call may
 
 - [x] [Stack](./pkg/stack)
 - [x] [Concurrent Stack](./pkg/csstack)
-- [x] [Queue](.pkg/queue)
+- [x] [Queue](./pkg/queue)
 - [ ] [Concurrent Queue](./pkg/csqueue)
 - [x] [Priority Queue](./pkg/pqueue)
 - [ ] [Concurrent Priority Queue](./pkg/cspqueue)
