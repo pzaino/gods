@@ -36,12 +36,12 @@ func TestPrepend(t *testing.T) {
 	actual := list.ToSlice()
 
 	if len(expected) != len(actual) {
-		t.Fatalf("expected length %d, got %d", len(expected), len(actual))
+		t.Fatalf("expected length %d , got %d", len(expected), len(actual))
 	}
 
 	for i, v := range expected {
 		if actual[i] != v {
-			t.Fatalf("expected %d, got %d", v, actual[i])
+			t.Fatalf("expected  %d, got %d", v, actual[i])
 		}
 	}
 }
@@ -54,12 +54,12 @@ func TestDeleteWithValue(t *testing.T) {
 	actual := list.ToSlice()
 
 	if len(expected) != len(actual) {
-		t.Fatalf("expected length %d, got %d", len(expected), len(actual))
+		t.Fatalf("expected length  %d, got %d", len(expected), len(actual))
 	}
 
 	for i, v := range expected {
 		if actual[i] != v {
-			t.Fatalf("expected %d, got %d", v, actual[i])
+			t.Fatalf("expected %d , got %d", v, actual[i])
 		}
 	}
 }
@@ -69,7 +69,7 @@ func TestFind(t *testing.T) {
 	node, err := list.Find(3)
 
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("unexpected  error: %v", err)
 	}
 
 	if node == nil || node.Value != 3 {
@@ -85,12 +85,12 @@ func TestReverse(t *testing.T) {
 	actual := list.ToSlice()
 
 	if len(expected) != len(actual) {
-		t.Fatalf("expected length %d, got %d", len(expected), len(actual))
+		t.Fatalf("expected length  %d , got %d", len(expected), len(actual))
 	}
 
 	for i, v := range expected {
 		if actual[i] != v {
-			t.Fatalf("expected %d, got %d", v, actual[i])
+			t.Fatalf("expected value %d , got %d", v, actual[i])
 		}
 	}
 }
@@ -129,7 +129,7 @@ func TestGetAt(t *testing.T) {
 	node, err := list.GetAt(2)
 
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("unexpected error:  %v", err)
 	}
 
 	if node == nil || node.Value != 3 {
@@ -190,5 +190,20 @@ func TestClear(t *testing.T) {
 
 	if expected != actual {
 		t.Fatalf("expected size %d, got %d", expected, actual)
+	}
+}
+
+func TestIsEmpty(t *testing.T) {
+	list := circularLinkList.NewCircularLinkList[int]()
+
+	// Test when the list is empty
+	if !list.IsEmpty() {
+		t.Fatalf("expected list to be empty")
+	}
+
+	// Test when the list is not empty
+	list.Append(1)
+	if list.IsEmpty() {
+		t.Fatalf("expected list not to be empty")
 	}
 }
