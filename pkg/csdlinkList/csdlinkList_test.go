@@ -624,3 +624,33 @@ func TestCSDLinkListFindIndex(t *testing.T) {
 		})
 	})
 }
+
+func TestCSDLinkListIsEmpty(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	if !cs.IsEmpty() {
+		t.Fatal("expected the list to be empty")
+	}
+
+	cs.Append(1)
+	if cs.IsEmpty() {
+		t.Fatal("expected the list not to be empty")
+	}
+
+	cs.Clear()
+	if !cs.IsEmpty() {
+		t.Fatal("expected the list to be empty after clearing")
+	}
+}
+
+func TestCSDLinkListRemove(t *testing.T) {
+	cs := csdlinkList.NewCSDLinkList[int]()
+	for i := 0; i < 1000; i++ {
+		cs.Append(i)
+	}
+	runConcurrent(t, 1000, func() {
+		cs.Remove(500)
+	})
+	if cs.Contains(500) {
+		t.Fatalf("expected value 500 to be removed")
+	}
+}

@@ -2084,3 +2084,124 @@ func TestForReverseFrom(t *testing.T) {
 		t.Error("Should not execute the callback function for an empty list")
 	})
 }
+
+func TestMapFrom(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	result := list.MapFrom(1, func(value int) int {
+		return value * 2
+	})
+
+	expected := NewDLinkList[int]()
+	expected.Append(4)
+	expected.Append(6)
+
+	if !result.Equal(expected) {
+		t.Errorf("Expected %v, but got %v", expected.ToSlice(), result.ToSlice())
+	}
+}
+
+func TestMapRange(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test case 1: Multiply each element by 2
+	result := list.MapRange(1, 3, func(val int) int {
+		return val * 2
+	})
+
+	expected := []int{4, 6, 8}
+	actual := result.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+
+	// Test case 2: Square each element
+	result = list.MapRange(2, 4, func(val int) int {
+		return val * val
+	})
+
+	expected = []int{9, 16, 25}
+	actual = result.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+
+	// Test case 3: Add 10 to each element
+	result = list.MapRange(0, 2, func(val int) int {
+		return val + 10
+	})
+
+	expected = []int{11, 12, 13}
+	actual = result.ToSlice()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, but got %v", expected, actual)
+	}
+}
+
+func TestCheckSize(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.CheckSize()
+	if list.Size() != 3 {
+		t.Errorf(errWrongSize, 3, list.Size())
+	}
+
+	list.DeleteFirst()
+	list.CheckSize()
+	if list.Size() != 2 {
+		t.Errorf(errWrongSize, 2, list.Size())
+	}
+
+	list.DeleteLast()
+	list.CheckSize()
+	if list.Size() != 1 {
+		t.Errorf(errWrongSize, 1, list.Size())
+	}
+
+	list.Clear()
+	list.CheckSize()
+	if list.Size() != 0 {
+		t.Errorf(errWrongSize, 0, list.Size())
+	}
+}
+
+func TestForEachReverse(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	var result []int
+	list.ForEachReverse(func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected := []int{3, 2, 1}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestForEachReverseEmpty(t *testing.T) {
+	list := NewDLinkList[int]()
+
+	var result []int
+	list.ForEachReverse(func(value *int) {
+		result = append(result, *value)
+	})
+
+	if len(result) != 0 {
+		t.Errorf("Expected an empty result, but got %v", result)
+	}
+}

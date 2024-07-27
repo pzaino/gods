@@ -1218,3 +1218,24 @@ func TestForFrom(t *testing.T) {
 		t.Error(errExpectedErr)
 	}
 }
+
+func TestCheckSize(t *testing.T) {
+	list := NewLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	list.CheckSize()
+
+	if list.Size() != 3 {
+		t.Errorf("Expected list to have 3 items, but got %v", list.Size())
+	}
+
+	list.Clear()
+
+	list.CheckSize()
+
+	if list.Size() != 0 {
+		t.Errorf("Expected list to have 0 items, but got %v", list.Size())
+	}
+}
