@@ -30,6 +30,7 @@ type Node[T comparable] struct {
 // LinkList represents a linked list
 type LinkList[T comparable] struct {
 	Head *Node[T]
+	size int
 }
 
 // NewLinkList creates a new LinkList
@@ -52,6 +53,7 @@ func (l *LinkList[T]) Append(value T) {
 
 	if l.Head == nil {
 		l.Head = newNode
+		l.size++
 		return
 	}
 
@@ -61,6 +63,7 @@ func (l *LinkList[T]) Append(value T) {
 	}
 
 	current.Next = newNode
+	l.size++
 }
 
 // Prepend adds a new node to the beginning of the list
@@ -69,6 +72,7 @@ func (l *LinkList[T]) Prepend(value T) {
 
 	newNode.Next = l.Head
 	l.Head = newNode
+	l.size++
 }
 
 // DeleteWithValue deletes the first node with the given value
@@ -79,6 +83,7 @@ func (l *LinkList[T]) DeleteWithValue(value T) {
 
 	if l.Head.Value == value {
 		l.Head = l.Head.Next
+		l.size--
 		return
 	}
 
@@ -86,9 +91,13 @@ func (l *LinkList[T]) DeleteWithValue(value T) {
 	for current.Next != nil {
 		if current.Next.Value == value {
 			current.Next = current.Next.Next
+			l.size--
 			return
 		}
 		current = current.Next
+		if current == nil {
+			return
+		}
 	}
 }
 
@@ -140,6 +149,11 @@ func (l *LinkList[T]) Reverse() {
 
 // Size returns the number of nodes in the list
 func (l *LinkList[T]) Size() int {
+	return l.size
+}
+
+// CheckSize recalculates the size of the list
+func (l *LinkList[T]) CheckSize() {
 	size := 0
 	current := l.Head
 	for current != nil {
@@ -147,7 +161,7 @@ func (l *LinkList[T]) Size() int {
 		current = current.Next
 	}
 
-	return size
+	l.size = size
 }
 
 // Values returns all the values in the list
@@ -183,6 +197,10 @@ func (l *LinkList[T]) GetAt(index int) (*Node[T], error) {
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
+	if index > l.Size() {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
 	if l == nil {
 		return nil, nil
 	}
@@ -205,6 +223,10 @@ func (l *LinkList[T]) GetAt(index int) (*Node[T], error) {
 // InsertAt inserts a new node at the given index
 func (l *LinkList[T]) InsertAt(index int, value T) error {
 	if index < 0 {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	if index > l.Size() {
 		return errors.New(errIndexOutOfBound)
 	}
 
@@ -238,11 +260,16 @@ func (l *LinkList[T]) DeleteAt(index int) error {
 		return errors.New(errIndexOutOfBound)
 	}
 
+	if index >= l.Size() {
+		return errors.New(errIndexOutOfBound)
+	}
+
 	if index == 0 {
 		if l.Head == nil {
 			return errors.New(errIndexOutOfBound)
 		}
 		l.Head = l.Head.Next
+		l.size--
 		return nil
 	}
 
@@ -259,6 +286,7 @@ func (l *LinkList[T]) DeleteAt(index int) error {
 	}
 
 	current.Next = current.Next.Next
+	l.size--
 
 	return nil
 }
@@ -271,6 +299,7 @@ func (l *LinkList[T]) Remove(value T) {
 // Clear removes all nodes from the list
 func (l *LinkList[T]) Clear() {
 	l.Head = nil
+	l.size = 0
 }
 
 // Copy returns a copy of the list
@@ -293,6 +322,7 @@ func (l *LinkList[T]) Merge(list *LinkList[T]) {
 		l.Append(current.Value)
 		current = current.Next
 	}
+
 	// Clear the list
 	list.Clear()
 }
