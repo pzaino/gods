@@ -144,7 +144,7 @@ func TestCSStackPeek(t *testing.T) {
 func TestCSStackSize(t *testing.T) {
 	cs := csstack.NewCSStack[int]()
 	runConcurrent(t, 1000, func() {
-		cs.Push(1)
+		cs.Push(2)
 	})
 	if cs.Size() != 1000 {
 		t.Fatalf("expected size 1000, got %d", cs.Size())

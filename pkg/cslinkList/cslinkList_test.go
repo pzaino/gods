@@ -132,7 +132,7 @@ func TestCSLinkListReverse(t *testing.T) {
 func TestCSLinkListSize(t *testing.T) {
 	cs := cslinkList.NewCSLinkList[int]()
 	runConcurrent(t, 1000, func() {
-		cs.Append(1)
+		cs.Append(2)
 	})
 	if cs.Size() != 1000 {
 		t.Fatalf("expected size 1000, got %d", cs.Size())
