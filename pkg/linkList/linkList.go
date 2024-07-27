@@ -19,6 +19,7 @@ import "errors"
 
 const (
 	errIndexOutOfBound = "index out of bounds"
+	errValueNotFound   = "value not found"
 )
 
 // Node represents a node in the linked list
@@ -132,7 +133,7 @@ func (l *LinkList[T]) Find(value T) (*Node[T], error) {
 		current = current.Next
 	}
 
-	return nil, errors.New("value not found")
+	return nil, errors.New(errValueNotFound)
 }
 
 // Reverse reverses the list
@@ -520,7 +521,7 @@ func (l *LinkList[T]) IndexOf(value T) (uint64, error) {
 		index++
 	}
 
-	return 0, errors.New("value not found")
+	return 0, errors.New(errValueNotFound)
 }
 
 // LastIndexOf returns the index of the last node with the given value
@@ -539,7 +540,7 @@ func (l *LinkList[T]) LastIndexOf(value T) (uint64, error) {
 	}
 
 	if !found {
-		return 0, errors.New("value not found")
+		return 0, errors.New(errValueNotFound)
 	}
 	return index, nil
 }
@@ -556,7 +557,7 @@ func (l *LinkList[T]) FindIndex(f func(T) bool) (uint64, error) {
 		index++
 	}
 
-	return 0, errors.New("value not found")
+	return 0, errors.New(errValueNotFound)
 }
 
 // FindLastIndex returns the index of the last node that matches the predicate
@@ -575,7 +576,7 @@ func (l *LinkList[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 	}
 
 	if !found {
-		return 0, errors.New("value not found")
+		return 0, errors.New(errValueNotFound)
 	}
 	return index, nil
 }
@@ -608,7 +609,7 @@ func (l *LinkList[T]) FindLast(f func(T) bool) (*Node[T], error) {
 	}
 
 	if result == nil {
-		return nil, errors.New("value not found")
+		return nil, errors.New(errValueNotFound)
 	}
 
 	return result, nil

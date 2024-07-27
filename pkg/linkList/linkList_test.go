@@ -1079,12 +1079,12 @@ func TestMapRange(t *testing.T) {
 	slice := newList.ToSlice()
 
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 
@@ -1093,7 +1093,7 @@ func TestMapRange(t *testing.T) {
 		return value * 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 
 	// Test mapping a range with end index out of bounds
@@ -1101,7 +1101,7 @@ func TestMapRange(t *testing.T) {
 		return value * 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 
 	// Test mapping a range with start index greater than end index
@@ -1109,7 +1109,7 @@ func TestMapRange(t *testing.T) {
 		return value * 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 
 	// Test mapping a range with an empty list
@@ -1118,7 +1118,7 @@ func TestMapRange(t *testing.T) {
 		return value * 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 
@@ -1141,11 +1141,11 @@ func TestForRange(t *testing.T) {
 	slice := list.ToSlice()
 	expected := []int{1, 4, 6, 8, 5}
 	if len(slice) != len(expected) {
-		t.Errorf("Expected slice length %d, but got %d", len(expected), len(slice))
+		t.Errorf(errExpectedSliceLength, len(expected), len(slice))
 	}
 	for i := 0; i < len(slice); i++ {
 		if slice[i] != expected[i] {
-			t.Errorf("Expected slice element %d to be %d, but got %d", i, expected[i], slice[i])
+			t.Errorf(errExpectedSliceElem, i, expected[i], slice[i])
 		}
 	}
 
@@ -1154,7 +1154,7 @@ func TestForRange(t *testing.T) {
 		*value *= 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 
 	// Test invalid range (end out of bounds)
@@ -1162,7 +1162,7 @@ func TestForRange(t *testing.T) {
 		*value *= 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 
 	// Test invalid range (start out of bounds)
@@ -1170,7 +1170,7 @@ func TestForRange(t *testing.T) {
 		*value *= 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 
 	// Test empty list
@@ -1179,7 +1179,7 @@ func TestForRange(t *testing.T) {
 		*value *= 2
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errExpectedErr)
 	}
 }
 

@@ -24,6 +24,7 @@ import (
 
 const (
 	errExpectedNoError = "expected no error, got %v"
+	errExpectedSizeX   = "expected size %d, got %d"
 )
 
 func runConcurrent(_ *testing.T, n int, fn func()) {
@@ -41,7 +42,7 @@ func runConcurrent(_ *testing.T, n int, fn func()) {
 func TestCSLinkListFromSlice(t *testing.T) {
 	cs := cslinkList.NewCSLinkListFromSlice[int]([]int{1, 2, 3, 4, 5})
 	if cs.Size() != 5 {
-		t.Fatalf("expected size 5, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 5, cs.Size())
 	}
 }
 
@@ -51,7 +52,7 @@ func TestCSLinkListAppend(t *testing.T) {
 		cs.Append(1)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 }
 
@@ -61,7 +62,7 @@ func TestCSLinkListPrepend(t *testing.T) {
 		cs.Prepend(1)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 }
 
@@ -118,7 +119,7 @@ func TestCSLinkListFind(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.Find(1)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -139,7 +140,7 @@ func TestCSLinkListSize(t *testing.T) {
 		cs.Append(2)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 }
 
@@ -167,7 +168,7 @@ func TestCSLinkListGetAt(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.GetAt(500)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -180,7 +181,7 @@ func TestCSLinkListInsertAt(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		err := cs.InsertAt(500, 999)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -193,7 +194,7 @@ func TestCSLinkListDeleteAt(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		err := cs.DeleteAt(500)
 		if err != nil && err.Error() != "index out of bounds" {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -207,7 +208,7 @@ func TestCSLinkListClear(t *testing.T) {
 		cs.Clear()
 	})
 	if cs.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 0, cs.Size())
 	}
 }
 
@@ -219,7 +220,7 @@ func TestCSLinkListCopy(t *testing.T) {
 		copy = cs.Copy()
 	})
 	if copy.Size() != cs.Size() {
-		t.Fatalf("expected size %d, got %d", cs.Size(), copy.Size())
+		t.Fatalf(errExpectedSizeX, cs.Size(), copy.Size())
 	}
 }
 
@@ -234,10 +235,10 @@ func TestCSLinkListMerge(t *testing.T) {
 		cs1.Merge(cs2)
 	})
 	if cs1.Size() != 2000 {
-		t.Fatalf("expected size 2000, got %d", cs1.Size())
+		t.Fatalf(errExpectedSizeX, 2000, cs1.Size())
 	}
 	if cs2.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs2.Size())
+		t.Fatalf(errExpectedSizeX, 0, cs2.Size())
 	}
 }
 
@@ -299,7 +300,7 @@ func TestCSLinkListForRange(t *testing.T) {
 			*item = *item + 1
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -314,7 +315,7 @@ func TestCSLinkListForFrom(t *testing.T) {
 			*item = *item + 1
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -359,7 +360,7 @@ func TestCSLinkListIndexOf(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.IndexOf(500)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -372,7 +373,7 @@ func TestCSLinkListLastIndexOf(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.LastIndexOf(500)
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -402,7 +403,7 @@ func TestCSLinkListFindLastIndex(t *testing.T) {
 			return item == 500
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -429,7 +430,7 @@ func TestCSLinkListFindLast(t *testing.T) {
 			return item == 500
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -456,7 +457,7 @@ func TestCSLinkListMapFrom(t *testing.T) {
 			return item * 2
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -471,7 +472,7 @@ func TestCSLinkListMapRange(t *testing.T) {
 			return item * 2
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
