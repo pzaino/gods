@@ -548,6 +548,27 @@ func (l *DLinkList[T]) ForReverseRange(start, end int, f func(*T)) {
 		return
 	}
 
+	if l.Size() < start {
+		return
+	}
+
+	if l.Size() < end {
+		end = l.Size() - 1
+	}
+
+	if end < start {
+		return
+	}
+
+	if end < 0 {
+		return
+	}
+
+	if start == 0 && end == 0 {
+		f(&l.Head.Value)
+		return
+	}
+
 	current, err := l.GetAt((l.Size() - 1) - start)
 	if err != nil {
 		return

@@ -1855,3 +1855,226 @@ func TestFindIndexEmpty(t *testing.T) {
 		t.Errorf(errExpectedIndex, -1, index)
 	}
 }
+func TestForFrom(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	var result []int
+	list.ForFrom(1, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected := []int{2, 3}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestForFromEmpty(t *testing.T) {
+	list := NewDLinkList[int]()
+
+	var result []int
+	list.ForFrom(0, func(value *int) {
+		result = append(result, *value)
+	})
+
+	if len(result) != 0 {
+		t.Errorf("Expected an empty result, but got %v", result)
+	}
+}
+
+func TestForFromOutOfBound(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	var result []int
+	list.ForFrom(3, func(value *int) {
+		result = append(result, *value)
+	})
+
+	if len(result) != 0 {
+		t.Errorf("Expected an empty result, but got %v", result)
+	}
+}
+
+func TestForRange(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test case 1: start = 0, end = 2
+	var result []int
+	list.ForRange(0, 2, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected := []int{1, 2, 3}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test case 2: start = 1, end = 3
+	result = nil
+	list.ForRange(1, 3, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected = []int{2, 3, 4}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test case 3: start = 2, end = 4
+	result = nil
+	list.ForRange(2, 4, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected = []int{3, 4, 5}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test case 4: start = 0, end = 0
+	result = nil
+	list.ForRange(0, 0, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected = []int{1}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test case 5: start = 4, end = 4
+	result = nil
+	list.ForRange(4, 4, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected = []int{5}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test case 6: start = 0, end = 5 (out of bounds)
+	result = nil
+	list.ForRange(0, 5, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected = []int{1, 2, 3, 4, 5}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test case 7: start = 5, end = 0 (invalid range)
+	result = nil
+	list.ForRange(5, 0, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected = []int{}
+	if result != nil {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
+func TestForReverseRange(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+	list.Append(4)
+	list.Append(5)
+
+	// Test case 1: Reverse range from index 0 to 2
+	var result1 []int
+	list.ForReverseRange(0, 2, func(value *int) {
+		result1 = append(result1, *value)
+	})
+	expected1 := []int{5, 4, 3}
+	if !reflect.DeepEqual(result1, expected1) {
+		t.Errorf(errExpectedFilteredList, expected1, result1)
+	}
+
+	// Test case 2: Reverse range from index 1 to 3
+	var result2 []int
+	list.ForReverseRange(1, 3, func(value *int) {
+		result2 = append(result2, *value)
+	})
+	expected2 := []int{4, 3, 2}
+	if !reflect.DeepEqual(result2, expected2) {
+		t.Errorf(errExpectedFilteredList, expected2, result2)
+	}
+
+	// Test case 3: Reverse range from index 2 to 4
+	var result3 []int
+	list.ForReverseRange(2, 4, func(value *int) {
+		result3 = append(result3, *value)
+	})
+	expected3 := []int{3, 2, 1}
+	if !reflect.DeepEqual(result3, expected3) {
+		t.Errorf(errExpectedFilteredList, expected3, result3)
+	}
+
+	// Test case 4: Reverse range from index 0 to 4
+	var result4 []int
+	list.ForReverseRange(0, 4, func(value *int) {
+		result4 = append(result4, *value)
+	})
+	expected4 := []int{5, 4, 3, 2, 1}
+	if !reflect.DeepEqual(result4, expected4) {
+		t.Errorf(errExpectedFilteredList, expected4, result4)
+	}
+
+	// Test case 5: Reverse range from index 1 to 1
+	var result5 []int
+	list.ForReverseRange(1, 1, func(value *int) {
+		result5 = append(result5, *value)
+	})
+	expected5 := []int{4}
+	if !reflect.DeepEqual(result5, expected5) {
+		t.Errorf(errExpectedFilteredList, expected5, result5)
+	}
+
+	// Test case 6: Reverse range from index 4 to 2
+	var result6 []int
+	list.ForReverseRange(4, 2, func(value *int) {
+		result6 = append(result6, *value)
+	})
+	expected6 := []int{1}
+	if result6 != nil {
+		t.Errorf(errExpectedFilteredList, expected6, result6)
+	}
+}
+
+func TestForReverseFrom(t *testing.T) {
+	list := NewDLinkList[int]()
+	list.Append(1)
+	list.Append(2)
+	list.Append(3)
+
+	var result []int
+	list.ForReverseFrom(1, func(value *int) {
+		result = append(result, *value)
+	})
+
+	expected := []int{2, 1}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+
+	// Test with empty list
+	emptyList := NewDLinkList[int]()
+	emptyList.ForReverseFrom(0, func(value *int) {
+		t.Error("Should not execute the callback function for an empty list")
+	})
+}
