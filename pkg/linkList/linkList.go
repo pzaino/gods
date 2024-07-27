@@ -19,6 +19,7 @@ import "errors"
 
 const (
 	errIndexOutOfBound = "index out of bounds"
+	errValueNotFound   = "value not found"
 )
 
 // Node represents a node in the linked list
@@ -30,7 +31,7 @@ type Node[T comparable] struct {
 // LinkList represents a linked list
 type LinkList[T comparable] struct {
 	Head *Node[T]
-	size int
+	size uint64
 }
 
 // NewLinkList creates a new LinkList
@@ -104,6 +105,9 @@ func (l *LinkList[T]) DeleteWithValue(value T) {
 // ToSlice returns the list as a slice
 func (l *LinkList[T]) ToSlice() []T {
 	var result []T
+	if l.Head == nil {
+		return result
+	}
 
 	current := l.Head
 	for current != nil {
@@ -129,7 +133,7 @@ func (l *LinkList[T]) Find(value T) (*Node[T], error) {
 		current = current.Next
 	}
 
-	return nil, errors.New("value not found")
+	return nil, errors.New(errValueNotFound)
 }
 
 // Reverse reverses the list
@@ -148,13 +152,13 @@ func (l *LinkList[T]) Reverse() {
 }
 
 // Size returns the number of nodes in the list
-func (l *LinkList[T]) Size() int {
+func (l *LinkList[T]) Size() uint64 {
 	return l.size
 }
 
 // CheckSize recalculates the size of the list
 func (l *LinkList[T]) CheckSize() {
-	size := 0
+	var size uint64
 	current := l.Head
 	for current != nil {
 		size++
@@ -192,12 +196,8 @@ func (l *LinkList[T]) GetLast() *Node[T] {
 }
 
 // GetAt returns the node at the given index
-func (l *LinkList[T]) GetAt(index int) (*Node[T], error) {
-	if index < 0 {
-		return nil, errors.New(errIndexOutOfBound)
-	}
-
-	if index > l.Size() {
+func (l *LinkList[T]) GetAt(index uint64) (*Node[T], error) {
+	if index > l.size {
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
@@ -206,7 +206,7 @@ func (l *LinkList[T]) GetAt(index int) (*Node[T], error) {
 	}
 
 	current := l.Head
-	for i := 0; i < index; i++ {
+	for i := uint64(0); i < index; i++ {
 		if current == nil {
 			return nil, errors.New(errIndexOutOfBound)
 		}
@@ -221,12 +221,8 @@ func (l *LinkList[T]) GetAt(index int) (*Node[T], error) {
 }
 
 // InsertAt inserts a new node at the given index
-func (l *LinkList[T]) InsertAt(index int, value T) error {
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	if index > l.Size() {
+func (l *LinkList[T]) InsertAt(index uint64, value T) error {
+	if index > l.size {
 		return errors.New(errIndexOutOfBound)
 	}
 
@@ -236,7 +232,7 @@ func (l *LinkList[T]) InsertAt(index int, value T) error {
 	}
 
 	current := l.Head
-	for i := 0; i < index-1; i++ {
+	for i := uint64(0); i < index-1; i++ {
 		if current == nil {
 			return errors.New(errIndexOutOfBound)
 		}
@@ -255,12 +251,8 @@ func (l *LinkList[T]) InsertAt(index int, value T) error {
 }
 
 // DeleteAt deletes the node at the given index
-func (l *LinkList[T]) DeleteAt(index int) error {
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
-	}
-
-	if index >= l.Size() {
+func (l *LinkList[T]) DeleteAt(index uint64) error {
+	if index >= l.size {
 		return errors.New(errIndexOutOfBound)
 	}
 
@@ -274,7 +266,7 @@ func (l *LinkList[T]) DeleteAt(index int) error {
 	}
 
 	current := l.Head
-	for i := 0; i < index-1; i++ {
+	for i := uint64(0); i < index-1; i++ {
 		if current == nil {
 			return errors.New(errIndexOutOfBound)
 		}
@@ -339,8 +331,8 @@ func (l *LinkList[T]) Map(f func(T) T) *LinkList[T] {
 }
 
 // MapFrom generates a new list by applying the function to all the nodes in the list starting from the specified index
-func (l *LinkList[T]) MapFrom(start int, f func(T) T) (*LinkList[T], error) {
-	if start < 0 {
+func (l *LinkList[T]) MapFrom(start uint64, f func(T) T) (*LinkList[T], error) {
+	if start > l.size {
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
@@ -359,16 +351,12 @@ func (l *LinkList[T]) MapFrom(start int, f func(T) T) (*LinkList[T], error) {
 }
 
 // MapRange generates a new list by applying the function to all the nodes in the list within the specified range
-func (l *LinkList[T]) MapRange(start, end int, f func(T) T) (*LinkList[T], error) {
-	if start < 0 || end < 0 {
-		return nil, errors.New(errIndexOutOfBound)
-	}
-
+func (l *LinkList[T]) MapRange(start, end uint64, f func(T) T) (*LinkList[T], error) {
 	if start > end {
 		return nil, errors.New("start index cannot be greater than end index")
 	}
 
-	if end >= l.Size() {
+	if end >= l.size {
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
@@ -429,16 +417,12 @@ func (l *LinkList[T]) ForEach(f func(*T)) {
 }
 
 // ForRange applies the function to all the nodes in the list within the specified range
-func (l *LinkList[T]) ForRange(start, end int, f func(*T)) error {
-	if start < 0 || end < 0 {
-		return errors.New(errIndexOutOfBound)
-	}
-
+func (l *LinkList[T]) ForRange(start, end uint64, f func(*T)) error {
 	if start > end {
 		return errors.New("start index cannot be greater than end index")
 	}
 
-	if end >= l.Size() {
+	if end >= l.size {
 		return errors.New(errIndexOutOfBound)
 	}
 
@@ -459,8 +443,8 @@ func (l *LinkList[T]) ForRange(start, end int, f func(*T)) error {
 }
 
 // ForFrom applies the function to all the nodes in the list starting from the specified index
-func (l *LinkList[T]) ForFrom(start int, f func(*T)) error {
-	if start < 0 {
+func (l *LinkList[T]) ForFrom(start uint64, f func(*T)) error {
+	if start > l.size {
 		return errors.New(errIndexOutOfBound)
 	}
 
@@ -526,65 +510,75 @@ func (l *LinkList[T]) Contains(value T) bool {
 }
 
 // IndexOf returns the index of the first node with the given value
-func (l *LinkList[T]) IndexOf(value T) int {
+func (l *LinkList[T]) IndexOf(value T) (uint64, error) {
 	current := l.Head
-	index := 0
+	index := uint64(0)
 	for current != nil {
 		if current.Value == value {
-			return index
+			return index, nil
 		}
 		current = current.Next
 		index++
 	}
 
-	return -1
+	return 0, errors.New(errValueNotFound)
 }
 
 // LastIndexOf returns the index of the last node with the given value
-func (l *LinkList[T]) LastIndexOf(value T) int {
+func (l *LinkList[T]) LastIndexOf(value T) (uint64, error) {
 	current := l.Head
-	index := -1
-	i := 0
+	index := uint64(0)
+	i := uint64(0)
+	found := false
 	for current != nil {
 		if current.Value == value {
 			index = i
+			found = true
 		}
 		current = current.Next
 		i++
 	}
 
-	return index
+	if !found {
+		return 0, errors.New(errValueNotFound)
+	}
+	return index, nil
 }
 
 // FindIndex returns the index of the first node that matches the predicate
-func (l *LinkList[T]) FindIndex(f func(T) bool) int {
+func (l *LinkList[T]) FindIndex(f func(T) bool) (uint64, error) {
 	current := l.Head
-	index := 0
+	index := uint64(0)
 	for current != nil {
 		if f(current.Value) {
-			return index
+			return index, nil
 		}
 		current = current.Next
 		index++
 	}
 
-	return -1
+	return 0, errors.New(errValueNotFound)
 }
 
 // FindLastIndex returns the index of the last node that matches the predicate
-func (l *LinkList[T]) FindLastIndex(f func(T) bool) int {
+func (l *LinkList[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 	current := l.Head
-	index := -1
-	i := 0
+	index := uint64(0)
+	i := uint64(0)
+	found := false
 	for current != nil {
 		if f(current.Value) {
 			index = i
+			found = true
 		}
 		current = current.Next
 		i++
 	}
 
-	return index
+	if !found {
+		return 0, errors.New(errValueNotFound)
+	}
+	return index, nil
 }
 
 // FindAll returns all nodes that match the predicate
@@ -615,18 +609,18 @@ func (l *LinkList[T]) FindLast(f func(T) bool) (*Node[T], error) {
 	}
 
 	if result == nil {
-		return nil, errors.New("value not found")
+		return nil, errors.New(errValueNotFound)
 	}
 
 	return result, nil
 }
 
 // FindAllIndexes returns the indexes of all nodes that match the predicate
-func (l *LinkList[T]) FindAllIndexes(f func(T) bool) []int {
-	var result []int
+func (l *LinkList[T]) FindAllIndexes(f func(T) bool) []uint64 {
+	var result []uint64
 
 	current := l.Head
-	index := 0
+	index := uint64(0)
 	for current != nil {
 		if f(current.Value) {
 			result = append(result, index)

@@ -23,12 +23,15 @@ import (
 )
 
 const (
-	errNoError        = "Expected no error, but got %v"
-	errYesError       = "Expected an error, but got nil"
-	errItemNotNil     = "Expected item to not be nil, but it was"
-	errExpectedItemX  = "Expected item to be %v, but got %v"
-	errExpectedXItemY = "Expected %v item to be %v, but got %v"
-	errStackNotEmpty  = "Expected stack to be empty, but it was not"
+	errNoError         = "Expected no error, but got %v"
+	errYesError        = "Expected an error, but got nil"
+	errItemNotNil      = "Expected item to not be nil, but it was"
+	errExpectedItemX   = "Expected item to be %v, but got %v"
+	errExpectedXItemY  = "Expected %v item to be %v, but got %v"
+	errStackNotEmpty   = "Expected stack to be empty, but it was not"
+	errExpectedStack   = "Expected stack to be %v, but got %v"
+	errExpectedResult  = "Expected result to be %v, but got %v"
+	errExpected2Stacks = "Expected both stacks to be equal, but they were not"
 )
 
 func TestNew(t *testing.T) {
@@ -952,12 +955,12 @@ func TestForRange(t *testing.T) {
 		*item *= 2
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	expected := []int{2, 4, 3}
 	actual := stack.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected stack to be %v, but got %v", expected, actual)
+		t.Errorf(errExpectedStack, expected, actual)
 	}
 
 	// Test case 2: Apply function to each item within the range [1, 2]
@@ -965,12 +968,12 @@ func TestForRange(t *testing.T) {
 		*item *= 3
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	expected = []int{2, 12, 9}
 	actual = stack.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected stack to be %v, but got %v", expected, actual)
+		t.Errorf(errExpectedStack, expected, actual)
 	}
 
 	// Test case 3: Apply function to each item within the range [2, 2]
@@ -978,12 +981,12 @@ func TestForRange(t *testing.T) {
 		*item *= 4
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	expected = []int{2, 12, 36}
 	actual = stack.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected stack to be %v, but got %v", expected, actual)
+		t.Errorf(errExpectedStack, expected, actual)
 	}
 
 	// Test case 4: Start index out of range
@@ -991,7 +994,7 @@ func TestForRange(t *testing.T) {
 		*item *= 5
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 
 	// Test case 5: End index out of range
@@ -999,7 +1002,7 @@ func TestForRange(t *testing.T) {
 		*item *= 6
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 
 	// Test case 6: Start index is greater than end index
@@ -1007,7 +1010,7 @@ func TestForRange(t *testing.T) {
 		*item *= 7
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	}
 }
 
@@ -1023,11 +1026,11 @@ func TestForFrom(t *testing.T) {
 		result = append(result, *item)
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	expectedResult := []int{1, 2, 3}
 	if !reflect.DeepEqual(result, expectedResult) {
-		t.Errorf("Expected result to be %v, but got %v", expectedResult, result)
+		t.Errorf(errExpectedResult, expectedResult, result)
 	}
 
 	// Test case 2: Apply function to each item starting from index 1
@@ -1036,11 +1039,11 @@ func TestForFrom(t *testing.T) {
 		result = append(result, *item)
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	expectedResult = []int{2, 3}
 	if !reflect.DeepEqual(result, expectedResult) {
-		t.Errorf("Expected result to be %v, but got %v", expectedResult, result)
+		t.Errorf(errExpectedResult, expectedResult, result)
 	}
 
 	// Test case 3: Apply function to each item starting from index 2
@@ -1049,11 +1052,11 @@ func TestForFrom(t *testing.T) {
 		result = append(result, *item)
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 	expectedResult = []int{3}
 	if !reflect.DeepEqual(result, expectedResult) {
-		t.Errorf("Expected result to be %v, but got %v", expectedResult, result)
+		t.Errorf(errExpectedResult, expectedResult, result)
 	}
 
 	// Test case 4: Apply function to each item starting from index out of range
@@ -1062,7 +1065,7 @@ func TestForFrom(t *testing.T) {
 		t.Error("Function should not be called")
 	})
 	if err == nil {
-		t.Error("Expected an error, but got nil")
+		t.Error(errYesError)
 	} else if err.Error() != "start index out of range" {
 		t.Errorf("Expected error message to be 'start index out of range', but got '%v'", err.Error())
 	}
@@ -1092,7 +1095,7 @@ func TestMapFrom(t *testing.T) {
 	expected1.Push(6)
 
 	if !result1.Equal(expected1) {
-		t.Error("Expected the mapped stack to be equal to the expected stack")
+		t.Error(errExpected2Stacks)
 	}
 
 	test := stack.ToSlice()
@@ -1111,7 +1114,7 @@ func TestMapFrom(t *testing.T) {
 	expected2.Push(3)
 	expected2.Push(6)
 	if !result2.Equal(expected2) {
-		t.Error("Expected the mapped stack to be equal to the expected stack")
+		t.Error(errExpected2Stacks)
 	}
 
 	// Test case 3: MapFrom starting from index 2
@@ -1124,7 +1127,7 @@ func TestMapFrom(t *testing.T) {
 	expected3 := NewStack[int]()
 	expected3.Push(4)
 	if !result3.Equal(expected3) {
-		t.Error("Expected the mapped stack to be equal to the expected stack")
+		t.Error(errExpected2Stacks)
 	}
 
 	// Test case 4: MapFrom with start index out of range
@@ -1161,7 +1164,7 @@ func TestMapRange(t *testing.T) {
 	}
 	expected := []int{6, 8, 10}
 	if !result.Equal(NewStackFromSlice(expected)) {
-		t.Errorf("Expected stack to be %v, but got %v", expected, result.ToSlice())
+		t.Errorf(errExpectedStack, expected, result.ToSlice())
 	}
 
 	// Test case 2: MapRange from index 1 to 3
@@ -1173,7 +1176,7 @@ func TestMapRange(t *testing.T) {
 	}
 	expected = []int{3, 4, 5}
 	if !result.Equal(NewStackFromSlice(expected)) {
-		t.Errorf("Expected stack to be %v, but got %v", expected, result.ToSlice())
+		t.Errorf(errExpectedStack, expected, result.ToSlice())
 	}
 
 	// Test case 3: MapRange from index 2 to 4
@@ -1185,7 +1188,7 @@ func TestMapRange(t *testing.T) {
 	}
 	expected = []int{1, 2}
 	if !result.Equal(NewStackFromSlice(expected)) {
-		t.Errorf("Expected stack to be %v, but got %v", expected, result.ToSlice())
+		t.Errorf(errExpectedStack, expected, result.ToSlice())
 	}
 
 	// Test case 4: MapRange with invalid start index

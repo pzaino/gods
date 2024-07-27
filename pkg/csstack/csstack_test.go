@@ -22,6 +22,12 @@ import (
 	csstack "github.com/pzaino/gods/pkg/csstack"
 )
 
+const (
+	errExpectedStackEmpty = "expected stack to be empty"
+	errExpectedNoError    = "expected no error, got %v"
+	errExpectedSizeX      = "expected size %d, got %d"
+)
+
 func runConcurrent(_ *testing.T, n int, fn func()) {
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
@@ -40,14 +46,14 @@ func TestCSStackPush(t *testing.T) {
 		cs.Push(1)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 }
 
 func TestCSStackIsEmpty(t *testing.T) {
 	cs := csstack.NewCSStack[int]()
 	if !cs.IsEmpty() {
-		t.Fatalf("expected stack to be empty")
+		t.Fatalf(errExpectedStackEmpty)
 	}
 	cs.Push(1)
 	runConcurrent(t, 1000, func() {
@@ -63,11 +69,11 @@ func TestCSStackPop(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		_, err := cs.Pop()
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 	if !cs.IsEmpty() {
-		t.Fatalf("expected stack to be empty")
+		t.Fatalf(errExpectedStackEmpty)
 	}
 }
 
@@ -108,7 +114,7 @@ func TestCSStackSwap(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		err := cs.Swap()
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -119,7 +125,7 @@ func TestCSStackTop(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		top, err := cs.Top()
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 		if *top != 1 {
 			t.Fatalf("expected top to be 1, got %d", *top)
@@ -133,7 +139,7 @@ func TestCSStackPeek(t *testing.T) {
 	runConcurrent(t, 1000, func() {
 		peek, err := cs.Peek()
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 		if *peek != 1 {
 			t.Fatalf("expected peek to be 1, got %d", *peek)
@@ -147,7 +153,7 @@ func TestCSStackSize(t *testing.T) {
 		cs.Push(2)
 	})
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 }
 
@@ -160,7 +166,7 @@ func TestCSStackClear(t *testing.T) {
 		cs.Clear()
 	})
 	if cs.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 0, cs.Size())
 	}
 }
 
@@ -180,7 +186,7 @@ func TestCSStackCopy(t *testing.T) {
 		copy = cs.Copy()
 	})
 	if copy.Size() != cs.Size() {
-		t.Fatalf("expected size %d, got %d", cs.Size(), copy.Size())
+		t.Fatalf(errExpectedSizeX, cs.Size(), copy.Size())
 	}
 }
 
@@ -215,17 +221,17 @@ func TestCSStackPopN(t *testing.T) {
 		cs.Push(i)
 	}
 	if cs.Size() != 1000 {
-		t.Fatalf("expected size 1000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 
 	runConcurrent(t, 100, func() { // Reduce the number of goroutines to avoid exhausting the stack too quickly
 		_, err := cs.PopN(10)
 		if err != nil && err.Error() != "Stack has less than n items" {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 	if cs.Size() != 0 {
-		t.Fatalf("expected size 0, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 0, cs.Size())
 	}
 }
 
@@ -235,7 +241,7 @@ func TestCSStackPushN(t *testing.T) {
 		cs.PushN(1, 2, 3, 4, 5)
 	})
 	if cs.Size() != 5000 {
-		t.Fatalf("expected size 5000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 5000, cs.Size())
 	}
 }
 
@@ -248,7 +254,7 @@ func TestCSStackPopAll(t *testing.T) {
 		cs.PopAll()
 	})
 	if !cs.IsEmpty() {
-		t.Fatalf("expected stack to be empty")
+		t.Fatalf(errExpectedStackEmpty)
 	}
 }
 
@@ -259,7 +265,7 @@ func TestCSStackPushAll(t *testing.T) {
 		cs.PushAll(items)
 	})
 	if cs.Size() != 5000 {
-		t.Fatalf("expected size 5000, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 5000, cs.Size())
 	}
 }
 
@@ -274,7 +280,7 @@ func TestCSStackFilter(t *testing.T) {
 		})
 	})
 	if cs.Size() != 500 {
-		t.Fatalf("expected size 500, got %d", cs.Size())
+		t.Fatalf(errExpectedSizeX, 500, cs.Size())
 	}
 }
 
@@ -300,7 +306,7 @@ func TestCSStackReduce(t *testing.T) {
 			return a + b
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -327,7 +333,7 @@ func TestCSStackForRange(t *testing.T) {
 			*item = *item + 1
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -342,7 +348,7 @@ func TestCSStackForFrom(t *testing.T) {
 			*item = *item + 1
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -381,7 +387,7 @@ func TestCSStackFind(t *testing.T) {
 			return item == 500
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -396,7 +402,7 @@ func TestCSStackFindIndex(t *testing.T) {
 			return item == 500
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -411,7 +417,7 @@ func TestCSStackFindLast(t *testing.T) {
 			return item == 500
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -426,7 +432,7 @@ func TestCSStackFindLastIndex(t *testing.T) {
 			return item == 500
 		})
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf(errExpectedNoError, err)
 		}
 	})
 }
@@ -459,7 +465,7 @@ func TestNewCSStackFromSlice(t *testing.T) {
 	items := []int{1, 2, 3, 4, 5}
 	cs := csstack.NewCSStackFromSlice(items)
 	if cs.Size() != len(items) {
-		t.Fatalf("expected size %d, got %d", len(items), cs.Size())
+		t.Fatalf(errExpectedSizeX, len(items), cs.Size())
 	}
 	slice := cs.ToSlice()
 	for i, item := range items {

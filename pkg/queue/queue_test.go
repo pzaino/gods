@@ -20,6 +20,13 @@ import (
 	"testing"
 )
 
+const (
+	errExpectedQueueEmpty = "expected queue to be empty"
+	errExpectedNoError    = "expected no error, got %v"
+	errPeekNoError        = "Peek should not return an error"
+	errDeqShouldReturn    = "Dequeue should return %d"
+)
+
 func TestQueue(t *testing.T) {
 	q := NewQueue[int]()
 	if q.Size() != 0 {
@@ -36,7 +43,7 @@ func TestQueue(t *testing.T) {
 
 	item, err := q.Peek()
 	if err != nil {
-		t.Errorf("Peek should not return an error")
+		t.Errorf(errPeekNoError)
 	}
 	if item != 1 {
 		t.Errorf("Peek should return 1")
@@ -44,10 +51,10 @@ func TestQueue(t *testing.T) {
 
 	item, err = q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 1 {
-		t.Errorf("Dequeue should return 1")
+		t.Errorf(errDeqShouldReturn, 1)
 	}
 
 	if q.Size() != 2 {
@@ -72,26 +79,26 @@ func TestDequeue(t *testing.T) {
 
 	item, err := q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 1 {
-		t.Errorf("Dequeue should return 1")
+		t.Errorf(errDeqShouldReturn, 1)
 	}
 
 	item, err = q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 2 {
-		t.Errorf("Dequeue should return 2")
+		t.Errorf(errDeqShouldReturn, 2)
 	}
 
 	item, err = q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 3 {
-		t.Errorf("Dequeue should return 3")
+		t.Errorf(errDeqShouldReturn, 3)
 	}
 
 	if !q.IsEmpty() {
@@ -112,7 +119,7 @@ func TestPeek(t *testing.T) {
 
 	item, err := q.Peek()
 	if err != nil {
-		t.Errorf("Peek should not return an error")
+		t.Errorf(errPeekNoError)
 	}
 	if item != 1 {
 		t.Errorf("Peek should return 1")
@@ -120,15 +127,15 @@ func TestPeek(t *testing.T) {
 
 	item, err = q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 1 {
-		t.Errorf("Dequeue should return 1")
+		t.Errorf(errDeqShouldReturn, 1)
 	}
 
 	item, err = q.Peek()
 	if err != nil {
-		t.Errorf("Peek should not return an error")
+		t.Errorf(errPeekNoError)
 	}
 	if item != 2 {
 		t.Errorf("Peek should return 2")
@@ -136,15 +143,15 @@ func TestPeek(t *testing.T) {
 
 	item, err = q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 2 {
-		t.Errorf("Dequeue should return 2")
+		t.Errorf(errDeqShouldReturn, 2)
 	}
 
 	item, err = q.Peek()
 	if err != nil {
-		t.Errorf("Peek should not return an error")
+		t.Errorf(errPeekNoError)
 	}
 	if item != 3 {
 		t.Errorf("Peek should return 3")
@@ -152,10 +159,10 @@ func TestPeek(t *testing.T) {
 
 	item, err = q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 3 {
-		t.Errorf("Dequeue should return 3")
+		t.Errorf(errDeqShouldReturn, 3)
 	}
 
 	_, err = q.Peek()
@@ -253,10 +260,10 @@ func TestCopy(t *testing.T) {
 
 	item, err := q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 1 {
-		t.Errorf("Dequeue should return 1")
+		t.Errorf(errDeqShouldReturn, 1)
 	}
 
 	if q.Equals(copy) {
@@ -344,10 +351,10 @@ func TestFilter(t *testing.T) {
 	// Check the values of the filtered queue
 	item, err := q.Dequeue()
 	if err != nil {
-		t.Errorf("Dequeue should not return an error")
+		t.Errorf(errExpectedNoError, err)
 	}
 	if item != 2 {
-		t.Errorf("Dequeue should return 2")
+		t.Errorf(errDeqShouldReturn, 2)
 	}
 
 	if !q.IsEmpty() {

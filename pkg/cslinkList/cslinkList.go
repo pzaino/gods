@@ -89,7 +89,7 @@ func (cs *CSLinkList[T]) Reverse() {
 }
 
 // Size returns the number of nodes in the list.
-func (cs *CSLinkList[T]) Size() int {
+func (cs *CSLinkList[T]) Size() uint64 {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.Size()
@@ -110,21 +110,21 @@ func (cs *CSLinkList[T]) GetLast() *linkList.Node[T] {
 }
 
 // GetAt returns the node at the given index.
-func (cs *CSLinkList[T]) GetAt(index int) (*linkList.Node[T], error) {
+func (cs *CSLinkList[T]) GetAt(index uint64) (*linkList.Node[T], error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.GetAt(index)
 }
 
 // InsertAt inserts a new node at the given index.
-func (cs *CSLinkList[T]) InsertAt(index int, value T) error {
+func (cs *CSLinkList[T]) InsertAt(index uint64, value T) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.InsertAt(index, value)
 }
 
 // DeleteAt deletes the node at the given index.
-func (cs *CSLinkList[T]) DeleteAt(index int) error {
+func (cs *CSLinkList[T]) DeleteAt(index uint64) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.DeleteAt(index)
@@ -173,7 +173,7 @@ func (cs *CSLinkList[T]) Map(f func(T) T) *CSLinkList[T] {
 }
 
 // MapFrom generates a new list by applying the function to all the nodes in the list starting from the specified index.
-func (cs *CSLinkList[T]) MapFrom(start int, f func(T) T) (*CSLinkList[T], error) {
+func (cs *CSLinkList[T]) MapFrom(start uint64, f func(T) T) (*CSLinkList[T], error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 
@@ -188,7 +188,7 @@ func (cs *CSLinkList[T]) MapFrom(start int, f func(T) T) (*CSLinkList[T], error)
 }
 
 // MapRange generates a new list by applying the function to all the nodes in the list in the range [start, end).
-func (cs *CSLinkList[T]) MapRange(start, end int, f func(T) T) (*CSLinkList[T], error) {
+func (cs *CSLinkList[T]) MapRange(start, end uint64, f func(T) T) (*CSLinkList[T], error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 
@@ -224,14 +224,14 @@ func (cs *CSLinkList[T]) ForEach(f func(*T)) {
 }
 
 // ForRange applies the function to all the nodes in the list in the range [start, end).
-func (cs *CSLinkList[T]) ForRange(start, end int, f func(*T)) error {
+func (cs *CSLinkList[T]) ForRange(start, end uint64, f func(*T)) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.ForRange(start, end, f)
 }
 
 // ForFrom applies the function to all the nodes in the list starting from the index.
-func (cs *CSLinkList[T]) ForFrom(start int, f func(*T)) error {
+func (cs *CSLinkList[T]) ForFrom(start uint64, f func(*T)) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.ForFrom(start, f)
@@ -259,28 +259,28 @@ func (cs *CSLinkList[T]) Contains(value T) bool {
 }
 
 // IndexOf returns the index of the first node with the given value.
-func (cs *CSLinkList[T]) IndexOf(value T) int {
+func (cs *CSLinkList[T]) IndexOf(value T) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.IndexOf(value)
 }
 
 // LastIndexOf returns the index of the last node with the given value.
-func (cs *CSLinkList[T]) LastIndexOf(value T) int {
+func (cs *CSLinkList[T]) LastIndexOf(value T) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.LastIndexOf(value)
 }
 
 // FindIndex returns the index of the first node that matches the predicate.
-func (cs *CSLinkList[T]) FindIndex(f func(T) bool) int {
+func (cs *CSLinkList[T]) FindIndex(f func(T) bool) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.FindIndex(f)
 }
 
 // FindLastIndex returns the index of the last node that matches the predicate.
-func (cs *CSLinkList[T]) FindLastIndex(f func(T) bool) int {
+func (cs *CSLinkList[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.FindLastIndex(f)
@@ -301,7 +301,7 @@ func (cs *CSLinkList[T]) FindLast(f func(T) bool) (*linkList.Node[T], error) {
 }
 
 // FindAllIndexes returns the indexes of all nodes that match the predicate.
-func (cs *CSLinkList[T]) FindAllIndexes(f func(T) bool) []int {
+func (cs *CSLinkList[T]) FindAllIndexes(f func(T) bool) []uint64 {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.l.FindAllIndexes(f)
