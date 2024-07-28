@@ -28,6 +28,9 @@ const (
 	errExpectedLength = "expected length %d, got %d"
 	errExpectedValue  = "expected %d, got %d"
 	errExpectedNoErr  = "unexpected error: %v"
+	errExpectedResult = "expected result %d, got %d"
+	errExpectedError  = "expected error %q, got %v"
+	errExpectedError2 = "expected error, got nil"
 )
 
 func TestAppend(t *testing.T) {
@@ -434,7 +437,7 @@ func TestForRange(t *testing.T) {
 	})
 
 	if err == nil {
-		t.Fatalf("expected error, got nil")
+		t.Fatalf(errExpectedError2)
 	}
 }
 
@@ -558,7 +561,7 @@ func TestReduce(t *testing.T) {
 
 	expected := 15
 	if result != expected {
-		t.Fatalf("expected result %d, got %d", expected, result)
+		t.Fatalf(errExpectedResult, expected, result)
 	}
 
 	// Test when the list is empty
@@ -568,7 +571,7 @@ func TestReduce(t *testing.T) {
 	})
 
 	if err == nil {
-		t.Fatalf("expected error, got nil")
+		t.Fatalf(errExpectedError2)
 	}
 }
 
@@ -581,7 +584,7 @@ func TestReduceFrom(t *testing.T) {
 	})
 
 	if err == nil {
-		t.Fatalf("expected error %q, got %v", errListIsEmpty, err)
+		t.Fatalf(errExpectedError, errListIsEmpty, err)
 	}
 
 	// Load values from a slice into the list
@@ -607,7 +610,7 @@ func TestReduceFrom(t *testing.T) {
 
 	expected := 12
 	if result != expected {
-		t.Fatalf("expected result %d, got %d", expected, result)
+		t.Fatalf(errExpectedResult, expected, result)
 	}
 }
 
@@ -625,7 +628,7 @@ func TestReduceRange(t *testing.T) {
 
 	expected := 14
 	if result != expected {
-		t.Fatalf("expected result %d, got %d", expected, result)
+		t.Fatalf(errExpectedResult, expected, result)
 	}
 
 	// Test when the range exceeds the list size
@@ -641,7 +644,7 @@ func TestReduceRange(t *testing.T) {
 
 	expected = 4
 	if result != expected {
-		t.Fatalf("expected result %d, got %d", expected, result)
+		t.Fatalf(errExpectedResult, expected, result)
 	}
 
 	// Test when the start index is greater than the end index
@@ -650,6 +653,6 @@ func TestReduceRange(t *testing.T) {
 	})
 
 	if err == nil {
-		t.Fatalf("expected error, got nil")
+		t.Fatalf(errExpectedError2)
 	}
 }
