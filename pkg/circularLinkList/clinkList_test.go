@@ -113,7 +113,7 @@ func TestReverse(t *testing.T) {
 func TestSize(t *testing.T) {
 	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
 
-	expected := 4
+	expected := uint64(4)
 	actual := list.Size()
 
 	if expected != actual {
@@ -200,7 +200,7 @@ func TestClear(t *testing.T) {
 	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
 	list.Clear()
 
-	expected := 0
+	expected := uint64(0)
 	actual := list.Size()
 
 	if expected != actual {

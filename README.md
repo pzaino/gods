@@ -15,8 +15,10 @@ directory with their "standard" name, for ex. stack, linkList).
 directory with their "cs" initials, for example cstsack, cslinkList).
 
 Use the non concurrent-safe data structures if you need best performance
-in a non-concurrent application. Use the concurrent-safe data structures
-if you need to use them in a concurrent application.
+in a non-concurrent application or if you want to handle concurrency by
+yourself. Use the concurrent-safe data structures for best approach in
+concurrent applications or if you don't want to handle concurrency by
+yourself.
 
 All data structures comes with a set of tests to ensure that they work as
  expected.
