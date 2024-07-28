@@ -19,6 +19,7 @@ import "errors"
 
 const (
 	errIndexOutOfBound = "index out of bounds"
+	errListIsEmpty     = "list is empty"
 )
 
 // Node represents a node in the circular linked list
@@ -31,6 +32,7 @@ type Node[T comparable] struct {
 type CircularLinkList[T comparable] struct {
 	Head *Node[T]
 	Tail *Node[T]
+	size uint64
 }
 
 // NewCircularLinkList creates a new CircularLinkList
@@ -55,12 +57,14 @@ func (l *CircularLinkList[T]) Append(value T) {
 		l.Head = newNode
 		l.Tail = newNode
 		newNode.Next = newNode
+		l.size++
 		return
 	}
 
 	l.Tail.Next = newNode
 	newNode.Next = l.Head
 	l.Tail = newNode
+	l.size++
 }
 
 // Prepend adds a new node to the beginning of the list
@@ -71,12 +75,14 @@ func (l *CircularLinkList[T]) Prepend(value T) {
 		l.Head = newNode
 		l.Tail = newNode
 		newNode.Next = newNode
+		l.size++
 		return
 	}
 
 	newNode.Next = l.Head
 	l.Head = newNode
 	l.Tail.Next = newNode
+	l.size++
 }
 
 // DeleteWithValue deletes the first node with the given value
@@ -90,10 +96,12 @@ func (l *CircularLinkList[T]) DeleteWithValue(value T) {
 		if l.Head == l.Tail {
 			l.Head = nil
 			l.Tail = nil
+			l.size = 0
 			return
 		}
 		l.Head = l.Head.Next
 		l.Tail.Next = l.Head
+		l.size--
 		return
 	}
 
@@ -104,6 +112,7 @@ func (l *CircularLinkList[T]) DeleteWithValue(value T) {
 				l.Tail = current
 			}
 			current.Next = current.Next.Next
+			l.size--
 			return
 		}
 		current = current.Next
@@ -180,11 +189,17 @@ func (l *CircularLinkList[T]) Reverse() {
 }
 
 // Size returns the number of nodes in the list
-func (l *CircularLinkList[T]) Size() int {
-	size := 0
+func (l *CircularLinkList[T]) Size() uint64 {
+	return l.size
+}
+
+// CheckSize recalculate the size of the list
+func (l *CircularLinkList[T]) CheckSize() {
+	size := uint64(0)
 
 	if l.Head == nil {
-		return size
+		l.size = 0
+		return
 	}
 
 	current := l.Head
@@ -196,7 +211,7 @@ func (l *CircularLinkList[T]) Size() int {
 		}
 	}
 
-	return size
+	l.size = size
 }
 
 // GetFirst returns the first node in the list
@@ -210,17 +225,19 @@ func (l *CircularLinkList[T]) GetLast() *Node[T] {
 }
 
 // GetAt returns the node at the given index
-func (l *CircularLinkList[T]) GetAt(index int) (*Node[T], error) {
-	if index < 0 {
-		return nil, errors.New(errIndexOutOfBound)
-	}
-
+func (l *CircularLinkList[T]) GetAt(index uint64) (*Node[T], error) {
 	if l.Head == nil {
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
+	if index > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		index = index % l.size
+	}
+
 	current := l.Head
-	for i := 0; i < index; i++ {
+	for i := uint64(0); i < index; i++ {
 		current = current.Next
 		if current == l.Head {
 			return nil, errors.New(errIndexOutOfBound)
@@ -231,9 +248,11 @@ func (l *CircularLinkList[T]) GetAt(index int) (*Node[T], error) {
 }
 
 // InsertAt inserts a new node at the given index
-func (l *CircularLinkList[T]) InsertAt(index int, value T) error {
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
+func (l *CircularLinkList[T]) InsertAt(index uint64, value T) error {
+	if index > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		index = index % l.size
 	}
 
 	if index == 0 {
@@ -242,7 +261,7 @@ func (l *CircularLinkList[T]) InsertAt(index int, value T) error {
 	}
 
 	current := l.Head
-	for i := 0; i < index-1; i++ {
+	for i := uint64(0); i < index-1; i++ {
 		current = current.Next
 		if current == l.Head {
 			return errors.New(errIndexOutOfBound)
@@ -261,9 +280,11 @@ func (l *CircularLinkList[T]) InsertAt(index int, value T) error {
 }
 
 // DeleteAt deletes the node at the given index
-func (l *CircularLinkList[T]) DeleteAt(index int) error {
-	if index < 0 {
-		return errors.New(errIndexOutOfBound)
+func (l *CircularLinkList[T]) DeleteAt(index uint64) error {
+	if index > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		index = index % l.size
 	}
 
 	if index == 0 {
@@ -281,7 +302,7 @@ func (l *CircularLinkList[T]) DeleteAt(index int) error {
 	}
 
 	current := l.Head
-	for i := 0; i < index-1; i++ {
+	for i := uint64(0); i < index-1; i++ {
 		current = current.Next
 		if current == l.Head {
 			return errors.New(errIndexOutOfBound)
@@ -305,4 +326,343 @@ func (l *CircularLinkList[T]) DeleteAt(index int) error {
 func (l *CircularLinkList[T]) Clear() {
 	l.Head = nil
 	l.Tail = nil
+	l.size = 0
+}
+
+// Copy returns a copy of the list
+func (l *CircularLinkList[T]) Copy() *CircularLinkList[T] {
+	newList := NewCircularLinkList[T]()
+
+	if l.Head == nil {
+		return newList
+	}
+
+	current := l.Head
+	for {
+		newList.Append(current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return newList
+}
+
+// Merge appends all the nodes from another list to the current list
+func (l *CircularLinkList[T]) Merge(list *CircularLinkList[T]) {
+	if list.Head == nil {
+		return
+	}
+
+	current := list.Head
+	for {
+		l.Append(current.Value)
+		current = current.Next
+		if current == list.Head {
+			break
+		}
+	}
+	list.Clear()
+}
+
+// Map generates a new list by applying the function to all the nodes in the list
+func (l *CircularLinkList[T]) Map(f func(T) T) *CircularLinkList[T] {
+	newList := NewCircularLinkList[T]()
+
+	if l.Head == nil {
+		return newList
+	}
+
+	current := l.Head
+	for {
+		newList.Append(f(current.Value))
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return newList
+}
+
+// MapFrom generates a new list by applying the function to all the nodes in the list starting from the specified index
+func (l *CircularLinkList[T]) MapFrom(start uint64, f func(T) T) (*CircularLinkList[T], error) {
+	if l.Head == nil {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	if start > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		start = start % l.size
+	}
+
+	newList := NewCircularLinkList[T]()
+
+	current := l.Head
+	for i := uint64(0); i < start; i++ {
+		current = current.Next
+		if current == l.Head {
+			return nil, errors.New(errIndexOutOfBound)
+		}
+	}
+
+	for {
+		newList.Append(f(current.Value))
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return newList, nil
+}
+
+// MapRange generates a new list by applying the function to all the nodes in the list in the range [start, end)
+func (l *CircularLinkList[T]) MapRange(start, end uint64, f func(T) T) (*CircularLinkList[T], error) {
+	if l.Head == nil {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	if start > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		start = start % l.size
+	}
+
+	if end > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		end = end % l.size
+	}
+
+	if start > end {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+
+	newList := NewCircularLinkList[T]()
+
+	current := l.Head
+	for i := uint64(0); i < start; i++ {
+		current = current.Next
+		if current == l.Head {
+			return nil, errors.New(errIndexOutOfBound)
+		}
+	}
+
+	for i := start; i < end; i++ {
+		newList.Append(f(current.Value))
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return newList, nil
+}
+
+// ForEach applies the function to each node in the list
+func (l *CircularLinkList[T]) ForEach(f func(*T)) {
+	if l.Head == nil {
+		return
+	}
+
+	current := l.Head
+	for {
+		f(&current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+}
+
+// ForRange applies the function to each node in the list in the range [start, end)
+func (l *CircularLinkList[T]) ForRange(start, end uint64, f func(*T)) error {
+	if l.Head == nil {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	if start > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		start = start % l.size
+	}
+
+	if end > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		end = end % l.size
+	}
+
+	if start > end {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	current := l.Head
+	for i := uint64(0); i < start; i++ {
+		current = current.Next
+		if current == l.Head {
+			return errors.New(errIndexOutOfBound)
+		}
+	}
+
+	for i := start; i < end; i++ {
+		f(&current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return nil
+}
+
+// ForFrom applies the function to each node in the list starting from the index
+func (l *CircularLinkList[T]) ForFrom(start uint64, f func(*T)) error {
+	if l.Head == nil {
+		return errors.New(errIndexOutOfBound)
+	}
+
+	if start > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		start = start % l.size
+	}
+
+	current := l.Head
+	for i := uint64(0); i < start; i++ {
+		current = current.Next
+		if current == l.Head {
+			return errors.New(errIndexOutOfBound)
+		}
+	}
+
+	for {
+		f(&current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return nil
+}
+
+// Filter removes nodes from the list that don't match the predicate
+func (l *CircularLinkList[T]) Filter(f func(T) bool) {
+	if l.Head == nil {
+		return
+	}
+
+	current := l.Head
+	for {
+		if !f(current.Value) {
+			l.DeleteWithValue(current.Value)
+		}
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+}
+
+// Reduce reduces the list to a single value
+func (l *CircularLinkList[T]) Reduce(f func(T, T) T) (T, error) {
+	if l.Head == nil {
+		var rVal T
+		return rVal, errors.New(errListIsEmpty)
+	}
+
+	result := l.Head.Value
+	current := l.Head.Next
+	for {
+		result = f(result, current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+// ReduceFrom reduces the list to a single value starting from the index
+func (l *CircularLinkList[T]) ReduceFrom(start uint64, f func(T, T) T) (T, error) {
+	if l.Head == nil {
+		var rVal T
+		return rVal, errors.New(errListIsEmpty)
+	}
+
+	if start > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		start = start % l.size
+	}
+
+	current := l.Head
+	for i := uint64(0); i < start; i++ {
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	result := current.Value
+	current = current.Next
+	for {
+		result = f(result, current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+// ReduceRange reduces the list to a single value in the range [start, end)
+func (l *CircularLinkList[T]) ReduceRange(start, end uint64, f func(T, T) T) (T, error) {
+	if l.Head == nil {
+		var rVal T
+		return rVal, errors.New(errListIsEmpty)
+	}
+
+	if start > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		start = start % l.size
+	}
+
+	if end > l.size {
+		// This is a circular list, so when the index is bigger than the size
+		// we need to calculate the real index
+		end = end % l.size
+	}
+
+	if start > end {
+		var rVal T
+		return rVal, errors.New(errIndexOutOfBound)
+	}
+
+	current := l.Head
+	for i := uint64(0); i < start; i++ {
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	result := current.Value
+	current = current.Next
+	for i := start; i < end; i++ {
+		result = f(result, current.Value)
+		current = current.Next
+		if current == l.Head {
+			break
+		}
+	}
+
+	return result, nil
 }
