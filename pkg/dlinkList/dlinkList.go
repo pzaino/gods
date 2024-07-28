@@ -668,19 +668,49 @@ func (l *DLinkList[T]) LastIndexOf(value T) (uint64, error) {
 	return 0, errors.New("value not found")
 }
 
+// removeNode removes a node from the doubly linked list
+// note: this is a private method and should not be used outside of this package
+func (l *DLinkList[T]) removeNode(node *Node[T]) {
+	if node.Prev == nil {
+		l.Head = node.Next
+		if l.Head != nil {
+			l.Head.Prev = nil
+		}
+	} else {
+		node.Prev.Next = node.Next
+	}
+
+	if node.Next == nil {
+		l.Tail = node.Prev
+		if l.Tail != nil {
+			l.Tail.Next = nil
+		}
+	} else {
+		node.Next.Prev = node.Prev
+	}
+
+	l.size--
+}
+
 // Filter returns a new doubly linked list containing only the nodes that satisfy the given function
-func (l *DLinkList[T]) Filter(f func(T) bool) *DLinkList[T] {
-	result := NewDLinkList[T]()
+func (l *DLinkList[T]) Filter(f func(T) bool) {
+	if l.size == 0 || l.Head == nil {
+		return
+	}
 
 	current := l.Head
 	for current != nil {
-		if f(current.Value) {
-			result.Append(current.Value)
+		next := current.Next // Store the next node
+		if !f(current.Value) {
+			l.removeNode(current)
 		}
-		current = current.Next
+		current = next // Move to the next node
 	}
 
-	return result
+	// If the list is now empty after filtering, reset the Tail pointer
+	if l.size == 0 {
+		l.Tail = nil
+	}
 }
 
 // Map returns a new doubly linked list containing the result of applying the given function to each node

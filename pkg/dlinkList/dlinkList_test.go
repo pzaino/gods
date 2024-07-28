@@ -28,6 +28,7 @@ const (
 	errYesError             = "Expected an error, but got nil"
 	errWrongValue           = "Expected value to be %v, but got %v"
 	errExpectedX            = "Expected %v, but got %v"
+	errExpectedEmpty        = "Expected an empty result, but got %v"
 	errExpectedValToBe      = "Expected value at index %d to be %v, but got %v"
 	errExpectedFilteredList = "Expected filtered list to be %v, but got %v"
 	errExpectedIndex        = "Expected index to be %v, but got %v"
@@ -1326,36 +1327,39 @@ func TestFilter(t *testing.T) {
 	list.Append(4)
 	list.Append(5)
 
+	listTest := list.Copy()
+
 	// Test filtering even numbers
-	filtered := list.Filter(func(value int) bool {
+	listTest.Filter(func(value int) bool {
 		return value%2 == 0
 	})
 
 	expected := []int{2, 4}
-	actual := filtered.ToSlice()
+	actual := listTest.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedFilteredList, expected, actual)
 	}
 
 	// Test filtering odd numbers
-	filtered = list.Filter(func(value int) bool {
+	listTest = list.Copy()
+	listTest.Filter(func(value int) bool {
 		return value%2 != 0
 	})
 
 	expected = []int{1, 3, 5}
-	actual = filtered.ToSlice()
+	actual = listTest.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedFilteredList, expected, actual)
 	}
 
 	// Test filtering with an empty list
 	emptyList := NewDLinkList[int]()
-	filtered = emptyList.Filter(func(value int) bool {
+	emptyList.Filter(func(value int) bool {
 		return value > 0
 	})
 
 	expected = []int{}
-	actual = filtered.ToSlice()
+	actual = emptyList.ToSlice()
 	if actual != nil {
 		t.Errorf(errExpectedFilteredList, expected, actual)
 	}
@@ -1887,7 +1891,7 @@ func TestForFromEmpty(t *testing.T) {
 	})
 
 	if len(result) != 0 {
-		t.Errorf("Expected an empty result, but got %v", result)
+		t.Errorf(errExpectedEmpty, result)
 	}
 }
 
@@ -1903,7 +1907,7 @@ func TestForFromOutOfBound(t *testing.T) {
 	})
 
 	if len(result) != 0 {
-		t.Errorf("Expected an empty result, but got %v", result)
+		t.Errorf(errExpectedEmpty, result)
 	}
 }
 
@@ -2100,7 +2104,7 @@ func TestMapFrom(t *testing.T) {
 	expected.Append(6)
 
 	if !result.Equal(expected) {
-		t.Errorf("Expected %v, but got %v", expected.ToSlice(), result.ToSlice())
+		t.Errorf(errExpectedX, expected.ToSlice(), result.ToSlice())
 	}
 }
 
@@ -2120,7 +2124,7 @@ func TestMapRange(t *testing.T) {
 	expected := []int{4, 6, 8}
 	actual := result.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 
 	// Test case 2: Square each element
@@ -2131,7 +2135,7 @@ func TestMapRange(t *testing.T) {
 	expected = []int{9, 16, 25}
 	actual = result.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 
 	// Test case 3: Add 10 to each element
@@ -2142,7 +2146,7 @@ func TestMapRange(t *testing.T) {
 	expected = []int{11, 12, 13}
 	actual = result.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Expected %v, but got %v", expected, actual)
+		t.Errorf(errExpectedX, expected, actual)
 	}
 }
 
@@ -2189,7 +2193,7 @@ func TestForEachReverse(t *testing.T) {
 
 	expected := []int{3, 2, 1}
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
+		t.Errorf(errExpectedX, expected, result)
 	}
 }
 
@@ -2202,6 +2206,6 @@ func TestForEachReverseEmpty(t *testing.T) {
 	})
 
 	if len(result) != 0 {
-		t.Errorf("Expected an empty result, but got %v", result)
+		t.Errorf(errExpectedEmpty, result)
 	}
 }

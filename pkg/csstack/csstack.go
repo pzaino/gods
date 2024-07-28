@@ -104,7 +104,7 @@ func (cs *CSStack[T]) Peek() (*T, error) {
 }
 
 // Size returns the number of items in the stack.
-func (cs *CSStack[T]) Size() int {
+func (cs *CSStack[T]) Size() uint64 {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.Size()
@@ -147,7 +147,7 @@ func (cs *CSStack[T]) String() string {
 	return cs.s.String()
 }
 
-func (cs *CSStack[T]) PopN(n int) ([]T, error) {
+func (cs *CSStack[T]) PopN(n uint64) ([]T, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	if cs.s.Size() < n {
@@ -206,14 +206,14 @@ func (cs *CSStack[T]) ForEach(fn func(*T)) {
 }
 
 // ForRange applies the function to each item in the stack in the range [start, end).
-func (cs *CSStack[T]) ForRange(start, end int, fn func(*T)) error {
+func (cs *CSStack[T]) ForRange(start, end uint64, fn func(*T)) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.ForRange(start, end, fn)
 }
 
 // ForFrom applies the function to each item in the stack starting from the index.
-func (cs *CSStack[T]) ForFrom(start int, fn func(*T)) error {
+func (cs *CSStack[T]) ForFrom(start uint64, fn func(*T)) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.ForFrom(start, fn)
@@ -241,7 +241,7 @@ func (cs *CSStack[T]) Find(predicate func(T) bool) (*T, error) {
 }
 
 // FindIndex returns the index of the first item that matches the predicate.
-func (cs *CSStack[T]) FindIndex(predicate func(T) bool) (int, error) {
+func (cs *CSStack[T]) FindIndex(predicate func(T) bool) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.FindIndex(predicate)
@@ -255,7 +255,7 @@ func (cs *CSStack[T]) FindLast(predicate func(T) bool) (*T, error) {
 }
 
 // FindLastIndex returns the index of the last item that matches the predicate.
-func (cs *CSStack[T]) FindLastIndex(predicate func(T) bool) (int, error) {
+func (cs *CSStack[T]) FindLastIndex(predicate func(T) bool) (uint64, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.FindLastIndex(predicate)
@@ -269,7 +269,7 @@ func (cs *CSStack[T]) FindAll(predicate func(T) bool) []T {
 }
 
 // FindIndices returns the indices of all items that match the predicate.
-func (cs *CSStack[T]) FindIndices(predicate func(T) bool) []int {
+func (cs *CSStack[T]) FindIndices(predicate func(T) bool) []uint64 {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.FindIndices(predicate)

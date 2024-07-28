@@ -422,3 +422,332 @@ func TestForEach(t *testing.T) {
 		t.Errorf("ForEach did not apply the function correctly to element at index 2")
 	}
 }
+
+func TestAny(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Check if any element in the queue matches the predicate
+	if !q.Any(predicate) {
+		t.Errorf("Any should return true for at least one element that matches the predicate")
+	}
+
+	// Define a predicate that doesn't match any element
+	nonMatchingPredicate := func(elem int) bool {
+		return elem > 10
+	}
+
+	// Check if any element in the queue matches the non-matching predicate
+	if q.Any(nonMatchingPredicate) {
+		t.Errorf("Any should return false for all elements that don't match the predicate")
+	}
+
+	// Check if any element in an empty queue matches the predicate
+	emptyQueue := NewQueue[int]()
+	if emptyQueue.Any(predicate) {
+		t.Errorf("Any should return false for an empty queue")
+	}
+}
+
+func TestAll(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(2)
+	q.Enqueue(4)
+	q.Enqueue(6)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Check if all elements in the queue match the predicate
+	if !q.All(predicate) {
+		t.Errorf("All should return true for all elements that match the predicate")
+	}
+
+	// Define a predicate that doesn't match all elements
+	nonMatchingPredicate := func(elem int) bool {
+		return elem > 4
+	}
+
+	// Check if all elements in the queue match the non-matching predicate
+	if q.All(nonMatchingPredicate) {
+		t.Errorf("All should return false for at least one element that doesn't match the predicate")
+	}
+
+	// Check if all elements in an empty queue match the predicate
+	emptyQueue := NewQueue[int]()
+	if emptyQueue.All(predicate) {
+		t.Errorf("All should return true for an empty queue")
+	}
+}
+
+func TestIndexOf(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	index, err := q.IndexOf(2)
+	if err != nil {
+		t.Errorf("IndexOf returned an unexpected error: %v", err)
+	}
+	if index != 1 {
+		t.Errorf("IndexOf returned incorrect index, got: %d, want: %d", index, 1)
+	}
+
+	_, err = q.IndexOf(4)
+	if err == nil {
+		t.Errorf("IndexOf should return an error for a value not found in the queue")
+	}
+
+	emptyQueue := NewQueue[int]()
+	_, err = emptyQueue.IndexOf(1)
+	if err == nil {
+		t.Errorf("IndexOf should return an error for an empty queue")
+	}
+}
+
+func TestLastIndexOf(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+	q.Enqueue(2)
+
+	// Test for an existing value
+	index, err := q.LastIndexOf(2)
+	if err != nil {
+		t.Errorf("LastIndexOf returned an unexpected error: %v", err)
+	}
+	if index != 3 {
+		t.Errorf("LastIndexOf returned incorrect index, got: %d, want: %d", index, 3)
+	}
+
+	// Test for a non-existing value
+	_, err = q.LastIndexOf(4)
+	if err == nil {
+		t.Errorf("LastIndexOf should return an error for a non-existing value")
+	}
+
+	// Test for an empty queue
+	emptyQueue := NewQueue[int]()
+	_, err = emptyQueue.LastIndexOf(1)
+	if err == nil {
+		t.Errorf("LastIndexOf should return an error for an empty queue")
+	}
+}
+
+func TestFindIndex(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Find the index of the first even element
+	index, err := q.FindIndex(predicate)
+	if err != nil {
+		t.Errorf("FindIndex returned an error: %v", err)
+	}
+	if index != 1 {
+		t.Errorf("FindIndex returned incorrect index, got: %d, want: %d", index, 1)
+	}
+
+	// Define a predicate that doesn't match any element
+	nonMatchingPredicate := func(elem int) bool {
+		return elem > 10
+	}
+
+	// Find the index of the first element that doesn't match the non-matching predicate
+	_, err = q.FindIndex(nonMatchingPredicate)
+	if err == nil {
+		t.Errorf("FindIndex should return an error when no element matches the predicate")
+	}
+
+	// Find the index of the first element in an empty queue
+	emptyQueue := NewQueue[int]()
+	_, err = emptyQueue.FindIndex(predicate)
+	if err == nil {
+		t.Errorf("FindIndex should return an error when the queue is empty")
+	}
+}
+
+func TestFindLastIndex(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Find the last index of an even element
+	index, err := q.FindLastIndex(predicate)
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
+	if index != 1 {
+		t.Errorf("FindLastIndex should return index 1")
+	}
+
+	// Define a predicate that doesn't match any element
+	nonMatchingPredicate := func(elem int) bool {
+		return elem > 10
+	}
+
+	// Find the last index of an element that doesn't exist
+	_, err = q.FindLastIndex(nonMatchingPredicate)
+	if err == nil {
+		t.Errorf("FindLastIndex should return an error when the element is not found")
+	}
+
+	// Find the last index of an element in an empty queue
+	emptyQueue := NewQueue[int]()
+	_, err = emptyQueue.FindLastIndex(predicate)
+	if err == nil {
+		t.Errorf("FindLastIndex should return an error when the queue is empty")
+	}
+}
+
+func TestFindAll(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+	q.Enqueue(4)
+	q.Enqueue(5)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Find all even elements in the queue
+	result := q.FindAll(predicate)
+
+	// Check the size of the result queue
+	if result.Size() != 2 {
+		t.Errorf("FindAll should return a queue with 2 elements")
+	}
+
+	// Check the values of the result queue
+	values := result.Values()
+	if values[0] != 2 {
+		t.Errorf("FindAll should return a queue with value 2 at index 0")
+	}
+	if values[1] != 4 {
+		t.Errorf("FindAll should return a queue with value 4 at index 1")
+	}
+
+	// Find all elements that are greater than 5
+	greaterThanFive := func(elem int) bool {
+		return elem > 5
+	}
+
+	// Find all elements that are greater than 5 in an empty queue
+	emptyQueue := NewQueue[int]()
+	emptyResult := emptyQueue.FindAll(greaterThanFive)
+
+	// Check the size of the result queue
+	if emptyResult.Size() != 0 {
+		t.Errorf("FindAll on empty queue should return a queue with 0 elements")
+	}
+}
+
+func TestFindLast(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Find the last element that matches the predicate
+	result, err := q.FindLast(predicate)
+	if err != nil {
+		t.Errorf("FindLast returned an error: %v", err)
+	}
+	if result != 2 {
+		t.Errorf("FindLast returned incorrect result, got: %d, want: %d", result, 2)
+	}
+
+	// Define a predicate that doesn't match any element
+	nonMatchingPredicate := func(elem int) bool {
+		return elem > 10
+	}
+
+	// Find the last element that matches the non-matching predicate
+	_, err = q.FindLast(nonMatchingPredicate)
+	if err == nil {
+		t.Errorf("FindLast should return an error when no element matches the predicate")
+	}
+
+	// Find the last element in an empty queue
+	emptyQueue := NewQueue[int]()
+	_, err = emptyQueue.FindLast(predicate)
+	if err == nil {
+		t.Errorf("FindLast should return an error when the queue is empty")
+	}
+}
+
+func TestFindAllIndexes(t *testing.T) {
+	q := NewQueue[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the predicate function
+	predicate := func(elem int) bool {
+		return elem%2 == 0
+	}
+
+	// Find all indexes of elements that match the predicate
+	indexes := q.FindAllIndexes(predicate)
+
+	// Check the number of indexes found
+	if len(indexes) != 1 {
+		t.Errorf("FindAllIndexes should return 1 index")
+	}
+
+	// Check the value of the found index
+	if indexes[0] != 1 {
+		t.Errorf("FindAllIndexes should return index 1")
+	}
+
+	// Find all indexes of elements that don't match the predicate
+	nonMatchingPredicate := func(elem int) bool {
+		return elem > 10
+	}
+	nonMatchingIndexes := q.FindAllIndexes(nonMatchingPredicate)
+
+	// Check that no indexes are found
+	if len(nonMatchingIndexes) != 0 {
+		t.Errorf("FindAllIndexes should not return any indexes")
+	}
+
+	// Find all indexes of elements in an empty queue
+	emptyQueue := NewQueue[int]()
+	emptyIndexes := emptyQueue.FindAllIndexes(predicate)
+
+	// Check that no indexes are found in an empty queue
+	if len(emptyIndexes) != 0 {
+		t.Errorf("FindAllIndexes should not return any indexes in an empty queue")
+	}
+}
