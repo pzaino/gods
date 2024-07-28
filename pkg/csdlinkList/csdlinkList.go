@@ -281,10 +281,10 @@ func (cs *CSDLinkList[T]) LastIndexOf(value T) (uint64, error) {
 }
 
 // Filter returns a new doubly linked list containing only the nodes that satisfy the given function.
-func (cs *CSDLinkList[T]) Filter(f func(T) bool) *CSDLinkList[T] {
+func (cs *CSDLinkList[T]) Filter(f func(T) bool) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
-	return &CSDLinkList[T]{l: cs.l.Filter(f)}
+	cs.l.Filter(f)
 }
 
 // Map returns a new doubly linked list containing the result of applying the given function to each node.

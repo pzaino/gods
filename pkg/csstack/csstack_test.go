@@ -464,7 +464,7 @@ func TestCSStackFindIndices(t *testing.T) {
 func TestNewCSStackFromSlice(t *testing.T) {
 	items := []int{1, 2, 3, 4, 5}
 	cs := csstack.NewCSStackFromSlice(items)
-	if cs.Size() != len(items) {
+	if cs.Size() != uint64(len(items)) {
 		t.Fatalf(errExpectedSizeX, len(items), cs.Size())
 	}
 	slice := cs.ToSlice()

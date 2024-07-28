@@ -20,9 +20,15 @@ import (
 	"strings"
 )
 
+const (
+	errQueueIsEmpty  = "queue is empty"
+	errValueNotFound = "value not found"
+)
+
 // Queue is a FIFO data structure
 type Queue[T comparable] struct {
 	data []T
+	size uint64
 }
 
 // NewQueue creates a new Queue
@@ -38,16 +44,18 @@ func (q *Queue[T]) IsEmpty() bool {
 // Enqueue adds an element to the end of the queue
 func (q *Queue[T]) Enqueue(elem T) {
 	q.data = append(q.data, elem)
+	q.size++
 }
 
 // Dequeue removes and returns the first element in the queue
 func (q *Queue[T]) Dequeue() (T, error) {
 	if q.IsEmpty() {
 		var rVal T
-		return rVal, errors.New("queue is empty")
+		return rVal, errors.New(errQueueIsEmpty)
 	}
 	elem := q.data[0]
 	q.data = q.data[1:]
+	q.size--
 	return elem, nil
 }
 
@@ -55,19 +63,20 @@ func (q *Queue[T]) Dequeue() (T, error) {
 func (q *Queue[T]) Peek() (T, error) {
 	if q.IsEmpty() {
 		var rVal T
-		return rVal, errors.New("queue is empty")
+		return rVal, errors.New(errQueueIsEmpty)
 	}
 	return q.data[0], nil
 }
 
 // Size returns the number of elements in the queue
-func (q *Queue[T]) Size() int {
-	return len(q.data)
+func (q *Queue[T]) Size() uint64 {
+	return q.size
 }
 
 // Clear removes all elements from the queue
 func (q *Queue[T]) Clear() {
 	q.data = []T{}
+	q.size = 0
 }
 
 // Values returns all elements in the queue
@@ -77,7 +86,11 @@ func (q *Queue[T]) Values() []T {
 
 // Contains returns true if the queue contains the given element
 func (q *Queue[T]) Contains(elem T) bool {
-	for i := 0; i < len(q.data); i++ {
+	if q.size == 0 {
+		return false
+	}
+
+	for i := uint64(0); i < q.size; i++ {
 		if q.data[i] == elem {
 			return true
 		}
@@ -90,8 +103,9 @@ func (q *Queue[T]) Equals(other *Queue[T]) bool {
 	if q.Size() != other.Size() {
 		return false
 	}
-	for i, e := range q.data {
-		if e != other.data[i] {
+
+	for i := uint64(0); i < q.size; i++ {
+		if q.data[i] != other.data[i] {
 			return false
 		}
 	}
@@ -102,6 +116,7 @@ func (q *Queue[T]) Equals(other *Queue[T]) bool {
 func (q *Queue[T]) Copy() *Queue[T] {
 	copy := NewQueue[T]()
 	copy.data = append(copy.data, q.data...)
+	copy.size = q.size
 	return copy
 }
 
@@ -126,7 +141,12 @@ func (q *Queue[T]) dataString(f func(T) string) string {
 // Map creates a new queue with the results of applying the function to all elements in the queue
 func (q *Queue[T]) Map(f func(T) T) *Queue[T] {
 	newQueue := NewQueue[T]()
-	for i := 0; i < len(q.data); i++ {
+
+	if q.size == 0 {
+		return newQueue
+	}
+
+	for i := uint64(0); i < q.size; i++ {
 		newQueue.Enqueue(f(q.data[i]))
 	}
 	return newQueue
@@ -135,18 +155,21 @@ func (q *Queue[T]) Map(f func(T) T) *Queue[T] {
 // Filter removes elements from the queue that don't match the predicate
 func (q *Queue[T]) Filter(f func(T) bool) {
 	var newData []T
-	for i := 0; i < len(q.data); i++ {
+	var size uint64
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			newData = append(newData, q.data[i])
+			size++
 		}
 	}
 	q.data = newData
+	q.size = size
 }
 
 // Reduce reduces the queue to a single value
 func (q *Queue[T]) Reduce(f func(T, T) T, initial T) T {
 	result := initial
-	for i := 0; i < len(q.data); i++ {
+	for i := uint64(0); i < q.size; i++ {
 		result = f(result, q.data[i])
 	}
 	return result
@@ -154,14 +177,20 @@ func (q *Queue[T]) Reduce(f func(T, T) T, initial T) T {
 
 // ForEach applies the function to all the elements in the queue
 func (q *Queue[T]) ForEach(f func(*T)) {
-	for i := 0; i < len(q.data); i++ {
+	if q.size == 0 {
+		return
+	}
+	for i := uint64(0); i < q.size; i++ {
 		f(&q.data[i])
 	}
 }
 
 // Any checks if any element in the queue matches the predicate
 func (q *Queue[T]) Any(f func(T) bool) bool {
-	for i := 0; i < len(q.data); i++ {
+	if q.size == 0 {
+		return false
+	}
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			return true
 		}
@@ -171,7 +200,10 @@ func (q *Queue[T]) Any(f func(T) bool) bool {
 
 // All checks if all elements in the queue match the predicate
 func (q *Queue[T]) All(f func(T) bool) bool {
-	for i := 0; i < len(q.data); i++ {
+	if q.size == 0 {
+		return false
+	}
+	for i := uint64(0); i < q.size; i++ {
 		if !f(q.data[i]) {
 			return false
 		}
@@ -180,51 +212,77 @@ func (q *Queue[T]) All(f func(T) bool) bool {
 }
 
 // IndexOf returns the index of the first element with the given value
-func (q *Queue[T]) IndexOf(value T) int {
-	for i := 0; i < len(q.data); i++ {
+func (q *Queue[T]) IndexOf(value T) (uint64, error) {
+	if q.size == 0 {
+		return 0, errors.New(errQueueIsEmpty)
+	}
+
+	for i := uint64(0); i < q.size; i++ {
 		if q.data[i] == value {
-			return i
+			return i, nil
 		}
 	}
-	return -1
+	return 0, errors.New(errValueNotFound)
 }
 
 // LastIndexOf returns the index of the last element with the given value
-func (q *Queue[T]) LastIndexOf(value T) int {
-	index := -1
-	for i := 0; i < len(q.data); i++ {
+func (q *Queue[T]) LastIndexOf(value T) (uint64, error) {
+	if q.size == 0 {
+		return 0, errors.New(errQueueIsEmpty)
+	}
+
+	index := uint64(0)
+	found := false
+	for i := uint64(0); i < q.size; i++ {
 		if q.data[i] == value {
 			index = i
+			found = true
 		}
 	}
-	return index
+	if !found {
+		return 0, errors.New(errValueNotFound)
+	}
+	return index, nil
 }
 
 // FindIndex returns the index of the first element that matches the predicate
-func (q *Queue[T]) FindIndex(f func(T) bool) int {
-	for i := 0; i < len(q.data); i++ {
+func (q *Queue[T]) FindIndex(f func(T) bool) (uint64, error) {
+	if q.size == 0 {
+		return 0, errors.New(errQueueIsEmpty)
+	}
+
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
-			return i
+			return i, nil
 		}
 	}
-	return -1
+	return 0, errors.New(errValueNotFound)
 }
 
 // FindLastIndex returns the index of the last element that matches the predicate
-func (q *Queue[T]) FindLastIndex(f func(T) bool) int {
-	index := -1
-	for i := 0; i < len(q.data); i++ {
+func (q *Queue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
+	if q.size == 0 {
+		return 0, errors.New(errQueueIsEmpty)
+	}
+
+	index := uint64(0)
+	found := false
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			index = i
+			found = true
 		}
 	}
-	return index
+	if !found {
+		return 0, errors.New(errValueNotFound)
+	}
+	return index, nil
 }
 
 // FindAll returns all elements that match the predicate
 func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
 	newQueue := NewQueue[T]()
-	for i := 0; i < len(q.data); i++ {
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			newQueue.Enqueue(q.data[i])
 		}
@@ -235,23 +293,26 @@ func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
 // FindLast returns the last element that matches the predicate
 func (q *Queue[T]) FindLast(f func(T) bool) (T, error) {
 	var result T
+	if q.size == 0 {
+		return result, errors.New(errQueueIsEmpty)
+	}
 	found := false
-	for i := 0; i < len(q.data); i++ {
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			result = q.data[i]
 			found = true
 		}
 	}
 	if !found {
-		return result, errors.New("value not found")
+		return result, errors.New(errValueNotFound)
 	}
 	return result, nil
 }
 
 // FindAllIndexes returns the indexes of all elements that match the predicate
-func (q *Queue[T]) FindAllIndexes(f func(T) bool) []int {
-	var result []int
-	for i := 0; i < len(q.data); i++ {
+func (q *Queue[T]) FindAllIndexes(f func(T) bool) []uint64 {
+	var result []uint64
+	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			result = append(result, i)
 		}

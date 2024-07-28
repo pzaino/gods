@@ -13,13 +13,15 @@
 // limitations under the License.
 
 // Package stack provides a non-concurrent-safe stack (LIFO).
-package stack
+package stack_test
 
 import (
 	"fmt"
 	"reflect"
 	"strconv"
 	"testing"
+
+	stack "github.com/pzaino/gods/pkg/stack"
 )
 
 const (
@@ -35,27 +37,27 @@ const (
 )
 
 func TestNew(t *testing.T) {
-	stack := NewStack[int]()
+	stack := stack.NewStack[int]()
 	if stack == nil {
 		t.Error("Expected stack to be initialized, but got nil")
 	}
 }
 
 func TestPush(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	if stack.IsEmpty() {
+	s := stack.NewStack[int]()
+	s.Push(1)
+	if s.IsEmpty() {
 		t.Error("Expected stack to not be empty, but it was")
 	}
-	if len(stack.items) != 1 {
-		t.Errorf("Expected stack to have 1 item, but got %v", len(stack.items))
+	if s.Size() != 1 {
+		t.Errorf("Expected stack to have 1 item, but got %v", s.Size())
 	}
 }
 
 func TestPop(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	item, err := stack.Pop()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	item, err := s.Pop()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -67,49 +69,49 @@ func TestPop(t *testing.T) {
 }
 
 func TestPopEmpty(t *testing.T) {
-	stack := NewStack[int]()
-	_, err := stack.Pop()
+	s := stack.NewStack[int]()
+	_, err := s.Pop()
 	if err == nil {
 		t.Error(errYesError)
 	}
 }
 
 func TestIsEmpty(t *testing.T) {
-	stack := NewStack[int]()
-	if !stack.IsEmpty() {
+	s := stack.NewStack[int]()
+	if !s.IsEmpty() {
 		t.Error(errStackNotEmpty)
 	}
 }
 
 func TestIsEmptyAfterPush(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	if stack.IsEmpty() {
+	s := stack.NewStack[int]()
+	s.Push(1)
+	if s.IsEmpty() {
 		t.Error("Expected stack to not be empty, but it was")
 	}
 }
 
 func TestIsEmptyAfterPop(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	item, err := stack.Pop()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	item, err := s.Pop()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item == nil {
 		t.Error(errItemNotNil)
 	}
-	if !stack.IsEmpty() {
+	if !s.IsEmpty() {
 		t.Error(errStackNotEmpty)
 	}
 }
 
 func TestToSlice(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	slice := stack.ToSlice()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	slice := s.ToSlice()
 	if len(slice) != 3 {
 		t.Errorf("Expected slice to have 3 items, but got %v", len(slice))
 	}
@@ -125,12 +127,12 @@ func TestToSlice(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Reverse()
-	slice := stack.ToSlice()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Reverse()
+	slice := s.ToSlice()
 	if len(slice) != 3 {
 		t.Errorf("Expected slice to have 3 items, but got %v", len(slice))
 	}
@@ -146,14 +148,14 @@ func TestReverse(t *testing.T) {
 }
 
 func TestSwap(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	err := stack.Swap()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	err := s.Swap()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	slice := stack.ToSlice()
+	slice := s.ToSlice()
 	if len(slice) != 2 {
 		t.Errorf("Expected slice to have 2 items, but got %v", len(slice))
 	}
@@ -166,17 +168,17 @@ func TestSwap(t *testing.T) {
 }
 
 func TestSwapEmpty(t *testing.T) {
-	stack := NewStack[int]()
-	err := stack.Swap()
+	s := stack.NewStack[int]()
+	err := s.Swap()
 	if err == nil {
 		t.Error(errYesError)
 	}
 }
 
 func TestTop(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	item, err := stack.Top()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	item, err := s.Top()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -188,25 +190,25 @@ func TestTop(t *testing.T) {
 }
 
 func TestTopEmpty(t *testing.T) {
-	stack := NewStack[int]()
-	_, err := stack.Top()
+	s := stack.NewStack[int]()
+	_, err := s.Top()
 	if err == nil {
 		t.Error(errYesError)
 	}
 }
 
 func TestTopAfterPop(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	item, err := stack.Pop()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	item, err := s.Pop()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item == nil {
 		t.Error(errItemNotNil)
 	}
-	top, err := stack.Top()
+	top, err := s.Top()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -218,14 +220,14 @@ func TestTopAfterPop(t *testing.T) {
 }
 
 func TestTopAfterSwap(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	err := stack.Swap()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	err := s.Swap()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	top, err := stack.Top()
+	top, err := s.Top()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -237,9 +239,9 @@ func TestTopAfterSwap(t *testing.T) {
 }
 
 func TestPeek(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	item, err := stack.Peek()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	item, err := s.Peek()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -251,25 +253,25 @@ func TestPeek(t *testing.T) {
 }
 
 func TestPeekEmpty(t *testing.T) {
-	stack := NewStack[int]()
-	_, err := stack.Peek()
+	s := stack.NewStack[int]()
+	_, err := s.Peek()
 	if err == nil {
 		t.Error(errYesError)
 	}
 }
 
 func TestPeekAfterPop(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	item, err := stack.Pop()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	item, err := s.Pop()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	if item == nil {
 		t.Error(errItemNotNil)
 	}
-	top, err := stack.Peek()
+	top, err := s.Peek()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -281,14 +283,14 @@ func TestPeekAfterPop(t *testing.T) {
 }
 
 func TestPeekAfterSwap(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	err := stack.Swap()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	err := s.Swap()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	top, err := stack.Peek()
+	top, err := s.Peek()
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -300,56 +302,56 @@ func TestPeekAfterSwap(t *testing.T) {
 }
 
 func TestSize(t *testing.T) {
-	stack := NewStack[int]()
-	if stack.Size() != 0 {
-		t.Errorf("Expected stack to have 0 items, but got %v", stack.Size())
+	s := stack.NewStack[int]()
+	if s.Size() != 0 {
+		t.Errorf("Expected stack to have 0 items, but got %v", s.Size())
 	}
-	stack.Push(1)
-	if stack.Size() != 1 {
-		t.Errorf("Expected stack to have 1 item, but got %v", stack.Size())
+	s.Push(1)
+	if s.Size() != 1 {
+		t.Errorf("Expected stack to have 1 item, but got %v", s.Size())
 	}
-	stack.Push(2)
-	if stack.Size() != 2 {
-		t.Errorf("Expected stack to have 2 items, but got %v", stack.Size())
+	s.Push(2)
+	if s.Size() != 2 {
+		t.Errorf("Expected stack to have 2 items, but got %v", s.Size())
 	}
-	stack.Push(3)
-	if stack.Size() != 3 {
-		t.Errorf("Expected stack to have 3 items, but got %v", stack.Size())
+	s.Push(3)
+	if s.Size() != 3 {
+		t.Errorf("Expected stack to have 3 items, but got %v", s.Size())
 	}
 }
 
 func TestClear(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Clear()
-	if !stack.IsEmpty() {
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Clear()
+	if !s.IsEmpty() {
 		t.Error(errStackNotEmpty)
 	}
 }
 
 func TestContains(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	if !stack.Contains(1) {
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	if !s.Contains(1) {
 		t.Error("Expected stack to contain 1, but it did not")
 	}
-	if !stack.Contains(2) {
+	if !s.Contains(2) {
 		t.Error("Expected stack to contain 2, but it did not")
 	}
-	if !stack.Contains(3) {
+	if !s.Contains(3) {
 		t.Error("Expected stack to contain 3, but it did not")
 	}
-	if stack.Contains(4) {
+	if s.Contains(4) {
 		t.Error("Expected stack to not contain 4, but it did")
 	}
 }
 
 func TestCopy(t *testing.T) {
-	stack := NewStack[int]()
+	stack := stack.NewStack[int]()
 	stack.Push(1)
 	stack.Push(2)
 	stack.Push(3)
@@ -366,114 +368,114 @@ func TestCopy(t *testing.T) {
 }
 
 func TestEqual(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	other := NewStack[int]()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	other := stack.NewStack[int]()
 	other.Push(1)
 	other.Push(2)
 	other.Push(3)
-	if !stack.Equal(other) {
+	if !s.Equal(other) {
 		t.Error("Expected stacks to be equal, but they were not")
 	}
 }
 
 func TestEqualDifferentSize(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	other := NewStack[int]()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	other := stack.NewStack[int]()
 	other.Push(1)
 	other.Push(2)
-	if stack.Equal(other) {
+	if s.Equal(other) {
 		t.Error("Expected stacks to not be identical, but they were")
 	}
 }
 
 func TestEqualDifferentItems(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	other := NewStack[int]()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	other := stack.NewStack[int]()
 	other.Push(1)
 	other.Push(2)
 	other.Push(4)
-	if stack.Equal(other) {
+	if s.Equal(other) {
 		t.Error("Expected stacks to not be the same, but they were")
 	}
 }
 
 func TestEqualDifferentOrder(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	other := NewStack[int]()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	other := stack.NewStack[int]()
 	other.Push(3)
 	other.Push(2)
 	other.Push(1)
-	if stack.Equal(other) {
+	if s.Equal(other) {
 		t.Error("Expected stacks to not be equal, but they were")
 	}
 }
 
 func TestEqualEmpty(t *testing.T) {
-	stack := NewStack[int]()
-	other := NewStack[int]()
-	if !stack.Equal(other) {
+	s := stack.NewStack[int]()
+	other := stack.NewStack[int]()
+	if !s.Equal(other) {
 		t.Error("Expected stacks to be equal, but they were not")
 	}
 }
 
 func TestEqualEmptyOther(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	other := NewStack[int]()
-	if stack.Equal(other) {
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	other := stack.NewStack[int]()
+	if s.Equal(other) {
 		t.Error("Expected stacks to not be equal, but they were")
 	}
 }
 
 func TestEqualNil(t *testing.T) {
-	stack := NewStack[int]()
-	if stack.Equal(nil) {
+	s := stack.NewStack[int]()
+	if s.Equal(nil) {
 		t.Error("Expected stack to not be equal to nil, but it was")
 	}
 }
 func TestString(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 	expected := "[1 2 3]"
-	result := stack.String()
+	result := s.String()
 	if result != expected {
 		t.Errorf("Expected string representation to be %q, but got %q", expected, result)
 	}
 }
 
 func TestStringEmpty(t *testing.T) {
-	stack := NewStack[int]()
+	s := stack.NewStack[int]()
 	expected := "[]"
-	result := stack.String()
+	result := s.String()
 	if result != expected {
 		t.Errorf("Expected string representation to be %q, but got %q", expected, result)
 	}
 }
 
 func TestPopN(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test case 1: Pop 2 items
-	items, err := stack.PopN(2)
+	items, err := s.PopN(2)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -486,12 +488,12 @@ func TestPopN(t *testing.T) {
 	if items[1] != 2 {
 		t.Errorf(errExpectedXItemY, "second", 3, items[1])
 	}
-	if stack.Size() != 1 {
-		t.Errorf("Expected stack size to be 1, but got %v", stack.Size())
+	if s.Size() != 1 {
+		t.Errorf("Expected stack size to be 1, but got %v", s.Size())
 	}
 
 	// Test case 2: Pop 1 item
-	items, err = stack.PopN(1)
+	items, err = s.PopN(1)
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
@@ -501,12 +503,12 @@ func TestPopN(t *testing.T) {
 	if items[0] != 1 {
 		t.Errorf(errExpectedItemX, 1, items[0])
 	}
-	if stack.Size() != 0 {
-		t.Errorf("Expected stack size to be 0, but got %v", stack.Size())
+	if s.Size() != 0 {
+		t.Errorf("Expected stack size to be 0, but got %v", s.Size())
 	}
 
 	// Test case 3: Pop from empty stack
-	items, err = stack.PopN(1)
+	items, err = s.PopN(1)
 	if err == nil {
 		t.Error(errYesError)
 	}
@@ -516,9 +518,9 @@ func TestPopN(t *testing.T) {
 }
 
 func TestPushN(t *testing.T) {
-	stack := NewStack[int]()
-	stack.PushN(1, 2, 3)
-	slice := stack.ToSlice()
+	s := stack.NewStack[int]()
+	s.PushN(1, 2, 3)
+	slice := s.ToSlice()
 	if len(slice) != 3 {
 		t.Errorf("Expected stack to have 3 items, but got %v", len(slice))
 	}
@@ -534,16 +536,16 @@ func TestPushN(t *testing.T) {
 }
 
 func TestPopAll(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	items := stack.PopAll()
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	items := s.PopAll()
 	if len(items) != 3 {
 		t.Errorf("Expected %d items, but got %d", 3, len(items))
 	}
-	if stack.Size() != 0 {
-		t.Errorf("Expected stack to be empty, but it has %d items", stack.Size())
+	if s.Size() != 0 {
+		t.Errorf("Expected stack to be empty, but it has %d items", s.Size())
 	}
 	if items[0] != 3 {
 		t.Errorf(errExpectedXItemY, "first", 3, items[0])
@@ -557,15 +559,15 @@ func TestPopAll(t *testing.T) {
 }
 
 func TestPushAll(t *testing.T) {
-	stack := NewStack[int]()
+	s := stack.NewStack[int]()
 	items := []int{1, 2, 3}
-	stack.PushAll(items)
+	s.PushAll(items)
 
-	if stack.Size() != len(items) {
-		t.Errorf("Expected stack size to be %d, but got %d", len(items), stack.Size())
+	if s.Size() != uint64(len(items)) {
+		t.Errorf("Expected stack size to be %d, but got %d", len(items), s.Size())
 	}
 
-	slice := stack.ToSlice()
+	slice := s.ToSlice()
 	for i, item := range items {
 		if slice[i] != item {
 			t.Errorf("Expected item at index %d to be %d, but got %d", i, item, slice[i])
@@ -574,46 +576,46 @@ func TestPushAll(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Push(4)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Push(4)
 
 	// Test filtering even numbers
-	stack.Filter(func(item int) bool {
+	s.Filter(func(item int) bool {
 		return item%2 == 0
 	})
 
 	// Check if the stack contains only even numbers
-	if !stack.Contains(2) {
+	if !s.Contains(2) {
 		t.Error("Expected stack to contain 2, but it did not")
 	}
-	if !stack.Contains(4) {
+	if !s.Contains(4) {
 		t.Error("Expected stack to contain 4, but it did not")
 	}
-	if stack.Contains(1) {
+	if s.Contains(1) {
 		t.Error("Expected stack to not contain 1, but it did")
 	}
-	if stack.Contains(3) {
+	if s.Contains(3) {
 		t.Error("Expected stack to not contain 3, but it did")
 	}
 }
 
 func TestMap(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test mapping to double the values
-	doubledStack := stack.Map(func(item int) int {
+	doubledStack := s.Map(func(item int) int {
 		return item * 2
 	})
 
 	// Check if the original stack is unchanged
-	if stack.Size() != 3 {
-		t.Errorf("Expected original stack to have 3 items, but got %v", stack.Size())
+	if s.Size() != 3 {
+		t.Errorf("Expected original stack to have 3 items, but got %v", s.Size())
 	}
 
 	// Check if the new stack has the mapped values
@@ -633,13 +635,13 @@ func TestMap(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test case 1: Sum of all items
-	sum, err := stack.Reduce(func(a, b int) int {
+	sum, err := s.Reduce(func(a, b int) int {
 		return a + b
 	})
 	if err != nil {
@@ -650,7 +652,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Test case 2: Product of all items
-	product, err := stack.Reduce(func(a, b int) int {
+	product, err := s.Reduce(func(a, b int) int {
 		return a * b
 	})
 	if err != nil {
@@ -661,7 +663,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Test case 3: Concatenation of all items as strings
-	concatenation, err := stack.Reduce(func(a, b int) int {
+	concatenation, err := s.Reduce(func(a, b int) int {
 		strA := strconv.Itoa(a)
 		strB := strconv.Itoa(b)
 		concatenated, _ := strconv.Atoi(strA + strB)
@@ -675,7 +677,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Test case 4: Error when stack is empty
-	emptyStack := NewStack[int]()
+	emptyStack := stack.NewStack[int]()
 	_, err = emptyStack.Reduce(func(a, b int) int {
 		return a + b
 	})
@@ -685,10 +687,10 @@ func TestReduce(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Define a function to be applied to each item
 	fn := func(item *int) {
@@ -697,23 +699,21 @@ func TestForEach(t *testing.T) {
 	}
 
 	// Apply the function to each item in the stack
-	stack.ForEach(fn)
-
-	// Add assertions here if needed
+	s.ForEach(fn)
 }
 
 func TestAny(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(2)
-	stack.Push(4)
-	stack.Push(6)
+	s := stack.NewStack[int]()
+	s.Push(2)
+	s.Push(4)
+	s.Push(6)
 
 	// Test with a predicate that returns true for even numbers
 	isEven := func(n int) bool {
 		return n%2 == 0
 	}
 
-	if !stack.Any(isEven) {
+	if !s.Any(isEven) {
 		t.Error("Expected stack to have at least one even number, but it did not")
 	}
 
@@ -722,28 +722,28 @@ func TestAny(t *testing.T) {
 		return n%2 != 0
 	}
 
-	if stack.Any(isOdd) {
+	if s.Any(isOdd) {
 		t.Error("Expected stack to not have any odd numbers, but it did")
 	}
 
 	// Test with an empty stack
-	emptyStack := NewStack[int]()
+	emptyStack := stack.NewStack[int]()
 	if emptyStack.Any(isEven) {
 		t.Error("Expected empty stack to not have any even numbers, but it did")
 	}
 }
 
 func TestAll(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(2)
-	stack.Push(4)
-	stack.Push(6)
+	s := stack.NewStack[int]()
+	s.Push(2)
+	s.Push(4)
+	s.Push(6)
 
 	// Test case 1: All items are even
 	isEven := func(n int) bool {
 		return n%2 == 0
 	}
-	if !stack.All(isEven) {
+	if !s.All(isEven) {
 		t.Error("Expected all items to be even, but they were not")
 	}
 
@@ -751,25 +751,25 @@ func TestAll(t *testing.T) {
 	isOdd := func(n int) bool {
 		return n%2 != 0
 	}
-	if stack.All(isOdd) {
+	if s.All(isOdd) {
 		t.Error("Expected not all items to be odd, but they were")
 	}
 
 	// Test case 3: Stack is empty
-	emptyStack := NewStack[int]()
+	emptyStack := stack.NewStack[int]()
 	if emptyStack.All(isEven) {
 		t.Error("Expected an empty stack to match no items, but it did")
 	}
 }
 
 func TestFind(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test case 1: Item exists in the stack
-	item, err := stack.Find(func(i int) bool {
+	item, err := s.Find(func(i int) bool {
 		return i == 2
 	})
 	if err != nil {
@@ -782,7 +782,7 @@ func TestFind(t *testing.T) {
 	}
 
 	// Test case 2: Item does not exist in the stack
-	item, err = stack.Find(func(i int) bool {
+	item, err = s.Find(func(i int) bool {
 		return i == 4
 	})
 	if err == nil {
@@ -794,12 +794,12 @@ func TestFind(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
-	index, err := stack.FindIndex(func(item int) bool {
+	index, err := s.FindIndex(func(item int) bool {
 		return item == 2
 	})
 	if err != nil {
@@ -809,25 +809,22 @@ func TestFindIndex(t *testing.T) {
 		t.Errorf("Expected index to be 1, but got %v", index)
 	}
 
-	index, err = stack.FindIndex(func(item int) bool {
+	_, err = s.FindIndex(func(item int) bool {
 		return item == 4
 	})
 	if err == nil {
 		t.Error(errYesError)
 	}
-	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %v", index)
-	}
 }
 
 func TestFindLast(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test case 1: Item exists in the stack
-	item, err := stack.FindLast(func(i int) bool {
+	item, err := s.FindLast(func(i int) bool {
 		return i == 2
 	})
 	if err != nil {
@@ -840,7 +837,7 @@ func TestFindLast(t *testing.T) {
 	}
 
 	// Test case 2: Item does not exist in the stack
-	item, err = stack.FindLast(func(i int) bool {
+	item, err = s.FindLast(func(i int) bool {
 		return i == 4
 	})
 	if err == nil {
@@ -852,12 +849,12 @@ func TestFindLast(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
-	index, err := stack.FindLastIndex(func(item int) bool {
+	index, err := s.FindLastIndex(func(item int) bool {
 		return item == 2
 	})
 	if err != nil {
@@ -867,30 +864,27 @@ func TestFindLastIndex(t *testing.T) {
 		t.Errorf("Expected index to be 1, but got %v", index)
 	}
 
-	index, err = stack.FindLastIndex(func(item int) bool {
+	_, err = s.FindLastIndex(func(item int) bool {
 		return item == 4
 	})
 	if err == nil {
 		t.Error(errYesError)
 	}
-	if index != -1 {
-		t.Errorf("Expected index to be -1, but got %v", index)
-	}
 }
 
 func TestFindAll(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Push(4)
-	stack.Push(5)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Push(4)
+	s.Push(5)
 
 	// Test case 1: Find all even numbers
 	evenPredicate := func(item int) bool {
 		return item%2 == 0
 	}
-	evenItems := stack.FindAll(evenPredicate)
+	evenItems := s.FindAll(evenPredicate)
 	expectedEvenItems := []int{2, 4}
 	if !reflect.DeepEqual(evenItems, expectedEvenItems) {
 		t.Errorf("Expected even items to be %v, but got %v", expectedEvenItems, evenItems)
@@ -900,7 +894,7 @@ func TestFindAll(t *testing.T) {
 	oddPredicate := func(item int) bool {
 		return item%2 != 0
 	}
-	oddItems := stack.FindAll(oddPredicate)
+	oddItems := s.FindAll(oddPredicate)
 	expectedOddItems := []int{1, 3, 5}
 	if !reflect.DeepEqual(oddItems, expectedOddItems) {
 		t.Errorf("Expected odd items to be %v, but got %v", expectedOddItems, oddItems)
@@ -910,7 +904,7 @@ func TestFindAll(t *testing.T) {
 	greaterThanThreePredicate := func(item int) bool {
 		return item > 3
 	}
-	greaterThanThreeItems := stack.FindAll(greaterThanThreePredicate)
+	greaterThanThreeItems := s.FindAll(greaterThanThreePredicate)
 	expectedGreaterThanThreeItems := []int{4, 5}
 	if !reflect.DeepEqual(greaterThanThreeItems, expectedGreaterThanThreeItems) {
 		t.Errorf("Expected items greater than 3 to be %v, but got %v", expectedGreaterThanThreeItems, greaterThanThreeItems)
@@ -918,24 +912,24 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindIndices(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Push(2)
-	stack.Push(4)
-	stack.Push(2)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Push(2)
+	s.Push(4)
+	s.Push(2)
 
-	indices := stack.FindIndices(func(item int) bool {
+	indices := s.FindIndices(func(item int) bool {
 		return item == 2
 	})
 
-	expectedIndices := []int{1, 3, 5}
+	expectedIndices := []uint64{1, 3, 5}
 	if !reflect.DeepEqual(indices, expectedIndices) {
 		t.Errorf("Expected indices to be %v, but got %v", expectedIndices, indices)
 	}
 
-	indices = stack.FindIndices(func(item int) bool {
+	indices = s.FindIndices(func(item int) bool {
 		return item == 5
 	})
 
@@ -945,52 +939,52 @@ func TestFindIndices(t *testing.T) {
 }
 
 func TestForRange(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test case 1: Apply function to each item within the range [0, 1]
-	err := stack.ForRange(0, 1, func(item *int) {
+	err := s.ForRange(0, 1, func(item *int) {
 		*item *= 2
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	expected := []int{2, 4, 3}
-	actual := stack.ToSlice()
+	actual := s.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedStack, expected, actual)
 	}
 
 	// Test case 2: Apply function to each item within the range [1, 2]
-	err = stack.ForRange(1, 2, func(item *int) {
+	err = s.ForRange(1, 2, func(item *int) {
 		*item *= 3
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	expected = []int{2, 12, 9}
-	actual = stack.ToSlice()
+	actual = s.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedStack, expected, actual)
 	}
 
 	// Test case 3: Apply function to each item within the range [2, 2]
-	err = stack.ForRange(2, 2, func(item *int) {
+	err = s.ForRange(2, 2, func(item *int) {
 		*item *= 4
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	expected = []int{2, 12, 36}
-	actual = stack.ToSlice()
+	actual = s.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedStack, expected, actual)
 	}
 
 	// Test case 4: Start index out of range
-	err = stack.ForRange(3, 4, func(item *int) {
+	err = s.ForRange(3, 4, func(item *int) {
 		*item *= 5
 	})
 	if err == nil {
@@ -998,7 +992,7 @@ func TestForRange(t *testing.T) {
 	}
 
 	// Test case 5: End index out of range
-	err = stack.ForRange(1, 3, func(item *int) {
+	err = s.ForRange(1, 3, func(item *int) {
 		*item *= 6
 	})
 	if err == nil {
@@ -1006,7 +1000,7 @@ func TestForRange(t *testing.T) {
 	}
 
 	// Test case 6: Start index is greater than end index
-	err = stack.ForRange(2, 1, func(item *int) {
+	err = s.ForRange(2, 1, func(item *int) {
 		*item *= 7
 	})
 	if err == nil {
@@ -1015,14 +1009,14 @@ func TestForRange(t *testing.T) {
 }
 
 func TestForFrom(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Test case 1: Apply function to each item starting from index 0
 	var result []int
-	err := stack.ForFrom(0, func(item *int) {
+	err := s.ForFrom(0, func(item *int) {
 		result = append(result, *item)
 	})
 	if err != nil {
@@ -1035,7 +1029,7 @@ func TestForFrom(t *testing.T) {
 
 	// Test case 2: Apply function to each item starting from index 1
 	result = nil
-	err = stack.ForFrom(1, func(item *int) {
+	err = s.ForFrom(1, func(item *int) {
 		result = append(result, *item)
 	})
 	if err != nil {
@@ -1048,7 +1042,7 @@ func TestForFrom(t *testing.T) {
 
 	// Test case 3: Apply function to each item starting from index 2
 	result = nil
-	err = stack.ForFrom(2, func(item *int) {
+	err = s.ForFrom(2, func(item *int) {
 		result = append(result, *item)
 	})
 	if err != nil {
@@ -1060,7 +1054,7 @@ func TestForFrom(t *testing.T) {
 	}
 
 	// Test case 4: Apply function to each item starting from index out of range
-	err = stack.ForFrom(3, func(item *int) {
+	err = s.ForFrom(3, func(item *int) {
 		// Function should not be called
 		t.Error("Function should not be called")
 	})
@@ -1072,10 +1066,10 @@ func TestForFrom(t *testing.T) {
 }
 
 func TestMapFrom(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
 
 	// Stack:
 	// 3
@@ -1083,13 +1077,13 @@ func TestMapFrom(t *testing.T) {
 	// 1
 
 	// Test case 1: MapFrom starting from index 0
-	result1, err1 := stack.MapFrom(0, func(item int) int {
+	result1, err1 := s.MapFrom(0, func(item int) int {
 		return item * 2
 	})
 	if err1 != nil {
 		t.Errorf(errNoError, err1)
 	}
-	expected1 := NewStack[int]()
+	expected1 := stack.NewStack[int]()
 	expected1.Push(2)
 	expected1.Push(4)
 	expected1.Push(6)
@@ -1098,19 +1092,19 @@ func TestMapFrom(t *testing.T) {
 		t.Error(errExpected2Stacks)
 	}
 
-	test := stack.ToSlice()
+	test := s.ToSlice()
 	for i, item := range test {
 		fmt.Println(i, item)
 	}
 
 	// Test case 2: MapFrom starting from index 1
-	result2, err2 := stack.MapFrom(1, func(item int) int {
+	result2, err2 := s.MapFrom(1, func(item int) int {
 		return item * 3
 	})
 	if err2 != nil {
 		t.Errorf(errNoError, err2)
 	}
-	expected2 := NewStack[int]()
+	expected2 := stack.NewStack[int]()
 	expected2.Push(3)
 	expected2.Push(6)
 	if !result2.Equal(expected2) {
@@ -1118,89 +1112,73 @@ func TestMapFrom(t *testing.T) {
 	}
 
 	// Test case 3: MapFrom starting from index 2
-	result3, err3 := stack.MapFrom(2, func(item int) int {
+	result3, err3 := s.MapFrom(2, func(item int) int {
 		return item * 4
 	})
 	if err3 != nil {
 		t.Errorf(errNoError, err3)
 	}
-	expected3 := NewStack[int]()
+	expected3 := stack.NewStack[int]()
 	expected3.Push(4)
 	if !result3.Equal(expected3) {
 		t.Error(errExpected2Stacks)
 	}
 
 	// Test case 4: MapFrom with start index out of range
-	_, err4 := stack.MapFrom(3, func(item int) int {
+	_, err4 := s.MapFrom(3, func(item int) int {
 		return item * 5
 	})
 	if err4 == nil {
 		t.Error(errYesError)
 	}
-
-	// Test case 5: MapFrom with start index out of range (negative)
-	_, err5 := stack.MapFrom(-1, func(item int) int {
-		return item * 5
-	})
-	if err5 == nil {
-		t.Error(errYesError)
-	}
 }
 
 func TestMapRange(t *testing.T) {
-	stack := NewStack[int]()
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Push(4)
-	stack.Push(5)
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.Push(4)
+	s.Push(5)
 
 	// Test case 1: MapRange from index 0 to 2
-	result, err := stack.MapRange(0, 2, func(item int) int {
+	result, err := s.MapRange(0, 2, func(item int) int {
 		return item * 2
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	expected := []int{6, 8, 10}
-	if !result.Equal(NewStackFromSlice(expected)) {
+	if !result.Equal(stack.NewStackFromSlice(expected)) {
 		t.Errorf(errExpectedStack, expected, result.ToSlice())
 	}
 
 	// Test case 2: MapRange from index 1 to 3
-	result, err = stack.MapRange(1, 3, func(item int) int {
+	result, err = s.MapRange(1, 3, func(item int) int {
 		return item + 1
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	expected = []int{3, 4, 5}
-	if !result.Equal(NewStackFromSlice(expected)) {
+	if !result.Equal(stack.NewStackFromSlice(expected)) {
 		t.Errorf(errExpectedStack, expected, result.ToSlice())
 	}
 
 	// Test case 3: MapRange from index 2 to 4
-	result, err = stack.MapRange(2, 3, func(item int) int {
+	result, err = s.MapRange(2, 3, func(item int) int {
 		return item - 1
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
 	expected = []int{1, 2}
-	if !result.Equal(NewStackFromSlice(expected)) {
+	if !result.Equal(stack.NewStackFromSlice(expected)) {
 		t.Errorf(errExpectedStack, expected, result.ToSlice())
 	}
 
-	// Test case 4: MapRange with invalid start index
-	_, err = stack.MapRange(-1, 2, func(item int) int {
-		return item * 2
-	})
-	if err == nil {
-		t.Error(errYesError)
-	}
-
 	// Test case 5: MapRange with invalid end index
-	_, err = stack.MapRange(0, 5, func(item int) int {
+	_, err = s.MapRange(0, 5, func(item int) int {
 		return item * 2
 	})
 	if err == nil {
@@ -1208,10 +1186,27 @@ func TestMapRange(t *testing.T) {
 	}
 
 	// Test case 6: MapRange with start index greater than end index
-	_, err = stack.MapRange(3, 2, func(item int) int {
+	_, err = s.MapRange(3, 2, func(item int) int {
 		return item * 2
 	})
 	if err == nil {
 		t.Error(errYesError)
+	}
+}
+
+func TestCheckSize(t *testing.T) {
+	s := stack.NewStack[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+	s.CheckSize()
+	if s.Size() != 3 {
+		t.Errorf("Expected stack to have 3 items after CheckSize, but got %v", s.Size())
+	}
+
+	s.Clear()
+	s.CheckSize()
+	if s.Size() != 0 {
+		t.Errorf("Expected stack to have 0 items after CheckSize, but got %v", s.Size())
 	}
 }

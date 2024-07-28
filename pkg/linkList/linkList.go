@@ -376,18 +376,22 @@ func (l *LinkList[T]) MapRange(start, end uint64, f func(T) T) (*LinkList[T], er
 
 // Filter removes nodes from the list that don't match the predicate
 func (l *LinkList[T]) Filter(f func(T) bool) {
+	// If the list is empty, return
 	if l.Head == nil {
 		return
 	}
 
+	// Move the head to the first node that matches the predicate
 	for l.Head != nil && !f(l.Head.Value) {
 		l.Head = l.Head.Next
 	}
 
+	// Proceed with the rest of the list
 	current := l.Head
 	for current != nil && current.Next != nil {
 		if !f(current.Next.Value) {
 			current.Next = current.Next.Next
+			l.size--
 		} else {
 			current = current.Next
 		}

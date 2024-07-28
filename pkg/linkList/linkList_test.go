@@ -23,6 +23,7 @@ import (
 const (
 	errListNotEmpty        = "Expected list to be empty, but it was not"
 	errListIsEmpty         = "Expected list to not be empty, but it was"
+	errExpectedItems       = "Expected list to have %v items, but got %v"
 	errExpectedIndex       = "Expected index %d, but got %d"
 	errExpectedSliceLength = "Expected slice length %d, but got %d"
 	errExpectedNoError     = "Expected no error, but got %v"
@@ -119,7 +120,7 @@ func TestIsEmptyAfterRemove(t *testing.T) {
 		t.Error(errListNotEmpty)
 	}
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have 0 items, but got %v", list.Size())
+		t.Errorf(errExpectedItems, 0, list.Size())
 	}
 }
 
@@ -425,7 +426,7 @@ func TestClear(t *testing.T) {
 		t.Error(errListNotEmpty)
 	}
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have 0 items, but got %v", list.Size())
+		t.Errorf(errExpectedItems, 0, list.Size())
 	}
 }
 
@@ -1236,6 +1237,6 @@ func TestCheckSize(t *testing.T) {
 	list.CheckSize()
 
 	if list.Size() != 0 {
-		t.Errorf("Expected list to have 0 items, but got %v", list.Size())
+		t.Errorf(errExpectedItems, 0, list.Size())
 	}
 }
