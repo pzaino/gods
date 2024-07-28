@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pqueue provides a non-concurrent-safe priority queue.
+// Package pqueue provides a non-concurrent-safe , max-heap, priority queue.
 package pqueue_test
 
 import (
@@ -214,13 +214,17 @@ func TestIndexOf(t *testing.T) {
 	pq := pqueue.NewPriorityQueue[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
-	index := pq.IndexOf(10)
-	if index != 1 {
-		t.Fatalf("Expected index of 10 to be 1, got %d", index)
+	index, err := pq.IndexOf(10)
+	if err != nil {
+		t.Fatal(err)
 	}
-	index = pq.IndexOf(30)
-	if index != -1 {
-		t.Fatalf("Expected index of 30 to be -1, got %d", index)
+	if index != 1 {
+		t.Fatalf("Expected index of 10 to be 0, got %d", index)
+	}
+
+	_, err = pq.IndexOf(30)
+	if err == nil {
+		t.Fatal("Expected index of non-existing value to return error")
 	}
 }
 
@@ -229,7 +233,10 @@ func TestLastIndexOf(t *testing.T) {
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(10, 3)
-	index := pq.LastIndexOf(10)
+	index, err := pq.LastIndexOf(10)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if index != 1 {
 		t.Fatalf("Expected last index of 10 to be 0, got %d", index)
 	}
@@ -239,13 +246,17 @@ func TestFindIndex(t *testing.T) {
 	pq := pqueue.NewPriorityQueue[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
-	index := pq.FindIndex(func(val int) bool { return val > 15 })
+	index, err := pq.FindIndex(func(val int) bool { return val > 15 })
+	if err != nil {
+		t.Fatal(err)
+	}
 	if index != 0 {
 		t.Fatalf("Expected find index for value greater than 15 to be 0, got %d", index)
 	}
-	index = pq.FindIndex(func(val int) bool { return val > 25 })
-	if index != -1 {
-		t.Fatalf("Expected find index for value greater than 25 to be -1, got %d", index)
+
+	_, err = pq.FindIndex(func(val int) bool { return val > 25 })
+	if err == nil {
+		t.Fatal("Expected find index for non-existing value to return error")
 	}
 }
 
@@ -254,7 +265,10 @@ func TestFindLastIndex(t *testing.T) {
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(10, 3)
-	index := pq.FindLastIndex(func(val int) bool { return val == 10 })
+	index, err := pq.FindLastIndex(func(val int) bool { return val == 10 })
+	if err != nil {
+		t.Fatal(err)
+	}
 	if index != 1 {
 		t.Fatalf("Expected find last index for value 10 to be 0, got %d", index)
 	}
@@ -309,5 +323,120 @@ func TestValues(t *testing.T) {
 		if val != expectedValues[i] {
 			t.Fatalf("Expected value %d, got %d", expectedValues[i], val)
 		}
+	}
+}
+
+func TestDequeueAll(t *testing.T) {
+	pq := pqueue.NewPriorityQueue[int]()
+	pq.Enqueue(10, 1)
+	pq.Enqueue(20, 2)
+	pq.Enqueue(30, 3)
+
+	values, err := pq.DequeueAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedValues := []int{30, 20, 10}
+	if len(values) != len(expectedValues) {
+		t.Fatalf("Expected dequeued values length to be %d, got %d", len(expectedValues), len(values))
+	}
+	for i, val := range values {
+		if val != expectedValues[i] {
+			t.Fatalf("Expected dequeued value at index %d to be %d, got %d", i, expectedValues[i], val)
+		}
+	}
+
+	if !pq.IsEmpty() {
+		t.Fatal("Expected priority queue to be empty after dequeuing all elements")
+	}
+}
+
+func TestDequeueN(t *testing.T) {
+	pq := pqueue.NewPriorityQueue[int]()
+	pq.Enqueue(10, 1)
+	pq.Enqueue(20, 2)
+	pq.Enqueue(30, 3)
+
+	values, err := pq.DequeueN(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedValues := []int{30, 20}
+	if len(values) != len(expectedValues) {
+		t.Fatalf("Expected dequeued values length to be %d, got %d", len(expectedValues), len(values))
+	}
+	for i, val := range values {
+		if val != expectedValues[i] {
+			t.Fatalf("Expected dequeued value at index %d to be %d, got %d", i, expectedValues[i], val)
+		}
+	}
+
+	if pq.Size() != 1 || !pq.Contains(10) {
+		t.Fatal("Expected priority queue to contain only value 10 after dequeuing 2 elements")
+	}
+
+	_, err = pq.DequeueN(2)
+	if err == nil {
+		t.Fatal("Expected error when dequeuing more elements than available")
+	}
+}
+
+func TestUpdatePriority(t *testing.T) {
+	pq := pqueue.NewPriorityQueue[int]()
+	pq.Enqueue(10, 1)
+	pq.Enqueue(20, 2)
+	pq.Enqueue(30, 3)
+
+	err := pq.UpdatePriority(20, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if pq.Size() != 3 {
+		t.Fatal("Expected priority queue size to be 3")
+	}
+
+	val, err := pq.Dequeue()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if val != 20 {
+		t.Fatalf("Expected dequeued value to be 30, got %d", val)
+	}
+
+	val, err = pq.Dequeue()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if val != 30 {
+		t.Fatalf("Expected dequeued value to be 20, got %d", val)
+	}
+
+	val, err = pq.Dequeue()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if val != 10 {
+		t.Fatalf("Expected dequeued value to be 10, got %d", val)
+	}
+}
+
+func TestUpdateValue(t *testing.T) {
+	pq := pqueue.NewPriorityQueue[int]()
+	pq.Enqueue(10, 1)
+	pq.Enqueue(20, 2)
+	err := pq.UpdateValue(10, 30)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !pq.Contains(30) {
+		t.Fatal("Expected priority queue to contain value 30 after updating value")
+	}
+	if pq.Contains(10) {
+		t.Fatal("Expected priority queue to not contain value 10 after updating value")
+	}
+	err = pq.UpdateValue(40, 50)
+	if err == nil {
+		t.Fatal("Expected error when updating non-existing value")
 	}
 }

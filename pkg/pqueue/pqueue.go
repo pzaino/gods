@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pqueue provides a non-concurrent-safe priority queue.
+// Package pqueue provides a non-concurrent-safe , max-heap, priority queue.
 package pqueue
 
 import (
 	"errors"
 	"strings"
+)
+
+const (
+	errQueueIsEmpty    = "queue is empty"
+	errIndexOutOfBound = "index out of bound"
+	errValueNotFound   = "value not found"
 )
 
 // Element represents an element in the priority queue with a value and a priority.
@@ -29,6 +35,44 @@ type Element[T comparable] struct {
 // PriorityQueue is a priority queue data structure
 type PriorityQueue[T comparable] struct {
 	data []Element[T]
+	size uint64
+}
+
+// Helper functions for heap operations
+
+// upHeap moves the element at the given index up the heap to restore the heap property
+func (pq *PriorityQueue[T]) upHeap(index uint64) {
+	for index > 0 {
+		parent := (index - 1) / 2
+		if pq.data[index].Priority <= pq.data[parent].Priority {
+			break
+		}
+		pq.data[index], pq.data[parent] = pq.data[parent], pq.data[index]
+		index = parent
+	}
+}
+
+// downHeap moves the element at the given index down the heap to restore the heap property
+func (pq *PriorityQueue[T]) downHeap(index uint64) {
+	element := pq.data[index]
+	lastIndex := pq.size - 1
+	for {
+		left := 2*index + 1
+		if left > lastIndex {
+			break
+		}
+		right := left + 1
+		child := left
+		if right <= lastIndex && pq.data[right].Priority > pq.data[left].Priority {
+			child = right
+		}
+		if element.Priority >= pq.data[child].Priority {
+			break
+		}
+		pq.data[index] = pq.data[child]
+		index = child
+	}
+	pq.data[index] = element
 }
 
 // New creates a new PriorityQueue
@@ -38,52 +82,153 @@ func NewPriorityQueue[T comparable]() *PriorityQueue[T] {
 
 // IsEmpty returns true if the priority queue is empty
 func (pq *PriorityQueue[T]) IsEmpty() bool {
-	return len(pq.data) == 0
+	return pq.size == 0
 }
 
 // Enqueue adds an element to the priority queue
 func (pq *PriorityQueue[T]) Enqueue(value T, priority int) {
 	element := Element[T]{Value: value, Priority: priority}
 	pq.data = append(pq.data, element)
-	pq.upHeap(len(pq.data) - 1)
+	pq.size++
+	pq.upHeap(pq.size - 1)
 }
 
 // Dequeue removes and returns the highest priority element in the queue
 func (pq *PriorityQueue[T]) Dequeue() (T, error) {
 	if pq.IsEmpty() {
 		var rVal T
-		return rVal, errors.New("priority queue is empty")
+		return rVal, errors.New(errQueueIsEmpty)
 	}
 
 	element := pq.data[0]
-	lastIndex := len(pq.data) - 1
+	lastIndex := pq.size - 1
+
+	// Move the last element to the root and reduce the size
 	pq.data[0] = pq.data[lastIndex]
-	pq.data = pq.data[:lastIndex]
-	pq.downHeap(0)
+	pq.size--
+	pq.data = pq.data[:pq.size]
+
+	if pq.size > 0 {
+		pq.downHeap(0)
+	}
 
 	return element.Value, nil
+}
+
+// DequeueAll removes and returns all elements in the priority queue
+// The returned list should be ordered by priority
+func (pq *PriorityQueue[T]) DequeueAll() ([]T, error) {
+	values := make([]T, pq.size)
+	for i := uint64(0); !pq.IsEmpty(); i++ {
+		item, err := pq.Dequeue()
+		if err != nil {
+			return values, err
+		}
+		values[i] = item
+	}
+	pq.Clear()
+	return values, nil
+}
+
+// DequeueN removes and returns the first n elements in the priority queue
+// The returned list should be ordered by priority
+func (pq *PriorityQueue[T]) DequeueN(n uint64) ([]T, error) {
+	if pq.IsEmpty() {
+		return nil, errors.New(errQueueIsEmpty)
+	}
+	if n > pq.size {
+		return nil, errors.New(errIndexOutOfBound)
+	}
+	values := make([]T, n)
+	for i := uint64(0); i < n; i++ {
+		item, err := pq.Dequeue()
+		if err != nil {
+			return nil, err
+		}
+		values[i] = item
+	}
+	return values, nil
+}
+
+// UpdatePriority updates the priority of an element in the priority queue
+func (pq *PriorityQueue[T]) UpdatePriority(value T, newPriority int) error {
+	if pq.IsEmpty() {
+		return errors.New(errQueueIsEmpty)
+	}
+
+	for i, e := range pq.data {
+		if e.Value == value {
+			pq.data[i].Priority = newPriority
+			pq.upHeap(uint64(i))
+			pq.downHeap(uint64(i))
+			return nil
+		}
+	}
+	return errors.New(errValueNotFound)
+}
+
+// UpdatePriorityAt updates the priority of an element at the given index
+func (pq *PriorityQueue[T]) UpdatePriorityAt(index uint64, newPriority int) error {
+	if pq.IsEmpty() {
+		return errors.New(errQueueIsEmpty)
+	}
+	if index >= pq.size {
+		return errors.New(errValueNotFound)
+	}
+
+	oldPriority := pq.data[index].Priority
+	pq.data[index].Priority = newPriority
+
+	if newPriority > oldPriority {
+		pq.upHeap(index)
+	} else {
+		pq.downHeap(index)
+	}
+
+	return nil
+}
+
+// UpdateValue updates the value of an element in the priority queue
+func (pq *PriorityQueue[T]) UpdateValue(value T, newValue T) error {
+	if pq.IsEmpty() {
+		return errors.New(errQueueIsEmpty)
+	}
+
+	for i, e := range pq.data {
+		if e.Value == value {
+			pq.data[i].Value = newValue
+			return nil
+		}
+	}
+	return errors.New(errValueNotFound)
 }
 
 // Peek returns the highest priority element in the queue without removing it
 func (pq *PriorityQueue[T]) Peek() (T, error) {
 	if pq.IsEmpty() {
 		var rVal T
-		return rVal, errors.New("priority queue is empty")
+		return rVal, errors.New(errQueueIsEmpty)
 	}
 	return pq.data[0].Value, nil
 }
 
 // Size returns the number of elements in the priority queue
-func (pq *PriorityQueue[T]) Size() int {
-	return len(pq.data)
+func (pq *PriorityQueue[T]) Size() uint64 {
+	return pq.size
+}
+
+// CheckSize recalculate the size of the priority queue
+func (pq *PriorityQueue[T]) CheckSize() {
+	pq.size = uint64(len(pq.data))
 }
 
 // Clear removes all elements from the priority queue
 func (pq *PriorityQueue[T]) Clear() {
 	pq.data = []Element[T]{}
+	pq.size = 0
 }
 
-// Values returns all elements in the priority queue
+// Values returns all elements in the priority queue (it does not remove them!)
 func (pq *PriorityQueue[T]) Values() []T {
 	values := make([]T, len(pq.data))
 	for i, element := range pq.data {
@@ -94,6 +239,10 @@ func (pq *PriorityQueue[T]) Values() []T {
 
 // Contains returns true if the priority queue contains the given element
 func (pq *PriorityQueue[T]) Contains(value T) bool {
+	if pq.size == 0 {
+		return false
+	}
+
 	for _, e := range pq.data {
 		if e.Value == value {
 			return true
@@ -119,7 +268,18 @@ func (pq *PriorityQueue[T]) Equals(other *PriorityQueue[T]) bool {
 func (pq *PriorityQueue[T]) Copy() *PriorityQueue[T] {
 	copy := NewPriorityQueue[T]()
 	copy.data = append(copy.data, pq.data...)
+	copy.size = pq.size
 	return copy
+}
+
+// Merge merges two priority queues (it considers the priority)
+func (pq *PriorityQueue[T]) Merge(other *PriorityQueue[T]) {
+	// Merge the two slices considering the priority
+	for _, e := range other.data {
+		pq.Enqueue(e.Value, e.Priority)
+	}
+	// Clear the other queue
+	other.Clear()
 }
 
 // String returns a string representation of the priority queue
@@ -140,62 +300,6 @@ func (pq *PriorityQueue[T]) dataString(f func(T) string) string {
 	return sb.String()
 }
 
-// Helper functions for heap operations
-
-func (pq *PriorityQueue[T]) upHeap(index int) {
-	if len(pq.data) == 0 {
-		return
-	}
-	if index < 0 {
-		return
-	}
-	if index >= len(pq.data) {
-		return
-	}
-
-	element := pq.data[index]
-	for index > 0 {
-		parent := (index - 1) / 2
-		if pq.data[parent].Priority >= element.Priority {
-			break
-		}
-		pq.data[index] = pq.data[parent]
-		index = parent
-	}
-	pq.data[index] = element
-}
-
-func (pq *PriorityQueue[T]) downHeap(index int) {
-	if len(pq.data) == 0 {
-		return
-	}
-	if index < 0 {
-		return
-	}
-	if index >= len(pq.data) {
-		return
-	}
-	element := pq.data[index]
-	lastIndex := len(pq.data) - 1
-	for {
-		left := 2*index + 1
-		if left > lastIndex {
-			break
-		}
-		right := left + 1
-		child := left
-		if right <= lastIndex && pq.data[right].Priority > pq.data[left].Priority {
-			child = right
-		}
-		if element.Priority >= pq.data[child].Priority {
-			break
-		}
-		pq.data[index] = pq.data[child]
-		index = child
-	}
-	pq.data[index] = element
-}
-
 // Map creates a new priority queue with the results of applying the function to each element
 func (pq *PriorityQueue[T]) Map(f func(T) T) *PriorityQueue[T] {
 	newQueue := NewPriorityQueue[T]()
@@ -208,18 +312,21 @@ func (pq *PriorityQueue[T]) Map(f func(T) T) *PriorityQueue[T] {
 // Filter removes elements from the priority queue that don't match the predicate
 func (pq *PriorityQueue[T]) Filter(f func(T) bool) {
 	var newData []Element[T]
-	for i := 0; i < len(pq.data); i++ {
+	var size uint64
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			newData = append(newData, pq.data[i])
+			size++
 		}
 	}
 	pq.data = newData
+	pq.size = size
 }
 
 // Reduce reduces the priority queue to a single value
 func (pq *PriorityQueue[T]) Reduce(f func(T, T) T, initial T) T {
 	result := initial
-	for i := 0; i < len(pq.data); i++ {
+	for i := uint64(0); i < pq.size; i++ {
 		result = f(result, pq.data[i].Value)
 	}
 	return result
@@ -227,14 +334,14 @@ func (pq *PriorityQueue[T]) Reduce(f func(T, T) T, initial T) T {
 
 // ForEach applies the function to all the elements in the priority queue
 func (pq *PriorityQueue[T]) ForEach(f func(*T)) {
-	for i := 0; i < len(pq.data); i++ {
+	for i := uint64(0); i < pq.size; i++ {
 		f(&pq.data[i].Value)
 	}
 }
 
 // Any checks if any element in the priority queue matches the predicate
 func (pq *PriorityQueue[T]) Any(f func(T) bool) bool {
-	for i := 0; i < len(pq.data); i++ {
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			return true
 		}
@@ -244,7 +351,7 @@ func (pq *PriorityQueue[T]) Any(f func(T) bool) bool {
 
 // All checks if all elements in the priority queue match the predicate
 func (pq *PriorityQueue[T]) All(f func(T) bool) bool {
-	for i := 0; i < len(pq.data); i++ {
+	for i := uint64(0); i < pq.size; i++ {
 		if !f(pq.data[i].Value) {
 			return false
 		}
@@ -253,51 +360,61 @@ func (pq *PriorityQueue[T]) All(f func(T) bool) bool {
 }
 
 // IndexOf returns the index of the first element with the given value
-func (pq *PriorityQueue[T]) IndexOf(value T) int {
-	for i := 0; i < len(pq.data); i++ {
+func (pq *PriorityQueue[T]) IndexOf(value T) (uint64, error) {
+	for i := uint64(0); i < pq.size; i++ {
 		if pq.data[i].Value == value {
-			return i
+			return i, nil
 		}
 	}
-	return -1
+	return 0, errors.New(errValueNotFound)
 }
 
 // LastIndexOf returns the index of the last element with the given value
-func (pq *PriorityQueue[T]) LastIndexOf(value T) int {
-	index := -1
-	for i := 0; i < len(pq.data); i++ {
+func (pq *PriorityQueue[T]) LastIndexOf(value T) (uint64, error) {
+	index := uint64(0)
+	found := false
+	for i := uint64(0); i < pq.size; i++ {
 		if pq.data[i].Value == value {
 			index = i
+			found = true
 		}
 	}
-	return index
+	if !found {
+		return 0, errors.New(errValueNotFound)
+	}
+	return index, nil
 }
 
 // FindIndex returns the index of the first element that matches the predicate
-func (pq *PriorityQueue[T]) FindIndex(f func(T) bool) int {
-	for i := 0; i < len(pq.data); i++ {
+func (pq *PriorityQueue[T]) FindIndex(f func(T) bool) (uint64, error) {
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
-			return i
+			return i, nil
 		}
 	}
-	return -1
+	return 0, errors.New(errValueNotFound)
 }
 
 // FindLastIndex returns the index of the last element that matches the predicate
-func (pq *PriorityQueue[T]) FindLastIndex(f func(T) bool) int {
-	index := -1
-	for i := 0; i < len(pq.data); i++ {
+func (pq *PriorityQueue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
+	index := uint64(0)
+	found := false
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			index = i
+			found = true
 		}
 	}
-	return index
+	if !found {
+		return 0, errors.New(errValueNotFound)
+	}
+	return index, nil
 }
 
 // FindAll returns all elements that match the predicate
 func (pq *PriorityQueue[T]) FindAll(f func(T) bool) *PriorityQueue[T] {
 	newQueue := NewPriorityQueue[T]()
-	for i := 0; i < len(pq.data); i++ {
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			newQueue.Enqueue(pq.data[i].Value, pq.data[i].Priority)
 		}
@@ -309,22 +426,22 @@ func (pq *PriorityQueue[T]) FindAll(f func(T) bool) *PriorityQueue[T] {
 func (pq *PriorityQueue[T]) FindLast(f func(T) bool) (T, error) {
 	var result T
 	found := false
-	for i := 0; i < len(pq.data); i++ {
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			result = pq.data[i].Value
 			found = true
 		}
 	}
 	if !found {
-		return result, errors.New("value not found")
+		return result, errors.New(errValueNotFound)
 	}
 	return result, nil
 }
 
 // FindAllIndexes returns the indexes of all elements that match the predicate
-func (pq *PriorityQueue[T]) FindAllIndexes(f func(T) bool) []int {
-	var result []int
-	for i := 0; i < len(pq.data); i++ {
+func (pq *PriorityQueue[T]) FindAllIndexes(f func(T) bool) []uint64 {
+	var result []uint64
+	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			result = append(result, i)
 		}

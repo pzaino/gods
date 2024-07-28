@@ -46,7 +46,7 @@ All data structures were designed to use generics, so some method call may
 - [x] [Concurrent Linked List](./pkg/cslinkList)
 - [x] [Doubly Linked List](./pkg/dlinkList)
 - [x] [Concurrent Doubly Linked List](./pkg/csdlinkList)
-- [ ] [Circular Linked List](./pkg/circularLinkList)
+- [x] [Circular Linked List](./pkg/circularLinkList)
 - [ ] [Concurrent Circular Linked List](./pkg/cscircularLinkList)
 - [ ] [Binary Search Tree](./pkg/binarySearchTree)
 - [ ] [AVL Tree](./pkg/avlTree)
