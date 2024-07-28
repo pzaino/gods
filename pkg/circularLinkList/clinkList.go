@@ -15,7 +15,9 @@
 // Package circularLinkList provides a non-concurrent-safe circular linked list.
 package circularLinkList
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	errIndexOutOfBound = "index out of bounds"
@@ -478,7 +480,7 @@ func (l *CircularLinkList[T]) ForEach(f func(*T)) {
 	}
 }
 
-// ForRange applies the function to each node in the list in the range [start, end)
+// ForRange applies the function to each node in the list in the range [start, end]
 func (l *CircularLinkList[T]) ForRange(start, end uint64, f func(*T)) error {
 	if l.Head == nil {
 		return errors.New(errIndexOutOfBound)
@@ -508,7 +510,7 @@ func (l *CircularLinkList[T]) ForRange(start, end uint64, f func(*T)) error {
 		}
 	}
 
-	for i := start; i < end; i++ {
+	for i := start; i <= end; i++ {
 		f(&current.Value)
 		current = current.Next
 		if current == l.Head {
@@ -556,14 +558,40 @@ func (l *CircularLinkList[T]) Filter(f func(T) bool) {
 		return
 	}
 
-	current := l.Head
-	for {
-		if !f(current.Value) {
-			l.DeleteWithValue(current.Value)
+	// Handle the head separately
+	for l.Head != nil && !f(l.Head.Value) {
+		// Remove the head node
+		if l.Head == l.Tail {
+			// List has only one element
+			l.Head = nil
+			l.Tail = nil
+			l.size = 0
+			return
+		} else {
+			l.Head = l.Head.Next
+			l.Tail.Next = l.Head
+			l.size--
 		}
-		current = current.Next
-		if current == l.Head {
-			break
+	}
+
+	if l.Head == nil {
+		return
+	}
+
+	current := l.Head
+
+	for current.Next != l.Head {
+		if !f(current.Next.Value) {
+			// Remove the node
+			if current.Next == l.Tail {
+				l.Tail = current
+				l.Tail.Next = l.Head
+			} else {
+				current.Next = current.Next.Next
+			}
+			l.size--
+		} else {
+			current = current.Next
 		}
 	}
 }
@@ -590,7 +618,7 @@ func (l *CircularLinkList[T]) Reduce(f func(T, T) T) (T, error) {
 
 // ReduceFrom reduces the list to a single value starting from the index
 func (l *CircularLinkList[T]) ReduceFrom(start uint64, f func(T, T) T) (T, error) {
-	if l.Head == nil {
+	if l.Head == nil || l.size == 0 {
 		var rVal T
 		return rVal, errors.New(errListIsEmpty)
 	}
