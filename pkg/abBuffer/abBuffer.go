@@ -317,7 +317,7 @@ func (b *ABBuffer[T]) Merge(other *ABBuffer[T]) {
 	b.active.Merge(other.active)
 }
 
-// Blitter overwrite the values of the active buffer with the values of the other buffer using the "blitting" function
+// Blit overwrite the values of the active buffer with the values of the other buffer using the "blitting" function
 func (b *ABBuffer[T]) Blit(other *ABBuffer[T], f func(T, T) T) error {
 	return b.active.Blit(other.active, f)
 }
