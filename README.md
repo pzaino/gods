@@ -5,6 +5,7 @@
 [![Go-VulnCheck](https://github.com/pzaino/gods/actions/workflows/go-vulncheck.yml/badge.svg)](https://github.com/pzaino/gods/actions/workflows/go-vulncheck.yml)
 ![Scorecard supply-chain security](https://github.com/pzaino/gods/actions/workflows/scorecard.yml/badge.svg)
 ![CodeQL](https://github.com/pzaino/gods/actions/workflows/codeql.yml/badge.svg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_shield&issueType=license)
 
 **WIP**: This project is still a work in progress. I will be adding more data structures as I implement them.
 
@@ -39,6 +40,7 @@ All data structures were designed to use generics, so some method call may
 
 - [x] [Stack](./pkg/stack)
 - [x] [Concurrent Stack](./pkg/csstack)
+- [x] [Buffer](./pkg/buffer)
 - [ ] [A/B Buffer](./pkg/abBuffer)
 - [x] [Queue](./pkg/queue)
 - [ ] [Concurrent Queue](./pkg/csqueue)
