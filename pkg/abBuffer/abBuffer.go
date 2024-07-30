@@ -15,13 +15,6 @@
 // Package abBuffer provides a non-concurrent-safe A/B buffer.
 package abBuffer
 
-// Important notes on thsi A/B buffer implementation:
-// - The A/B buffer is a double-buffered structure that allows for efficient swapping of buffers.
-// - The A/B buffer can be used to store and manipulate data in a buffer-like structure.
-// - The "active" buffer in the A/B buffer is the buffer that is currently being used for operations.
-// - The "inactive" buffer in the A/B buffer is the buffer that is not currently being used for
-//   operations, and therefore can be read safely or passed to other functions.
-
 import (
 	"errors"
 
@@ -36,6 +29,12 @@ const (
 )
 
 // ABBuffer represents a double-buffered structure
+// Important notes on this A/B buffer implementation:
+//   - The A/B buffer is a double-buffered structure that allows for efficient swapping of buffers.
+//   - The A/B buffer can be used to store and manipulate data in a buffer-like structure.
+//   - The "active" buffer in the A/B buffer is the buffer that is currently being used for operations.
+//   - The "inactive" buffer in the A/B buffer is the buffer that is not currently being used for
+//     operations (so it's read only), and therefore can be read safely or passed to other functions.
 type ABBuffer[T comparable] struct {
 	A        buffer.Buffer[T]
 	B        buffer.Buffer[T]
@@ -317,7 +316,7 @@ func (b *ABBuffer[T]) Merge(other *ABBuffer[T]) {
 	b.active.Merge(other.active)
 }
 
-// Blitter overwrite the values of the active buffer with the values of the other buffer using the "blitting" function
+// Blit overwrite the values of the active buffer with the values of the other buffer using the "blitting" function
 func (b *ABBuffer[T]) Blit(other *ABBuffer[T], f func(T, T) T) error {
 	return b.active.Blit(other.active, f)
 }
