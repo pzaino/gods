@@ -59,3 +59,7 @@ All data structures were designed to use generics, so some method call may
 - [ ] [Disjoint Set](./pkg/disjointSet)
 - [ ] [Segment Tree](./pkg/segmentTree)
 - [ ] [Fenwick Tree](./pkg/fenwickTree)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_large)
