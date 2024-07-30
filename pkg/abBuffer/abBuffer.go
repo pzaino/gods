@@ -15,58 +15,79 @@
 // Package abBuffer provides a non-concurrent-safe A/B buffer.
 package abBuffer
 
+// Important notes on thsi A/B buffer implementation:
+// - The A/B buffer is a double-buffered structure that allows for efficient swapping of buffers.
+// - The A/B buffer can be used to store and manipulate data in a buffer-like structure.
+// - The "active" buffer in the A/B buffer is the buffer that is currently being used for operations.
+// - The "inactive" buffer in the A/B buffer is the buffer that is not currently being used for
+//   operations, and therefore can be read safely or passed to other functions.
+
 import (
 	"errors"
-	"runtime"
-	"sync"
+
+	"github.com/pzaino/gods/pkg/buffer"
 )
 
 const (
 	errBufferOverflow = "buffer overflow"
 	errInvalidBuffer  = "invalid buffer"
 	errBufferEmpty    = "buffer is empty"
+	errValueNotFound  = "value not found"
 )
 
-// Buffer represents a double-buffered structure
-type Buffer[T comparable] struct {
-	A        []T
-	B        []T
-	active   *[]T
-	size     uint64
+// ABBuffer represents a double-buffered structure
+type ABBuffer[T comparable] struct {
+	A        buffer.Buffer[T]
+	B        buffer.Buffer[T]
+	active   *buffer.Buffer[T]
 	capacity uint64
 }
 
-// NewBuffer creates a new Buffer with a given capacity
-func NewBuffer[T comparable](capacity uint64) *Buffer[T] {
-	a := make([]T, 0, capacity)
-	b := make([]T, 0, capacity)
-	return &Buffer[T]{
+// New creates a new Buffer with a given capacity
+func New[T comparable](capacity uint64) *ABBuffer[T] {
+	a := buffer.Buffer[T]{}
+	b := buffer.Buffer[T]{}
+	ab := &ABBuffer[T]{
 		A:        a,
 		B:        b,
-		active:   &a,
 		capacity: capacity,
 	}
+	ab.active = &ab.A
+	return ab
 }
 
 // Append adds a new element to the active buffer
-func (b *Buffer[T]) Append(value T) error {
-	if uint64(len(*b.active)) >= b.capacity {
+func (b *ABBuffer[T]) Append(value T) error {
+	if (b.active.Size() >= b.capacity) && (b.capacity != 0) {
 		return errors.New(errBufferOverflow)
 	}
-
-	*b.active = append(*b.active, value)
-	b.size++
-	return nil
+	err := b.active.Append(value)
+	return err
 }
 
 // Clear clears the active buffer
-func (b *Buffer[T]) Clear() {
-	*b.active = (*b.active)[:0]
-	b.size = 0
+func (b *ABBuffer[T]) Clear() {
+	b.active.Clear()
+}
+
+// ClearAll clears both the active and inactive buffers
+func (b *ABBuffer[T]) ClearAll() {
+	b.A.Clear()
+	b.B.Clear()
+	b.active = &b.A
+}
+
+// Destroy clears both the active and inactive buffers and sets the active buffer to nil
+func (b *ABBuffer[T]) Destroy() {
+	b.A.Clear()
+	b.B.Clear()
+	b.active = nil
+	b.capacity = 0
+	b = nil
 }
 
 // Swap swaps the active buffer with the inactive one
-func (b *Buffer[T]) Swap() {
+func (b *ABBuffer[T]) Swap() {
 	if b.active == &b.A {
 		b.active = &b.B
 	} else {
@@ -74,324 +95,229 @@ func (b *Buffer[T]) Swap() {
 	}
 }
 
+// SetActiveA sets the active buffer to A
+func (b *ABBuffer[T]) SetActiveA() {
+	b.active = &b.A
+}
+
+// SetActiveB sets the active buffer to B
+func (b *ABBuffer[T]) SetActiveB() {
+	b.active = &b.B
+}
+
 // GetActive returns the active buffer
-func (b *Buffer[T]) GetActive() []T {
-	return *b.active
+func (b *ABBuffer[T]) GetActive() []T {
+	return b.active.Values()
 }
 
 // GetInactive returns the inactive buffer
-func (b *Buffer[T]) GetInactive() []T {
-	if b.active == &b.A {
-		return b.B
+func (b *ABBuffer[T]) GetInactive() []T {
+	if b == nil {
+		return nil
 	}
-	return b.A
+	if b.active == &b.A {
+		return b.B.Values()
+	}
+	return b.A.Values()
 }
 
 // Size returns the number of elements in the active buffer
-func (b *Buffer[T]) Size() uint64 {
-	return b.size
+func (b *ABBuffer[T]) Size() uint64 {
+	return b.active.Size()
 }
 
 // Capacity returns the capacity of the buffer
-func (b *Buffer[T]) Capacity() uint64 {
+func (b *ABBuffer[T]) Capacity() uint64 {
 	return b.capacity
 }
 
 // IsEmpty checks if the active buffer is empty
-func (b *Buffer[T]) IsEmpty() bool {
-	return b.size == 0
+func (b *ABBuffer[T]) IsEmpty() bool {
+	return b.active.IsEmpty()
 }
 
 // ToSlice returns the active buffer as a slice
-func (b *Buffer[T]) ToSlice() []T {
-	return append([]T(nil), (*b.active)...)
+func (b *ABBuffer[T]) ToSlice() []T {
+	return b.active.ToSlice()
+}
+
+// ToSliceInactive returns the inactive buffer as a slice
+func (b *ABBuffer[T]) ToSliceInactive() []T {
+	return b.GetInactive()
+}
+
+// FetchInactive returns the inactive buffer and clears it in the A/B buffer
+func (b *ABBuffer[T]) FetchInactive() []T {
+	var inactive *buffer.Buffer[T]
+	if b.active == &b.A {
+		inactive = &b.B
+	} else {
+		inactive = &b.A
+	}
+	data := inactive.ToSlice()
+	inactive.Clear()
+	return data
 }
 
 // Find returns the first index of the given value in the active buffer
-func (b *Buffer[T]) Find(value T) (int, error) {
-	for i, v := range *b.active {
-		if v == value {
-			return i, nil
-		}
-	}
-	return -1, errors.New(errBufferEmpty)
+func (b *ABBuffer[T]) Find(value T) (uint64, error) {
+	return b.active.Find(value)
 }
 
 // Remove removes the element at the given index in the active buffer
-func (b *Buffer[T]) Remove(index int) error {
-	if index < 0 || index >= len(*b.active) {
-		return errors.New(errInvalidBuffer)
-	}
-
-	*b.active = append((*b.active)[:index], (*b.active)[index+1:]...)
-	b.size--
-	return nil
+func (b *ABBuffer[T]) Remove(index uint64) error {
+	return b.active.Remove(index)
 }
 
 // InsertAt inserts a new element at the given index in the active buffer
-func (b *Buffer[T]) InsertAt(index int, value T) error {
-	if index < 0 || index > len(*b.active) {
-		return errors.New(errInvalidBuffer)
-	}
-
-	if uint64(len(*b.active)) >= b.capacity {
-		return errors.New(errBufferOverflow)
-	}
-
-	*b.active = append((*b.active)[:index], append([]T{value}, (*b.active)[index:]...)...)
-	b.size++
-	return nil
+func (b *ABBuffer[T]) InsertAt(index uint64, value T) error {
+	return b.active.InsertAt(index, value)
 }
 
 // ForEach applies the function to all elements in the active buffer
-func (b *Buffer[T]) ForEach(f func(T)) {
-	for _, v := range *b.active {
-		f(v)
-	}
+func (b *ABBuffer[T]) ForEach(f func(*T)) {
+	b.active.ForEach(f)
 }
 
 // ForFrom applies the function to all elements in the active buffer starting from the given index
-func (b *Buffer[T]) ForFrom(index int, f func(T)) error {
-	if index < 0 || index >= len(*b.active) {
-		return errors.New(errInvalidBuffer)
-	}
-
-	for i := index; i < len(*b.active); i++ {
-		f((*b.active)[i])
-	}
-	return nil
+func (b *ABBuffer[T]) ForFrom(index uint64, f func(*T)) error {
+	return b.active.ForFrom(index, f)
 }
 
 // ForRange applies the function to all elements in the active buffer in the range [start, end)
-func (b *Buffer[T]) ForRange(start, end int, f func(T)) error {
-	if start < 0 || start >= len(*b.active) || end < 0 || end > len(*b.active) {
-		return errors.New(errInvalidBuffer)
-	}
-
-	for i := start; i < end; i++ {
-		f((*b.active)[i])
-	}
-	return nil
+func (b *ABBuffer[T]) ForRange(start, end uint64, f func(*T)) error {
+	return b.active.ForRange(start, end, f)
 }
 
 // Map generates a new buffer by applying the function to all elements in the active buffer
-func (b *Buffer[T]) Map(f func(T) T) (*Buffer[T], error) {
-	newBuffer := NewBuffer[T](b.capacity)
-	for _, v := range *b.active {
-		err := newBuffer.Append(f(v))
-		if err != nil {
-			return nil, err
-		}
+func (b *ABBuffer[T]) Map(f func(T) T) (*ABBuffer[T], error) {
+	newBuffer := New[T](b.capacity)
+	nb, err := b.active.Map(f)
+	if err != nil {
+		return nil, err
 	}
+	newBuffer.A = *nb
+	newBuffer.active = &newBuffer.A
 	return newBuffer, nil
 }
 
 // MapFrom generates a new buffer by applying the function to all elements in the active buffer starting from the given index
-func (b *Buffer[T]) MapFrom(index int, f func(T) T) (*Buffer[T], error) {
-	if index < 0 || index >= len(*b.active) {
+func (b *ABBuffer[T]) MapFrom(index uint64, f func(T) T) (*ABBuffer[T], error) {
+	if index >= b.active.Size() {
 		return nil, errors.New(errInvalidBuffer)
 	}
 
-	newBuffer := NewBuffer[T](b.capacity)
-	for i := index; i < len(*b.active); i++ {
-		err := newBuffer.Append(f((*b.active)[i]))
-		if err != nil {
-			return nil, err
-		}
+	newBuffer := New[T](b.capacity)
+	nb, err := b.active.MapFrom(index, f)
+	if err != nil {
+		return nil, err
 	}
+	newBuffer.A = *nb
+	newBuffer.active = &newBuffer.A
 	return newBuffer, nil
 }
 
 // MapRange generates a new buffer by applying the function to all elements in the active buffer in the range [start, end]
-func (b *Buffer[T]) MapRange(start, end int, f func(T) T) (*Buffer[T], error) {
-	if start < 0 || start >= len(*b.active) || end < 0 || end > len(*b.active) {
+func (b *ABBuffer[T]) MapRange(start, end uint64, f func(T) T) (*ABBuffer[T], error) {
+	if start >= b.active.Size() || end > b.active.Size() {
 		return nil, errors.New(errInvalidBuffer)
 	}
 
-	newBuffer := NewBuffer[T](b.capacity)
-	for i := start; i < end; i++ {
-		err := newBuffer.Append(f((*b.active)[i]))
-		if err != nil {
-			return nil, err
-		}
+	newBuffer := New[T](b.capacity)
+	nb, err := b.active.MapRange(start, end, f)
+	if err != nil {
+		return nil, err
 	}
+	newBuffer.A = *nb
+	newBuffer.active = &newBuffer.A
 	return newBuffer, nil
 }
 
 // Filter filter the active buffer by removing elements that don't match the predicate
-func (b *Buffer[T]) Filter(f func(T) bool) {
-	newBuffer := make([]T, 0, b.capacity)
-	var size uint64
-	for _, v := range *b.active {
-		if f(v) {
-			newBuffer = append(newBuffer, v)
-			size++
-		}
-	}
-	*b.active = newBuffer
-	b.size = size
+func (b *ABBuffer[T]) Filter(f func(T) bool) {
+	b.active.Filter(f)
 }
 
 // Reduce reduces the buffer to a single value using the given function and initial value
-func (b *Buffer[T]) Reduce(f func(T, T) T, initial T) T {
-	result := initial
-	for _, v := range *b.active {
-		result = f(result, v)
-	}
-	return result
+func (b *ABBuffer[T]) Reduce(f func(T, T) T) (T, error) {
+	return b.active.Reduce(f)
 }
 
 // ReduceFrom reduces the buffer to a single value starting from the given index using the given function and initial value
-func (b *Buffer[T]) ReduceFrom(index int, f func(T, T) T, initial T) (T, error) {
-	if index < 0 || index >= len(*b.active) {
-		return initial, errors.New(errInvalidBuffer)
-	}
-
-	result := initial
-	for i := index; i < len(*b.active); i++ {
-		result = f(result, (*b.active)[i])
-	}
-	return result, nil
+func (b *ABBuffer[T]) ReduceFrom(index uint64, f func(T, T) T) (T, error) {
+	return b.active.ReduceFrom(index, f)
 }
 
 // ReduceRange reduces the buffer to a single value in the range [start, end) using the given function and initial value
-func (b *Buffer[T]) ReduceRange(start, end int, f func(T, T) T, initial T) (T, error) {
-	if start < 0 || start >= len(*b.active) || end < 0 || end > len(*b.active) {
-		return initial, errors.New(errInvalidBuffer)
-	}
-
-	result := initial
-	for i := start; i < end; i++ {
-		result = f(result, (*b.active)[i])
-	}
-	return result, nil
+func (b *ABBuffer[T]) ReduceRange(start, end uint64, f func(T, T) T) (T, error) {
+	return b.active.ReduceRange(start, end, f)
 }
 
 // Contains checks if the active buffer contains the given value
-func (b *Buffer[T]) Contains(value T) bool {
-	_, err := b.Find(value)
-	return err == nil
+func (b *ABBuffer[T]) Contains(value T) bool {
+	return b.active.Contains(value)
 }
 
 // Any checks if any element in the active buffer matches the predicate
-func (b *Buffer[T]) Any(f func(T) bool) bool {
-	for _, v := range *b.active {
-		if f(v) {
-			return true
-		}
-	}
-	return false
+func (b *ABBuffer[T]) Any(f func(T) bool) bool {
+	return b.active.Any(f)
 }
 
 // All checks if all elements in the active buffer match the predicate
-func (b *Buffer[T]) All(f func(T) bool) bool {
-	for _, v := range *b.active {
-		if !f(v) {
-			return false
-		}
-	}
-	return true
-}
-
-// IndexOf returns the index of the first element with the given value in the active buffer
-func (b *Buffer[T]) IndexOf(value T) (int, error) {
-	return b.Find(value)
+func (b *ABBuffer[T]) All(f func(T) bool) bool {
+	return b.active.All(f)
 }
 
 // LastIndexOf returns the index of the last element with the given value in the active buffer
-func (b *Buffer[T]) LastIndexOf(value T) (int, error) {
-	for i := len(*b.active) - 1; i >= 0; i-- {
-		if (*b.active)[i] == value {
-			return i, nil
-		}
-	}
-	return -1, errors.New(errBufferEmpty)
+func (b *ABBuffer[T]) LastIndexOf(value T) (uint64, error) {
+	return b.active.LastIndexOf(value)
 }
 
-// Copy creates a new buffer with the same elements as the active buffer
-func (b *Buffer[T]) Copy() *Buffer[T] {
-	newBuffer := NewBuffer[T](b.capacity)
-	newBuffer.A = append([]T(nil), b.A...)
-	newBuffer.B = append([]T(nil), b.B...)
-	newBuffer.size = b.size
+// Copy creates a new A/B buffer with the same elements as the A/B buffer
+// this method does a deep copy of the entire A/B buffer
+func (b *ABBuffer[T]) Copy() *ABBuffer[T] {
+	newBuffer := New[T](b.capacity)
+	newBuffer.A = *b.A.Copy()
+	newBuffer.B = *b.B.Copy()
+	return newBuffer
+}
+
+// CopyActive creates a new buffer with the same elements as the active buffer
+// The copied buffer is placed in the A buffer on the new A/B Buffer and A
+// buffer is set as the active buffer
+func (b *ABBuffer[T]) CopyActive() *ABBuffer[T] {
+	newBuffer := New[T](b.capacity)
+	if b.active == &b.A {
+		newBuffer.A = *b.A.Copy()
+	} else {
+		newBuffer.A = *b.B.Copy()
+	}
+	newBuffer.capacity = b.capacity
+	newBuffer.active = &newBuffer.A
 	return newBuffer
 }
 
 // CopyInactive creates a new buffer with the same elements as the inactive buffer
-func (b *Buffer[T]) CopyInactive() *Buffer[T] {
-	newBuffer := NewBuffer[T](b.capacity)
+// The copied buffer is placed in the A buffer on the new A/B Buffer and A
+// buffer is set as the active buffer
+func (b *ABBuffer[T]) CopyInactive() *ABBuffer[T] {
+	newBuffer := New[T](b.capacity)
 	if b.active == &b.A {
-		newBuffer.A = append([]T(nil), b.B...)
-		newBuffer.B = append([]T(nil), b.A...)
+		newBuffer.A = *b.B.Copy()
 	} else {
-		newBuffer.A = append([]T(nil), b.A...)
-		newBuffer.B = append([]T(nil), b.B...)
+		newBuffer.A = *b.active.Copy()
 	}
-	newBuffer.size = b.size
+	newBuffer.capacity = b.capacity
+	newBuffer.active = &newBuffer.A
 	return newBuffer
 }
 
-// Merge merges the active buffer with another buffer
-func (b *Buffer[T]) Merge(other *Buffer[T]) error {
-	if b.capacity < other.size+b.size {
-		return errors.New(errBufferOverflow)
-	}
-
-	*b.active = append(*b.active, *other.active...)
-	b.size += other.size
-	return nil
-}
-
-// MergeInactive merges the inactive buffer with another buffer
-func (b *Buffer[T]) MergeInactive(other *Buffer[T]) error {
-	if b.capacity < other.size+b.size {
-		return errors.New(errBufferOverflow)
-	}
-
-	if b.active == &b.A {
-		b.B = append(b.B, *other.active...)
-	} else {
-		b.A = append(b.A, *other.active...)
-	}
-	b.size += other.size
-	return nil
+// Merge merges the active buffer with the active buffer from another A/B buffer
+func (b *ABBuffer[T]) Merge(other *ABBuffer[T]) {
+	b.active.Merge(other.active)
 }
 
 // Blitter overwrite the values of the active buffer with the values of the other buffer using the "blitting" function
-func (b *Buffer[T]) Blitter(other *Buffer[T], f func(T, T) T) error {
-	if b.capacity < other.size {
-		return errors.New(errBufferOverflow)
-	}
-
-	// Parallelize the blitting process for large buffers
-	const minParallelSize = 1024 // Minimum size to consider parallel execution
-	if b.size >= minParallelSize {
-		numCPU := runtime.NumCPU()
-		var wg sync.WaitGroup
-		chunkSize := (int(b.size) + numCPU - 1) / numCPU // Determine chunk size
-
-		wg.Add(numCPU)
-		for i := 0; i < numCPU; i++ {
-			start := i * chunkSize
-			end := start + chunkSize
-			if end > int(b.size) {
-				end = int(b.size)
-			}
-
-			go func(start, end int) {
-				defer wg.Done()
-				for j := start; j < end; j++ {
-					(*b.active)[j] = f((*b.active)[j], (*other.active)[j])
-				}
-			}(start, end)
-		}
-		wg.Wait()
-	} else {
-		// Single-threaded blitting for small buffers
-		for i := uint64(0); i < b.size; i++ {
-			(*b.active)[i] = f((*b.active)[i], (*other.active)[i])
-		}
-	}
-
-	return nil
+func (b *ABBuffer[T]) Blit(other *ABBuffer[T], f func(T, T) T) error {
+	return b.active.Blit(other.active, f)
 }
