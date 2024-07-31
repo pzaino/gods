@@ -10,6 +10,7 @@
 ![CodeQL](https://github.com/pzaino/gods/actions/workflows/codeql.yml/badge.svg)
 [![FOSSA license](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_shield&issueType=license)
 [![FOSSA Security](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_shield&issueType=security)
+[![OSV Security](https://github.com/pzaino/gods/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/pzaino/gods/actions/workflows/osv-scanner.yml/badge.svg)
 
 **WIP**: This project is still a work in progress. I will be adding more data structures as I implement them.
 
