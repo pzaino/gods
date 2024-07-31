@@ -656,3 +656,33 @@ func TestReduceRange(t *testing.T) {
 		t.Fatalf(errExpectedError2)
 	}
 }
+
+func TestCheckSize(t *testing.T) {
+	// Test when the list is empty
+	list := circularLinkList.New[int]()
+	list.CheckSize()
+	expectedSize := uint64(0)
+	actualSize := list.Size()
+	if expectedSize != actualSize {
+		t.Fatalf("expected size %d, got %d", expectedSize, actualSize)
+	}
+
+	// Test when the list has one node
+	list.Append(1)
+	list.CheckSize()
+	expectedSize = uint64(1)
+	actualSize = list.Size()
+	if expectedSize != actualSize {
+		t.Fatalf("expected size %d, got %d", expectedSize, actualSize)
+	}
+
+	// Test when the list has multiple nodes
+	list.Append(2)
+	list.Append(3)
+	list.CheckSize()
+	expectedSize = uint64(3)
+	actualSize = list.Size()
+	if expectedSize != actualSize {
+		t.Fatalf("expected size %d, got %d", expectedSize, actualSize)
+	}
+}

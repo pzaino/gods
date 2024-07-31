@@ -167,27 +167,6 @@ func (pq *PriorityQueue[T]) UpdatePriority(value T, newPriority int) error {
 	return errors.New(ErrValueNotFound)
 }
 
-// UpdatePriorityAt updates the priority of an element at the given index
-func (pq *PriorityQueue[T]) UpdatePriorityAt(index uint64, newPriority int) error {
-	if pq.IsEmpty() {
-		return errors.New(ErrQueueIsEmpty)
-	}
-	if index >= pq.size {
-		return errors.New(ErrValueNotFound)
-	}
-
-	oldPriority := pq.data[index].Priority
-	pq.data[index].Priority = newPriority
-
-	if newPriority > oldPriority {
-		pq.upHeap(index)
-	} else {
-		pq.downHeap(index)
-	}
-
-	return nil
-}
-
 // UpdateValue updates the value of an element in the priority queue
 func (pq *PriorityQueue[T]) UpdateValue(value T, newValue T) error {
 	if pq.IsEmpty() {

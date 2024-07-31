@@ -404,6 +404,34 @@ func (b *Buffer[T]) ForRange(start, end uint64, fn func(*T)) error {
 	return nil
 }
 
+// ConfinedForRange applies the function to each element in the buffer in the range [start, end]
+// in a confined goroutine (i.e., the user-function is executed in parallel)
+func (b *Buffer[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
+	if start >= b.size || end > b.size || start > end {
+		return errors.New(ErrInvalidBuffer)
+	}
+	var wg sync.WaitGroup
+	for i := start; i < end; i++ {
+		wg.Add(1)
+		go func(i uint64) {
+			defer wg.Done()
+			fn(&b.data[i])
+		}(i)
+	}
+	wg.Wait()
+	return nil
+}
+
+// ConfinedForEach applies the function to each element in the buffer in a confined goroutine
+func (b *Buffer[T]) ConfinedForEach(fn func(*T)) error {
+	return b.ConfinedForRange(0, b.size, fn)
+}
+
+// ConfinedForFrom applies the function to each element in the buffer starting from the index
+func (b *Buffer[T]) ConfinedForFrom(start uint64, fn func(*T)) error {
+	return b.ConfinedForRange(start, b.size, fn)
+}
+
 // ForFrom applies the function to each element in the buffer starting from the index
 func (b *Buffer[T]) ForFrom(start uint64, fn func(*T)) error {
 	return b.ForRange(start, b.size, fn)

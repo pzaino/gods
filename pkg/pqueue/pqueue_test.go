@@ -440,3 +440,39 @@ func TestUpdateValue(t *testing.T) {
 		t.Fatal("Expected error when updating non-existing value")
 	}
 }
+
+func TestMerge(t *testing.T) {
+	pq1 := pqueue.New[int]()
+	pq1.Enqueue(10, 1)
+	pq1.Enqueue(20, 2)
+
+	pq2 := pqueue.New[int]()
+	pq2.Enqueue(30, 3)
+	pq2.Enqueue(40, 4)
+
+	pq1.Merge(pq2)
+
+	expectedValues := []int{40, 30, 20, 10}
+	for i, val := range pq1.Values() {
+		if val != expectedValues[i] {
+			t.Fatalf("Expected merged value %d, got %d", expectedValues[i], val)
+		}
+	}
+
+	if pq2.Size() != 0 {
+		t.Fatal("Expected merged priority queue to be empty")
+	}
+}
+
+func TestCheckSize(t *testing.T) {
+	pq := pqueue.New[int]()
+	pq.Enqueue(10, 1)
+	pq.Enqueue(20, 2)
+	pq.Enqueue(30, 3)
+
+	pq.CheckSize()
+
+	if pq.Size() != 3 {
+		t.Fatal("Expected priority queue size to be 3 after calling CheckSize")
+	}
+}

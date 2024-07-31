@@ -16,6 +16,9 @@
 package buffer_test
 
 import (
+	"fmt"
+	"reflect"
+	"sync"
 	"testing"
 
 	buffer "github.com/pzaino/gods/pkg/buffer"
@@ -957,5 +960,113 @@ func TestRotateRight(t *testing.T) {
 		if v != expected[i] {
 			t.Errorf(errExpectedValue, expected[i], v)
 		}
+	}
+}
+
+// TestNewReference tests the NewReference method
+func TestNewReference(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 4)
+	ref := b.NewReference()
+	if !b.Equals(ref) {
+		t.Error("NewReference should create a buffer with the same elements")
+	}
+	err := ref.Append(4)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	if b.Equals(ref) {
+		t.Error("Modifying the reference should not affect the original buffer")
+	}
+}
+
+// TestInsertAt tests the InsertAt method
+func TestInsertAt(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	err := b.InsertAt(1, 4)
+	if err == nil {
+		t.Errorf("InsertAt should return an error when trying to add above capacity for a buffer with fixed capacity")
+	}
+	if err.Error() != buffer.ErrBufferOverflow {
+		t.Errorf(errExpectedErr, buffer.ErrBufferOverflow, err)
+	}
+	if b.Size() != 3 {
+		t.Errorf("Expected size to remain 3, got %v", b.Size())
+	}
+
+	b2 := createBufferWithElements(t, []int{1, 2, 3}, 0)
+	err = b2.InsertAt(1, 5)
+	if err != nil {
+		t.Error("InsertAt should not return an error for a dynamic buffer")
+	}
+	elem, _ := b2.Get(1)
+	if elem != 5 {
+		t.Errorf("Expected element 2, got %v", elem)
+	}
+}
+
+// TestConfinedForRange tests the ConfinedForRange method
+func TestConfinedForRange(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	fmt.Printf("Buffer: %v\n", b)
+	err := b.ConfinedForRange(0, b.Size(), func(elem *int) {
+		*elem = *elem * 2
+	})
+	fmt.Printf("Buffer: %v\n", b)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	// Verify the result
+	expected := []int{2, 4, 6}
+	result := b.Values()
+	if len(result) != len(expected) {
+		t.Errorf(errExpectedLength, len(expected), len(result))
+	}
+	for i, v := range result {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestConfinedForEach tests the ConfinedForEach method
+func TestConfinedForEach(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	err := b.ConfinedForEach(func(elem *int) {
+		*elem *= 2
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	expected := []int{2, 4, 6}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestConfinedForFrom tests the ConfinedForFrom method
+func TestConfinedForFrom(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var result []int
+	err := b.ConfinedForFrom(1, func(elem *int) {
+		wg.Add(1)
+		go func(e int) {
+			defer wg.Done()
+			mu.Lock()
+			result = append(result, e)
+			mu.Unlock()
+		}(*elem)
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	wg.Wait()
+	expected := []int{3, 2}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf(errExpectedValue, expected, result)
 	}
 }
