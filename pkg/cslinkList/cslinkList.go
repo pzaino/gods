@@ -27,15 +27,15 @@ type CSLinkList[T comparable] struct {
 	l  *linkList.LinkList[T]
 }
 
-// NewCSLinkList creates a new concurrency-safe linked list.
-func NewCSLinkList[T comparable]() *CSLinkList[T] {
-	return &CSLinkList[T]{l: linkList.NewLinkList[T]()}
+// New creates a new concurrency-safe linked list.
+func New[T comparable]() *CSLinkList[T] {
+	return &CSLinkList[T]{l: linkList.New[T]()}
 }
 
-// NewCSLinkListFromSlice creates a new concurrency-safe linked list from a slice.
-func NewCSLinkListFromSlice[T comparable](items []T) *CSLinkList[T] {
-	cs := NewCSLinkList[T]()
-	cs.l = linkList.NewLinkListFromSlice(items)
+// NewFromSlice creates a new concurrency-safe linked list from a slice.
+func NewFromSlice[T comparable](items []T) *CSLinkList[T] {
+	cs := New[T]()
+	cs.l = linkList.NewFromSlice(items)
 	return cs
 }
 
@@ -167,7 +167,7 @@ func (cs *CSLinkList[T]) Map(f func(T) T) *CSLinkList[T] {
 	defer cs.mu.Unlock()
 
 	newList := cs.l.Map(f)
-	newCSList := NewCSLinkList[T]()
+	newCSList := New[T]()
 	newCSList.l = newList
 	return newCSList
 }
@@ -182,7 +182,7 @@ func (cs *CSLinkList[T]) MapFrom(start uint64, f func(T) T) (*CSLinkList[T], err
 		return nil, err
 	}
 
-	newCSList := NewCSLinkList[T]()
+	newCSList := New[T]()
 	newCSList.l = newList
 	return newCSList, nil
 }
@@ -197,7 +197,7 @@ func (cs *CSLinkList[T]) MapRange(start, end uint64, f func(T) T) (*CSLinkList[T
 		return nil, err
 	}
 
-	newCSList := NewCSLinkList[T]()
+	newCSList := New[T]()
 	newCSList.l = newList
 	return newCSList, nil
 }

@@ -13,11 +13,13 @@
 // limitations under the License.
 
 // Package queue provides a non-concurrent-safe queue (FIFO).
-package queue
+package queue_test
 
 import (
 	"strconv"
 	"testing"
+
+	queue "github.com/pzaino/gods/pkg/queue"
 )
 
 const (
@@ -28,7 +30,7 @@ const (
 )
 
 func TestQueue(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	if q.Size() != 0 {
 		t.Errorf("Queue should be empty")
 	}
@@ -72,7 +74,7 @@ func TestQueue(t *testing.T) {
 }
 
 func TestDequeue(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -112,7 +114,7 @@ func TestDequeue(t *testing.T) {
 }
 
 func TestPeek(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -172,7 +174,7 @@ func TestPeek(t *testing.T) {
 }
 
 func TestValues(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -199,7 +201,7 @@ func TestValues(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -214,12 +216,12 @@ func TestContains(t *testing.T) {
 }
 
 func TestEquals(t *testing.T) {
-	q1 := NewQueue[int]()
+	q1 := queue.New[int]()
 	q1.Enqueue(1)
 	q1.Enqueue(2)
 	q1.Enqueue(3)
 
-	q2 := NewQueue[int]()
+	q2 := queue.New[int]()
 	q2.Enqueue(1)
 	q2.Enqueue(2)
 	q2.Enqueue(3)
@@ -228,7 +230,7 @@ func TestEquals(t *testing.T) {
 		t.Errorf("Equals should return true for equal queues")
 	}
 
-	q3 := NewQueue[int]()
+	q3 := queue.New[int]()
 	q3.Enqueue(1)
 	q3.Enqueue(2)
 
@@ -236,7 +238,7 @@ func TestEquals(t *testing.T) {
 		t.Errorf("Equals should return false for queues with different sizes")
 	}
 
-	q4 := NewQueue[int]()
+	q4 := queue.New[int]()
 	q4.Enqueue(1)
 	q4.Enqueue(2)
 	q4.Enqueue(4)
@@ -247,7 +249,7 @@ func TestEquals(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -272,7 +274,7 @@ func TestCopy(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -298,7 +300,7 @@ func TestString(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -330,7 +332,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -368,7 +370,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -387,7 +389,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Reduce an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	emptyResult := emptyQueue.Reduce(f, 0)
 
 	// Check the result
@@ -397,7 +399,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -424,7 +426,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestAny(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -450,14 +452,14 @@ func TestAny(t *testing.T) {
 	}
 
 	// Check if any element in an empty queue matches the predicate
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	if emptyQueue.Any(predicate) {
 		t.Errorf("Any should return false for an empty queue")
 	}
 }
 
 func TestAll(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(2)
 	q.Enqueue(4)
 	q.Enqueue(6)
@@ -483,14 +485,14 @@ func TestAll(t *testing.T) {
 	}
 
 	// Check if all elements in an empty queue match the predicate
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	if emptyQueue.All(predicate) {
 		t.Errorf("All should return true for an empty queue")
 	}
 }
 
 func TestIndexOf(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -508,7 +510,7 @@ func TestIndexOf(t *testing.T) {
 		t.Errorf("IndexOf should return an error for a value not found in the queue")
 	}
 
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	_, err = emptyQueue.IndexOf(1)
 	if err == nil {
 		t.Errorf("IndexOf should return an error for an empty queue")
@@ -516,7 +518,7 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestLastIndexOf(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -538,7 +540,7 @@ func TestLastIndexOf(t *testing.T) {
 	}
 
 	// Test for an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	_, err = emptyQueue.LastIndexOf(1)
 	if err == nil {
 		t.Errorf("LastIndexOf should return an error for an empty queue")
@@ -546,7 +548,7 @@ func TestLastIndexOf(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -577,7 +579,7 @@ func TestFindIndex(t *testing.T) {
 	}
 
 	// Find the index of the first element in an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	_, err = emptyQueue.FindIndex(predicate)
 	if err == nil {
 		t.Errorf("FindIndex should return an error when the queue is empty")
@@ -585,7 +587,7 @@ func TestFindIndex(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -616,7 +618,7 @@ func TestFindLastIndex(t *testing.T) {
 	}
 
 	// Find the last index of an element in an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	_, err = emptyQueue.FindLastIndex(predicate)
 	if err == nil {
 		t.Errorf("FindLastIndex should return an error when the queue is empty")
@@ -624,7 +626,7 @@ func TestFindLastIndex(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -659,7 +661,7 @@ func TestFindAll(t *testing.T) {
 	}
 
 	// Find all elements that are greater than 5 in an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	emptyResult := emptyQueue.FindAll(greaterThanFive)
 
 	// Check the size of the result queue
@@ -669,7 +671,7 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindLast(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -700,7 +702,7 @@ func TestFindLast(t *testing.T) {
 	}
 
 	// Find the last element in an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	_, err = emptyQueue.FindLast(predicate)
 	if err == nil {
 		t.Errorf("FindLast should return an error when the queue is empty")
@@ -708,7 +710,7 @@ func TestFindLast(t *testing.T) {
 }
 
 func TestFindAllIndexes(t *testing.T) {
-	q := NewQueue[int]()
+	q := queue.New[int]()
 	q.Enqueue(1)
 	q.Enqueue(2)
 	q.Enqueue(3)
@@ -743,7 +745,7 @@ func TestFindAllIndexes(t *testing.T) {
 	}
 
 	// Find all indexes of elements in an empty queue
-	emptyQueue := NewQueue[int]()
+	emptyQueue := queue.New[int]()
 	emptyIndexes := emptyQueue.FindAllIndexes(predicate)
 
 	// Check that no indexes are found in an empty queue

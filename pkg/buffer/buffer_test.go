@@ -16,6 +16,9 @@
 package buffer_test
 
 import (
+	"fmt"
+	"reflect"
+	"sync"
 	"testing"
 
 	buffer "github.com/pzaino/gods/pkg/buffer"
@@ -31,7 +34,7 @@ const (
 
 // Helper function to create a buffer with given elements and capacity
 func createBufferWithElements(t *testing.T, elements []int, capacity uint64) *buffer.Buffer[int] {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	b.SetCapacity(capacity)
 	for _, elem := range elements {
 		err := b.Append(elem)
@@ -44,7 +47,7 @@ func createBufferWithElements(t *testing.T, elements []int, capacity uint64) *bu
 
 // TestNewBuffer tests the creation of a new buffer
 func TestNewBuffer(t *testing.T) {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	if b == nil {
 		t.Error("NewBuffer should not return nil")
 	}
@@ -55,7 +58,7 @@ func TestNewBuffer(t *testing.T) {
 
 // TestIsEmpty tests the IsEmpty method
 func TestIsEmpty(t *testing.T) {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	if !b.IsEmpty() {
 		t.Error("IsEmpty should return true for an empty buffer")
 	}
@@ -202,7 +205,7 @@ func TestCapacity(t *testing.T) {
 
 // TestSetCapacity tests the SetCapacity method
 func TestSetCapacity(t *testing.T) {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	b.SetCapacity(5)
 	if b.Capacity() != 5 {
 		t.Errorf("Expected capacity 5, got %v", b.Capacity())
@@ -551,9 +554,12 @@ func TestReduceRange(t *testing.T) {
 // TestForEach tests the ForEach method
 func TestForEach(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
-	b.ForEach(func(x *int) {
+	err := b.ForEach(func(x *int) {
 		*x *= 2
 	})
+	if err != nil {
+		t.Errorf("ForEach should not return an error, got %v", err)
+	}
 	expected := []int{2, 4, 6}
 	values := b.Values()
 	for i, v := range values {
@@ -846,5 +852,221 @@ func TestBlit(t *testing.T) {
 		if v != expected[i] {
 			t.Errorf(errExpectedValue, expected[i], v)
 		}
+	}
+}
+
+// TestBlitFrom tests the BlitFrom method
+func TestBlitFrom(t *testing.T) {
+	b1 := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	b2 := createBufferWithElements(t, []int{4, 5, 6}, 3)
+
+	err := b1.BlitFrom(0, b2, func(a, b int) int {
+		return a + b
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	expected := []int{5, 7, 9}
+	for i, v := range b1.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	err = b1.BlitFrom(2, b2, func(a, b int) int {
+		return a - b
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	expected = []int{5, 7, 3}
+	for i, v := range b1.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	err = b1.BlitFrom(0, b2, func(a, b int) int {
+		return a * b
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	expected = []int{20, 35, 18}
+	for i, v := range b1.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestRotateLeft tests the RotateLeft method
+func TestRotateLeft(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateLeft(2)
+	expected := []int{3, 4, 5, 1, 2}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateLeft(5)
+	expected = []int{1, 2, 3, 4, 5}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateLeft(7)
+	expected = []int{3, 4, 5, 1, 2}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestRotateRight tests the RotateRight method
+func TestRotateRight(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateRight(2)
+	expected := []int{4, 5, 1, 2, 3}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateRight(5)
+	expected = []int{1, 2, 3, 4, 5}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateRight(7)
+	expected = []int{4, 5, 1, 2, 3}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestNewReference tests the NewReference method
+func TestNewReference(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 4)
+	ref := b.NewReference()
+	if !b.Equals(ref) {
+		t.Error("NewReference should create a buffer with the same elements")
+	}
+	err := ref.Append(4)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	if b.Equals(ref) {
+		t.Error("Modifying the reference should not affect the original buffer")
+	}
+}
+
+// TestInsertAt tests the InsertAt method
+func TestInsertAt(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	err := b.InsertAt(1, 4)
+	if err == nil {
+		t.Errorf("InsertAt should return an error when trying to add above capacity for a buffer with fixed capacity")
+	}
+	if err.Error() != buffer.ErrBufferOverflow {
+		t.Errorf(errExpectedErr, buffer.ErrBufferOverflow, err)
+	}
+	if b.Size() != 3 {
+		t.Errorf("Expected size to remain 3, got %v", b.Size())
+	}
+
+	b2 := createBufferWithElements(t, []int{1, 2, 3}, 0)
+	err = b2.InsertAt(1, 5)
+	if err != nil {
+		t.Error("InsertAt should not return an error for a dynamic buffer")
+	}
+	elem, _ := b2.Get(1)
+	if elem != 5 {
+		t.Errorf("Expected element 2, got %v", elem)
+	}
+}
+
+// TestConfinedForRange tests the ConfinedForRange method
+func TestConfinedForRange(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	fmt.Printf("Buffer: %v\n", b)
+	err := b.ConfinedForRange(0, b.Size(), func(elem *int) {
+		*elem = *elem * 2
+	})
+	fmt.Printf("Buffer: %v\n", b)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	// Verify the result
+	expected := []int{2, 4, 6}
+	result := b.Values()
+	if len(result) != len(expected) {
+		t.Errorf(errExpectedLength, len(expected), len(result))
+	}
+	for i, v := range result {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestConfinedForEach tests the ConfinedForEach method
+func TestConfinedForEach(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	err := b.ConfinedForEach(func(elem *int) {
+		*elem *= 2
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	expected := []int{2, 4, 6}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestConfinedForFrom tests the ConfinedForFrom method
+func TestConfinedForFrom(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var result []int
+	err := b.ConfinedForFrom(1, func(elem *int) {
+		wg.Add(1)
+		go func(e int) {
+			defer wg.Done()
+			mu.Lock()
+			result = append(result, e)
+			mu.Unlock()
+		}(*elem)
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	wg.Wait()
+	expected := []int{3, 2}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf(errExpectedValue, expected, result)
 	}
 }

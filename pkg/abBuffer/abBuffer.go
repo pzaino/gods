@@ -22,10 +22,10 @@ import (
 )
 
 const (
-	errBufferOverflow = "buffer overflow"
-	errInvalidBuffer  = "invalid buffer"
-	errBufferEmpty    = "buffer is empty"
-	errValueNotFound  = "value not found"
+	ErrBufferOverflow = "buffer overflow"
+	ErrInvalidBuffer  = "invalid buffer"
+	ErrBufferEmpty    = "buffer is empty"
+	ErrValueNotFound  = "value not found"
 )
 
 // ABBuffer represents a double-buffered structure
@@ -58,7 +58,7 @@ func New[T comparable](capacity uint64) *ABBuffer[T] {
 // Append adds a new element to the active buffer
 func (b *ABBuffer[T]) Append(value T) error {
 	if (b.active.Size() >= b.capacity) && (b.capacity != 0) {
-		return errors.New(errBufferOverflow)
+		return errors.New(ErrBufferOverflow)
 	}
 	err := b.active.Append(value)
 	return err
@@ -174,8 +174,8 @@ func (b *ABBuffer[T]) InsertAt(index uint64, value T) error {
 }
 
 // ForEach applies the function to all elements in the active buffer
-func (b *ABBuffer[T]) ForEach(f func(*T)) {
-	b.active.ForEach(f)
+func (b *ABBuffer[T]) ForEach(f func(*T)) error {
+	return b.active.ForEach(f)
 }
 
 // ForFrom applies the function to all elements in the active buffer starting from the given index
@@ -203,7 +203,7 @@ func (b *ABBuffer[T]) Map(f func(T) T) (*ABBuffer[T], error) {
 // MapFrom generates a new buffer by applying the function to all elements in the active buffer starting from the given index
 func (b *ABBuffer[T]) MapFrom(index uint64, f func(T) T) (*ABBuffer[T], error) {
 	if index >= b.active.Size() {
-		return nil, errors.New(errInvalidBuffer)
+		return nil, errors.New(ErrInvalidBuffer)
 	}
 
 	newBuffer := New[T](b.capacity)
@@ -219,7 +219,7 @@ func (b *ABBuffer[T]) MapFrom(index uint64, f func(T) T) (*ABBuffer[T], error) {
 // MapRange generates a new buffer by applying the function to all elements in the active buffer in the range [start, end]
 func (b *ABBuffer[T]) MapRange(start, end uint64, f func(T) T) (*ABBuffer[T], error) {
 	if start >= b.active.Size() || end > b.active.Size() {
-		return nil, errors.New(errInvalidBuffer)
+		return nil, errors.New(ErrInvalidBuffer)
 	}
 
 	newBuffer := New[T](b.capacity)

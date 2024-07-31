@@ -13,11 +13,13 @@
 // limitations under the License.
 
 // Package linkList provides a non-concurrent-safe linked list.
-package linkList
+package linkList_test
 
 import (
 	"fmt"
 	"testing"
+
+	linkList "github.com/pzaino/gods/pkg/linkList"
 )
 
 const (
@@ -34,14 +36,14 @@ const (
 )
 
 func TestNew(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	if list == nil {
 		t.Error("Expected list to be initialized, but got nil")
 	}
 }
 
 func TestNewFromSlice(t *testing.T) {
-	list := NewLinkListFromSlice[int]([]int{1, 2, 3})
+	list := linkList.NewFromSlice[int]([]int{1, 2, 3})
 	if list == nil {
 		t.Error("Expected list to be initialized, but got nil")
 	}
@@ -51,7 +53,7 @@ func TestNewFromSlice(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -62,7 +64,7 @@ func TestAppend(t *testing.T) {
 }
 
 func TestPrepend(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -73,7 +75,7 @@ func TestPrepend(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -82,7 +84,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRemoveEmpty(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Remove(1)
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -90,14 +92,14 @@ func TestRemoveEmpty(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
 	}
 }
 
 func TestIsEmptyAfterAppend(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -105,7 +107,7 @@ func TestIsEmptyAfterAppend(t *testing.T) {
 }
 
 func TestIsEmptyAfterPrepend(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -113,7 +115,7 @@ func TestIsEmptyAfterPrepend(t *testing.T) {
 }
 
 func TestIsEmptyAfterRemove(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -125,7 +127,7 @@ func TestIsEmptyAfterRemove(t *testing.T) {
 }
 
 func TestToSlice(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -145,7 +147,7 @@ func TestToSlice(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -167,7 +169,7 @@ func TestReverse(t *testing.T) {
 }
 
 func TestReverseEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	list.Reverse()
 
@@ -177,7 +179,7 @@ func TestReverseEmptyList(t *testing.T) {
 }
 
 func TestReverseSingleElementList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 
 	list.Reverse()
@@ -197,7 +199,7 @@ func TestReverseSingleElementList(t *testing.T) {
 }
 
 func TestGetFirst(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -211,7 +213,7 @@ func TestGetFirst(t *testing.T) {
 }
 
 func TestGetLast(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -225,7 +227,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestGetLastEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	last := list.GetLast()
 	if last != nil {
@@ -234,7 +236,7 @@ func TestGetLastEmptyList(t *testing.T) {
 }
 
 func TestGetAt(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -256,7 +258,7 @@ func TestGetAt(t *testing.T) {
 }
 
 func TestInsertAt(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -281,7 +283,7 @@ func TestInsertAt(t *testing.T) {
 }
 
 func TestInsertAtOutOfBoundsIndex(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -293,7 +295,7 @@ func TestInsertAtOutOfBoundsIndex(t *testing.T) {
 }
 
 func TestInsertAtZeroIndex(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -318,7 +320,7 @@ func TestInsertAtZeroIndex(t *testing.T) {
 }
 
 func TestInsertAtEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	err := list.InsertAt(0, 1)
 	if err != nil {
@@ -340,7 +342,7 @@ func TestInsertAtEmptyList(t *testing.T) {
 }
 
 func TestDeleteAt(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -365,7 +367,7 @@ func TestDeleteAt(t *testing.T) {
 }
 
 func TestDeleteAtOutOfBoundsIndex(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -377,7 +379,7 @@ func TestDeleteAtOutOfBoundsIndex(t *testing.T) {
 }
 
 func TestDeleteAtZeroIndex(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -402,7 +404,7 @@ func TestDeleteAtZeroIndex(t *testing.T) {
 }
 
 func TestDeleteAtEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	err := list.DeleteAt(0)
 	if err == nil {
@@ -415,7 +417,7 @@ func TestDeleteAtEmptyList(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -431,7 +433,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -466,12 +468,12 @@ func TestCopy(t *testing.T) {
 }
 
 func TestMerge(t *testing.T) {
-	list1 := NewLinkList[int]()
+	list1 := linkList.New[int]()
 	list1.Append(1)
 	list1.Append(2)
 	list1.Append(3)
 
-	list2 := NewLinkList[int]()
+	list2 := linkList.New[int]()
 	list2.Append(4)
 	list2.Append(5)
 	list2.Append(6)
@@ -498,7 +500,7 @@ func TestMerge(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -523,7 +525,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestMapEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	// Test mapping an empty list
 	list.Map(func(value int) int {
@@ -536,7 +538,7 @@ func TestMapEmptyList(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -563,7 +565,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestFilterCleanList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(3)
 	list.Append(5)
@@ -584,7 +586,7 @@ func TestFilterCleanList(t *testing.T) {
 }
 
 func TestFilterEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	// Filter on an empty list
 	list.Filter(func(value int) bool {
@@ -597,7 +599,7 @@ func TestFilterEmptyList(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -619,7 +621,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Test reducing an empty list
-	emptyList := NewLinkList[int]()
+	emptyList := linkList.New[int]()
 	result := emptyList.Reduce(func(a, b int) int {
 		return a + b
 	}, 0)
@@ -629,7 +631,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -670,7 +672,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestAny(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -692,7 +694,7 @@ func TestAny(t *testing.T) {
 	}
 
 	// Test with an empty list
-	emptyList := NewLinkList[int]()
+	emptyList := linkList.New[int]()
 	any = emptyList.Any(func(value int) bool {
 		return value > 0
 	})
@@ -702,7 +704,7 @@ func TestAny(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(-2)
 	list.Append(4)
 	list.Append(6)
@@ -724,7 +726,7 @@ func TestAll(t *testing.T) {
 	}
 
 	// Test with an empty list
-	emptyList := NewLinkList[int]()
+	emptyList := linkList.New[int]()
 	allEmpty := emptyList.All(func(value int) bool {
 		return value == 0
 	})
@@ -734,7 +736,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -750,14 +752,14 @@ func TestContains(t *testing.T) {
 	}
 
 	// Test when the list is empty
-	emptyList := NewLinkList[int]()
+	emptyList := linkList.New[int]()
 	if emptyList.Contains(1) {
 		t.Error("Expected empty list to not contain any value")
 	}
 }
 
 func TestIndexOf(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -777,7 +779,7 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestIndexOfEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	// Test finding a value in an empty list
 	index, err := list.IndexOf(1)
@@ -787,7 +789,7 @@ func TestIndexOfEmptyList(t *testing.T) {
 }
 
 func TestLastIndexOf(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -811,7 +813,7 @@ func TestLastIndexOf(t *testing.T) {
 }
 
 func TestLastIndexOfEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	index, err := list.LastIndexOf(1)
 	if err == nil {
@@ -820,7 +822,7 @@ func TestLastIndexOfEmptyList(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -848,7 +850,7 @@ func TestFindIndex(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -876,7 +878,7 @@ func TestFindLastIndex(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -921,7 +923,7 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindLast(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -949,7 +951,7 @@ func TestFindLast(t *testing.T) {
 }
 
 func TestFindAllIndexes(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -993,7 +995,7 @@ func TestFindAllIndexes(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1015,7 +1017,7 @@ func TestFind(t *testing.T) {
 }
 
 func TestFindEmptyList(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 
 	// Test finding a value in an empty list
 	_, err := list.Find(1)
@@ -1025,7 +1027,7 @@ func TestFindEmptyList(t *testing.T) {
 }
 
 func TestMapFrom(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1061,7 +1063,7 @@ func TestMapFrom(t *testing.T) {
 }
 
 func TestMapRange(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1114,7 +1116,7 @@ func TestMapRange(t *testing.T) {
 	}
 
 	// Test mapping a range with an empty list
-	emptyList := NewLinkList[int]()
+	emptyList := linkList.New[int]()
 	_, err = emptyList.MapRange(0, 2, func(value int) int {
 		return value * 2
 	})
@@ -1124,7 +1126,7 @@ func TestMapRange(t *testing.T) {
 }
 
 func TestForRange(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1175,7 +1177,7 @@ func TestForRange(t *testing.T) {
 	}
 
 	// Test empty list
-	emptyList := NewLinkList[int]()
+	emptyList := linkList.New[int]()
 	err = emptyList.ForRange(0, 2, func(value *int) {
 		*value *= 2
 	})
@@ -1185,7 +1187,7 @@ func TestForRange(t *testing.T) {
 }
 
 func TestForFrom(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1221,7 +1223,7 @@ func TestForFrom(t *testing.T) {
 }
 
 func TestCheckSize(t *testing.T) {
-	list := NewLinkList[int]()
+	list := linkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)

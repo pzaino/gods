@@ -41,7 +41,7 @@ func runConcurrent(_ *testing.T, n int, fn func()) {
 }
 
 func TestCSStackPush(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	runConcurrent(t, 1000, func() {
 		cs.Push(1)
 	})
@@ -51,7 +51,7 @@ func TestCSStackPush(t *testing.T) {
 }
 
 func TestCSStackIsEmpty(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	if !cs.IsEmpty() {
 		t.Fatalf(errExpectedStackEmpty)
 	}
@@ -62,7 +62,7 @@ func TestCSStackIsEmpty(t *testing.T) {
 }
 
 func TestCSStackPop(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -78,7 +78,7 @@ func TestCSStackPop(t *testing.T) {
 }
 
 func TestCSStackToSlice(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -88,7 +88,7 @@ func TestCSStackToSlice(t *testing.T) {
 }
 
 func TestCSStackToStack(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -98,7 +98,7 @@ func TestCSStackToStack(t *testing.T) {
 }
 
 func TestCSStackReverse(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -108,7 +108,7 @@ func TestCSStackReverse(t *testing.T) {
 }
 
 func TestCSStackSwap(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	cs.Push(1)
 	cs.Push(2)
 	runConcurrent(t, 1000, func() {
@@ -120,7 +120,7 @@ func TestCSStackSwap(t *testing.T) {
 }
 
 func TestCSStackTop(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	cs.Push(1)
 	runConcurrent(t, 1000, func() {
 		top, err := cs.Top()
@@ -134,7 +134,7 @@ func TestCSStackTop(t *testing.T) {
 }
 
 func TestCSStackPeek(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	cs.Push(1)
 	runConcurrent(t, 1000, func() {
 		peek, err := cs.Peek()
@@ -148,7 +148,7 @@ func TestCSStackPeek(t *testing.T) {
 }
 
 func TestCSStackSize(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	runConcurrent(t, 1000, func() {
 		cs.Push(2)
 	})
@@ -158,7 +158,7 @@ func TestCSStackSize(t *testing.T) {
 }
 
 func TestCSStackClear(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -171,7 +171,7 @@ func TestCSStackClear(t *testing.T) {
 }
 
 func TestCSStackContains(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	cs.Push(1)
 	runConcurrent(t, 1000, func() {
 		cs.Contains(1)
@@ -179,7 +179,7 @@ func TestCSStackContains(t *testing.T) {
 }
 
 func TestCSStackCopy(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	cs.Push(1)
 	var copy *csstack.CSStack[int]
 	runConcurrent(t, 1000, func() {
@@ -191,8 +191,8 @@ func TestCSStackCopy(t *testing.T) {
 }
 
 func TestCSStackEqual(t *testing.T) {
-	cs1 := csstack.NewCSStack[int]()
-	cs2 := csstack.NewCSStack[int]()
+	cs1 := csstack.New[int]()
+	cs2 := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs1.Push(i)
 		cs2.Push(i)
@@ -205,7 +205,7 @@ func TestCSStackEqual(t *testing.T) {
 }
 
 func TestCSStackString(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	cs.Push(1)
 	runConcurrent(t, 1000, func() {
 		test := cs.String()
@@ -216,7 +216,7 @@ func TestCSStackString(t *testing.T) {
 }
 
 func TestCSStackPopN(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -236,7 +236,7 @@ func TestCSStackPopN(t *testing.T) {
 }
 
 func TestCSStackPushN(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	runConcurrent(t, 1000, func() {
 		cs.PushN(1, 2, 3, 4, 5)
 	})
@@ -246,7 +246,7 @@ func TestCSStackPushN(t *testing.T) {
 }
 
 func TestCSStackPopAll(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -259,7 +259,7 @@ func TestCSStackPopAll(t *testing.T) {
 }
 
 func TestCSStackPushAll(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	items := []int{1, 2, 3, 4, 5}
 	runConcurrent(t, 1000, func() {
 		cs.PushAll(items)
@@ -270,7 +270,7 @@ func TestCSStackPushAll(t *testing.T) {
 }
 
 func TestCSStackFilter(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -285,19 +285,22 @@ func TestCSStackFilter(t *testing.T) {
 }
 
 func TestCSStackMap(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.Map(func(item int) int {
+		_, err := cs.Map(func(item int) int {
 			return item * 2
 		})
+		if err != nil {
+			t.Fatalf(errExpectedNoError, err)
+		}
 	})
 }
 
 func TestCSStackReduce(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -312,19 +315,22 @@ func TestCSStackReduce(t *testing.T) {
 }
 
 func TestCSStackForEach(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.ForEach(func(item *int) {
+		err := cs.ForEach(func(item *int) {
 			*item = *item + 1
 		})
+		if err != nil {
+			t.Fatalf(errExpectedNoError, err)
+		}
 	})
 }
 
 func TestCSStackForRange(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -339,7 +345,7 @@ func TestCSStackForRange(t *testing.T) {
 }
 
 func TestCSStackForFrom(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -354,7 +360,7 @@ func TestCSStackForFrom(t *testing.T) {
 }
 
 func TestCSStackAny(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -366,7 +372,7 @@ func TestCSStackAny(t *testing.T) {
 }
 
 func TestCSStackAll(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -378,7 +384,7 @@ func TestCSStackAll(t *testing.T) {
 }
 
 func TestCSStackFind(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -393,7 +399,7 @@ func TestCSStackFind(t *testing.T) {
 }
 
 func TestCSStackFindIndex(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -408,7 +414,7 @@ func TestCSStackFindIndex(t *testing.T) {
 }
 
 func TestCSStackFindLast(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -423,7 +429,7 @@ func TestCSStackFindLast(t *testing.T) {
 }
 
 func TestCSStackFindLastIndex(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -438,7 +444,7 @@ func TestCSStackFindLastIndex(t *testing.T) {
 }
 
 func TestCSStackFindAll(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -450,7 +456,7 @@ func TestCSStackFindAll(t *testing.T) {
 }
 
 func TestCSStackFindIndices(t *testing.T) {
-	cs := csstack.NewCSStack[int]()
+	cs := csstack.New[int]()
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
@@ -461,9 +467,9 @@ func TestCSStackFindIndices(t *testing.T) {
 	})
 }
 
-func TestNewCSStackFromSlice(t *testing.T) {
+func TestNewFromSlice(t *testing.T) {
 	items := []int{1, 2, 3, 4, 5}
-	cs := csstack.NewCSStackFromSlice(items)
+	cs := csstack.NewFromSlice(items)
 	if cs.Size() != uint64(len(items)) {
 		t.Fatalf(errExpectedSizeX, len(items), cs.Size())
 	}

@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	errQueueIsEmpty  = "queue is empty"
-	errValueNotFound = "value not found"
+	ErrQueueIsEmpty  = "queue is empty"
+	ErrValueNotFound = "value not found"
 )
 
 // Queue is a FIFO data structure
@@ -31,8 +31,8 @@ type Queue[T comparable] struct {
 	size uint64
 }
 
-// NewQueue creates a new Queue
-func NewQueue[T comparable]() *Queue[T] {
+// New creates a new Queue
+func New[T comparable]() *Queue[T] {
 	return &Queue[T]{}
 }
 
@@ -51,7 +51,7 @@ func (q *Queue[T]) Enqueue(elem T) {
 func (q *Queue[T]) Dequeue() (T, error) {
 	if q.IsEmpty() {
 		var rVal T
-		return rVal, errors.New(errQueueIsEmpty)
+		return rVal, errors.New(ErrQueueIsEmpty)
 	}
 	elem := q.data[0]
 	q.data = q.data[1:]
@@ -63,7 +63,7 @@ func (q *Queue[T]) Dequeue() (T, error) {
 func (q *Queue[T]) Peek() (T, error) {
 	if q.IsEmpty() {
 		var rVal T
-		return rVal, errors.New(errQueueIsEmpty)
+		return rVal, errors.New(ErrQueueIsEmpty)
 	}
 	return q.data[0], nil
 }
@@ -114,7 +114,7 @@ func (q *Queue[T]) Equals(other *Queue[T]) bool {
 
 // Copy returns a copy of the queue
 func (q *Queue[T]) Copy() *Queue[T] {
-	copy := NewQueue[T]()
+	copy := New[T]()
 	copy.data = append(copy.data, q.data...)
 	copy.size = q.size
 	return copy
@@ -140,7 +140,7 @@ func (q *Queue[T]) dataString(f func(T) string) string {
 
 // Map creates a new queue with the results of applying the function to all elements in the queue
 func (q *Queue[T]) Map(f func(T) T) *Queue[T] {
-	newQueue := NewQueue[T]()
+	newQueue := New[T]()
 
 	if q.size == 0 {
 		return newQueue
@@ -214,7 +214,7 @@ func (q *Queue[T]) All(f func(T) bool) bool {
 // IndexOf returns the index of the first element with the given value
 func (q *Queue[T]) IndexOf(value T) (uint64, error) {
 	if q.size == 0 {
-		return 0, errors.New(errQueueIsEmpty)
+		return 0, errors.New(ErrQueueIsEmpty)
 	}
 
 	for i := uint64(0); i < q.size; i++ {
@@ -222,13 +222,13 @@ func (q *Queue[T]) IndexOf(value T) (uint64, error) {
 			return i, nil
 		}
 	}
-	return 0, errors.New(errValueNotFound)
+	return 0, errors.New(ErrValueNotFound)
 }
 
 // LastIndexOf returns the index of the last element with the given value
 func (q *Queue[T]) LastIndexOf(value T) (uint64, error) {
 	if q.size == 0 {
-		return 0, errors.New(errQueueIsEmpty)
+		return 0, errors.New(ErrQueueIsEmpty)
 	}
 
 	index := uint64(0)
@@ -240,7 +240,7 @@ func (q *Queue[T]) LastIndexOf(value T) (uint64, error) {
 		}
 	}
 	if !found {
-		return 0, errors.New(errValueNotFound)
+		return 0, errors.New(ErrValueNotFound)
 	}
 	return index, nil
 }
@@ -248,7 +248,7 @@ func (q *Queue[T]) LastIndexOf(value T) (uint64, error) {
 // FindIndex returns the index of the first element that matches the predicate
 func (q *Queue[T]) FindIndex(f func(T) bool) (uint64, error) {
 	if q.size == 0 {
-		return 0, errors.New(errQueueIsEmpty)
+		return 0, errors.New(ErrQueueIsEmpty)
 	}
 
 	for i := uint64(0); i < q.size; i++ {
@@ -256,13 +256,13 @@ func (q *Queue[T]) FindIndex(f func(T) bool) (uint64, error) {
 			return i, nil
 		}
 	}
-	return 0, errors.New(errValueNotFound)
+	return 0, errors.New(ErrValueNotFound)
 }
 
 // FindLastIndex returns the index of the last element that matches the predicate
 func (q *Queue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 	if q.size == 0 {
-		return 0, errors.New(errQueueIsEmpty)
+		return 0, errors.New(ErrQueueIsEmpty)
 	}
 
 	index := uint64(0)
@@ -274,14 +274,14 @@ func (q *Queue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 		}
 	}
 	if !found {
-		return 0, errors.New(errValueNotFound)
+		return 0, errors.New(ErrValueNotFound)
 	}
 	return index, nil
 }
 
 // FindAll returns all elements that match the predicate
 func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
-	newQueue := NewQueue[T]()
+	newQueue := New[T]()
 	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			newQueue.Enqueue(q.data[i])
@@ -294,7 +294,7 @@ func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
 func (q *Queue[T]) FindLast(f func(T) bool) (T, error) {
 	var result T
 	if q.size == 0 {
-		return result, errors.New(errQueueIsEmpty)
+		return result, errors.New(ErrQueueIsEmpty)
 	}
 	found := false
 	for i := uint64(0); i < q.size; i++ {
@@ -304,7 +304,7 @@ func (q *Queue[T]) FindLast(f func(T) bool) (T, error) {
 		}
 	}
 	if !found {
-		return result, errors.New(errValueNotFound)
+		return result, errors.New(ErrValueNotFound)
 	}
 	return result, nil
 }
