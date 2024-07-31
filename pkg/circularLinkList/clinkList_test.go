@@ -34,7 +34,7 @@ const (
 )
 
 func TestAppend(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -54,7 +54,7 @@ func TestAppend(t *testing.T) {
 }
 
 func TestPrepend(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 	list.Prepend(1)
 	list.Prepend(2)
 	list.Prepend(3)
@@ -74,7 +74,7 @@ func TestPrepend(t *testing.T) {
 }
 
 func TestDeleteWithValue(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	list.DeleteWithValue(3)
 
 	expected := []int{1, 2, 4}
@@ -92,7 +92,7 @@ func TestDeleteWithValue(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	node, err := list.Find(3)
 
 	if err != nil {
@@ -105,7 +105,7 @@ func TestFind(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	list.Reverse()
 
 	expected := []int{4, 3, 2, 1}
@@ -123,7 +123,7 @@ func TestReverse(t *testing.T) {
 }
 
 func TestSize(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 
 	expected := uint64(4)
 	actual := list.Size()
@@ -134,7 +134,7 @@ func TestSize(t *testing.T) {
 }
 
 func TestGetFirst(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	node := list.GetFirst()
 
 	if node == nil || node.Value != 1 {
@@ -143,7 +143,7 @@ func TestGetFirst(t *testing.T) {
 }
 
 func TestGetLast(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	node := list.GetLast()
 
 	if node == nil || node.Value != 4 {
@@ -152,7 +152,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestGetAt(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	node, err := list.GetAt(2)
 
 	if err != nil {
@@ -165,7 +165,7 @@ func TestGetAt(t *testing.T) {
 }
 
 func TestInsertAt(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 4, 5})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 4, 5})
 	err := list.InsertAt(2, 3)
 
 	if err != nil {
@@ -187,7 +187,7 @@ func TestInsertAt(t *testing.T) {
 }
 
 func TestDeleteAt(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4, 5})
 	err := list.DeleteAt(2)
 
 	if err != nil {
@@ -209,7 +209,7 @@ func TestDeleteAt(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4, 5})
 	list.Clear()
 
 	expected := uint64(0)
@@ -221,7 +221,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 
 	// Test when the list is empty
 	if !list.IsEmpty() {
@@ -236,7 +236,7 @@ func TestIsEmpty(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	copyList := list.Copy()
 
 	// Check if the copied list is not the same instance as the original list
@@ -267,12 +267,12 @@ func TestCopy(t *testing.T) {
 }
 
 func TestMerge(t *testing.T) {
-	list1 := circularLinkList.NewCircularLinkList[int]()
+	list1 := circularLinkList.New[int]()
 	list1.Append(1)
 	list1.Append(2)
 	list1.Append(3)
 
-	list2 := circularLinkList.NewCircularLinkList[int]()
+	list2 := circularLinkList.New[int]()
 	list2.Append(4)
 	list2.Append(5)
 	list2.Append(6)
@@ -298,7 +298,7 @@ func TestMerge(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	newList := list.Map(func(value int) int {
 		return value * 2
 	})
@@ -318,7 +318,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestMapFrom(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4})
 	newList, err := list.MapFrom(2, func(value int) int {
 		return value * 2
 	})
@@ -342,7 +342,7 @@ func TestMapFrom(t *testing.T) {
 }
 
 func TestMapRange(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4, 5})
 	newList, err := list.MapRange(1, 4, func(value int) int {
 		return value * 2
 	})
@@ -366,7 +366,7 @@ func TestMapRange(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -383,7 +383,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestForRange(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4, 5})
 
 	// Test when the range is within the list size
 	err := list.ForRange(1, 4, func(value *int) {
@@ -442,7 +442,7 @@ func TestForRange(t *testing.T) {
 }
 
 func TestForFrom(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -497,7 +497,7 @@ func TestForFrom(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -543,7 +543,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -565,7 +565,7 @@ func TestReduce(t *testing.T) {
 	}
 
 	// Test when the list is empty
-	emptyList := circularLinkList.NewCircularLinkList[int]()
+	emptyList := circularLinkList.New[int]()
 	_, err = emptyList.Reduce(func(a, b int) int {
 		return a + b
 	})
@@ -576,7 +576,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestReduceFrom(t *testing.T) {
-	list := circularLinkList.NewCircularLinkList[int]()
+	list := circularLinkList.New[int]()
 
 	// Test when the list is empty
 	_, err := list.ReduceFrom(0, func(acc, value int) int {
@@ -588,7 +588,7 @@ func TestReduceFrom(t *testing.T) {
 	}
 
 	// Load values from a slice into the list
-	list = circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
+	list = circularLinkList.NewFromSlice([]int{1, 2, 3, 4, 5})
 
 	// Test when the start index is greater than the list size
 	_, err = list.ReduceFrom(10, func(acc, value int) int {
@@ -615,7 +615,7 @@ func TestReduceFrom(t *testing.T) {
 }
 
 func TestReduceRange(t *testing.T) {
-	list := circularLinkList.NewCircularLinkListFromSlice([]int{1, 2, 3, 4, 5})
+	list := circularLinkList.NewFromSlice([]int{1, 2, 3, 4, 5})
 
 	// Test when the range is within the list size
 	result, err := list.ReduceRange(1, 4, func(acc, value int) int {

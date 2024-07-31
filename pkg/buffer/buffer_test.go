@@ -31,7 +31,7 @@ const (
 
 // Helper function to create a buffer with given elements and capacity
 func createBufferWithElements(t *testing.T, elements []int, capacity uint64) *buffer.Buffer[int] {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	b.SetCapacity(capacity)
 	for _, elem := range elements {
 		err := b.Append(elem)
@@ -44,7 +44,7 @@ func createBufferWithElements(t *testing.T, elements []int, capacity uint64) *bu
 
 // TestNewBuffer tests the creation of a new buffer
 func TestNewBuffer(t *testing.T) {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	if b == nil {
 		t.Error("NewBuffer should not return nil")
 	}
@@ -55,7 +55,7 @@ func TestNewBuffer(t *testing.T) {
 
 // TestIsEmpty tests the IsEmpty method
 func TestIsEmpty(t *testing.T) {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	if !b.IsEmpty() {
 		t.Error("IsEmpty should return true for an empty buffer")
 	}
@@ -202,7 +202,7 @@ func TestCapacity(t *testing.T) {
 
 // TestSetCapacity tests the SetCapacity method
 func TestSetCapacity(t *testing.T) {
-	b := buffer.NewBuffer[int]()
+	b := buffer.New[int]()
 	b.SetCapacity(5)
 	if b.Capacity() != 5 {
 		t.Errorf("Expected capacity 5, got %v", b.Capacity())

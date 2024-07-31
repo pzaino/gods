@@ -13,11 +13,13 @@
 // limitations under the License.
 
 // Package dlinkList provides a non-concurrent-safe doubly linked list.
-package dlinkList
+package dlinkList_test
 
 import (
 	"reflect"
 	"testing"
+
+	dlinkList "github.com/pzaino/gods/pkg/dlinkList"
 )
 
 const (
@@ -35,14 +37,14 @@ const (
 )
 
 func TestNew(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	if list == nil {
 		t.Error("Expected list to be initialized, but got nil")
 	}
 }
 
 func TestAppend(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -53,7 +55,7 @@ func TestAppend(t *testing.T) {
 }
 
 func TestPrepend(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -64,7 +66,7 @@ func TestPrepend(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -73,7 +75,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRemoveEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Remove(1)
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -81,14 +83,14 @@ func TestRemoveEmpty(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
 	}
 }
 
 func TestIsEmptyAfterAppend(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -96,7 +98,7 @@ func TestIsEmptyAfterAppend(t *testing.T) {
 }
 
 func TestSize(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	if list.Size() != 0 {
 		t.Errorf(errWrongSize, 0, list.Size())
 	}
@@ -119,7 +121,7 @@ func TestSize(t *testing.T) {
 }
 
 func TestIsEmptyAfterPrepend(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Prepend(1)
 	if list.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -127,7 +129,7 @@ func TestIsEmptyAfterPrepend(t *testing.T) {
 }
 
 func TestIsEmptyAfterRemove(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Remove(1)
 	if !list.IsEmpty() {
@@ -139,7 +141,7 @@ func TestIsEmptyAfterRemove(t *testing.T) {
 }
 
 func TestGetFirst(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	if list.GetFirst().Value != 1 {
 		t.Errorf("Expected first element to be 1, but got %v", list.GetFirst().Value)
@@ -147,7 +149,7 @@ func TestGetFirst(t *testing.T) {
 }
 
 func TestGetLast(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	if list.GetLast().Value != 1 {
 		t.Errorf("Expected last element to be 1, but got %v", list.GetLast().Value)
@@ -159,7 +161,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestGetAt(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -173,7 +175,7 @@ func TestGetAt(t *testing.T) {
 }
 
 func TestGetAtEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	_, err := list.GetAt(0)
 	if err == nil {
 		t.Error(errYesError)
@@ -181,7 +183,7 @@ func TestGetAtEmpty(t *testing.T) {
 }
 
 func TestGetAtOutOfBound(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	_, err := list.GetAt(1)
 	if err == nil {
@@ -190,7 +192,7 @@ func TestGetAtOutOfBound(t *testing.T) {
 }
 
 func TestInsertAt(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	err := list.InsertAt(1, 2)
 	if err != nil {
@@ -209,7 +211,7 @@ func TestInsertAt(t *testing.T) {
 }
 
 func TestInsertAtEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	err := list.InsertAt(1, 1)
 	if err == nil {
 		t.Error(errYesError)
@@ -217,7 +219,7 @@ func TestInsertAtEmpty(t *testing.T) {
 }
 
 func TestInsertAtOutOfBound(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	err := list.InsertAt(2, 2)
 	if err == nil {
@@ -226,7 +228,7 @@ func TestInsertAtOutOfBound(t *testing.T) {
 }
 
 func TestInsertAtHead(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	err := list.InsertAt(0, 2)
 	if err != nil {
@@ -245,7 +247,7 @@ func TestInsertAtHead(t *testing.T) {
 }
 
 func TestInsertAtTail(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	err := list.InsertAt(2, 2)
@@ -265,7 +267,7 @@ func TestInsertAtTail(t *testing.T) {
 }
 
 func TestInsertAtMiddle(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(3)
 	err := list.InsertAt(1, 2)
@@ -285,7 +287,7 @@ func TestInsertAtMiddle(t *testing.T) {
 }
 
 func TestRemoveAt(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	err := list.RemoveAt(1)
@@ -305,7 +307,7 @@ func TestRemoveAt(t *testing.T) {
 }
 
 func TestRemoveAtEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	err := list.RemoveAt(0)
 	if err == nil {
 		t.Error(errYesError)
@@ -313,7 +315,7 @@ func TestRemoveAtEmpty(t *testing.T) {
 }
 
 func TestRemoveAtOutOfBound(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	err := list.RemoveAt(1)
 	if err == nil {
@@ -322,7 +324,7 @@ func TestRemoveAtOutOfBound(t *testing.T) {
 }
 
 func TestRemoveAtHead(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	err := list.RemoveAt(0)
@@ -342,7 +344,7 @@ func TestRemoveAtHead(t *testing.T) {
 }
 
 func TestRemoveAtTail(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	err := list.RemoveAt(1)
@@ -362,7 +364,7 @@ func TestRemoveAtTail(t *testing.T) {
 }
 
 func TestRemoveAtMiddle(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -383,7 +385,7 @@ func TestRemoveAtMiddle(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -412,7 +414,7 @@ func TestReverse(t *testing.T) {
 }
 
 func TestReverseEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Reverse()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -420,7 +422,7 @@ func TestReverseEmpty(t *testing.T) {
 }
 
 func TestReverseSingle(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Reverse()
 	item, err := list.GetAt(0)
@@ -433,7 +435,7 @@ func TestReverseSingle(t *testing.T) {
 }
 
 func TestReverseDouble(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Reverse()
@@ -459,7 +461,7 @@ func TestReverseTriple(t *testing.T) {
 		value int
 	}
 
-	list := NewDLinkList[test]()
+	list := dlinkList.New[test]()
 	list.Append(test{1, 1})
 	list.Append(test{2, 1})
 	list.Append(test{3, 1})
@@ -488,7 +490,7 @@ func TestReverseTriple(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -496,7 +498,7 @@ func TestCopy(t *testing.T) {
 	if list.Size() != newList.Size() {
 		t.Errorf("Expected new list to have size %v, but got %v", list.Size(), newList.Size())
 	}
-	for i := uint64(0); i < list.size; i++ {
+	for i := uint64(0); i < list.Size(); i++ {
 		item, err := list.GetAt(i)
 		if err != nil {
 			t.Errorf(errNoError, err)
@@ -512,11 +514,11 @@ func TestCopy(t *testing.T) {
 }
 
 func TestMerge(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
-	newList := NewDLinkList[int]()
+	newList := dlinkList.New[int]()
 	newList.Append(4)
 	newList.Append(5)
 	newList.Append(6)
@@ -524,7 +526,7 @@ func TestMerge(t *testing.T) {
 	if list.Size() != 6 {
 		t.Errorf(errWrongSize, 6, list.Size())
 	}
-	for i := uint64(0); i < list.size; i++ {
+	for i := uint64(0); i < list.Size(); i++ {
 		item, err := list.GetAt(i)
 		if err != nil {
 			t.Errorf(errNoError, err)
@@ -536,8 +538,8 @@ func TestMerge(t *testing.T) {
 }
 
 func TestMergeEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
+	list := dlinkList.New[int]()
+	newList := dlinkList.New[int]()
 	list.Merge(newList)
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -545,9 +547,9 @@ func TestMergeEmpty(t *testing.T) {
 }
 
 func TestMergeEmptyList(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
-	newList := NewDLinkList[int]()
+	newList := dlinkList.New[int]()
 	list.Merge(newList)
 	if list.Size() != 1 {
 		t.Errorf(errWrongSize, 1, list.Size())
@@ -562,8 +564,8 @@ func TestMergeEmptyList(t *testing.T) {
 }
 
 func TestMergeEmptyList2(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
+	list := dlinkList.New[int]()
+	newList := dlinkList.New[int]()
 	newList.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
@@ -579,8 +581,8 @@ func TestMergeEmptyList2(t *testing.T) {
 }
 
 func TestMergeEmptyList3(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
+	list := dlinkList.New[int]()
+	newList := dlinkList.New[int]()
 	list.Append(1)
 	list.Merge(newList)
 	if list.Size() != 1 {
@@ -596,8 +598,8 @@ func TestMergeEmptyList3(t *testing.T) {
 }
 
 func TestMergeEmptyList5(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
+	list := dlinkList.New[int]()
+	newList := dlinkList.New[int]()
 	list.Append(1)
 	newList.Merge(list)
 	if newList.Size() != 1 {
@@ -613,8 +615,8 @@ func TestMergeEmptyList5(t *testing.T) {
 }
 
 func TestMergeEmptyList6(t *testing.T) {
-	list := NewDLinkList[int]()
-	newList := NewDLinkList[int]()
+	list := dlinkList.New[int]()
+	newList := dlinkList.New[int]()
 	newList.Append(1)
 	newList.Merge(list)
 	if newList.Size() != 1 {
@@ -630,9 +632,9 @@ func TestMergeEmptyList6(t *testing.T) {
 }
 
 func TestMergeEmptyList8(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
-	newList := NewDLinkList[int]()
+	newList := dlinkList.New[int]()
 	newList.Merge(list)
 	if newList.IsEmpty() {
 		t.Error(errListIsEmpty)
@@ -640,10 +642,10 @@ func TestMergeEmptyList8(t *testing.T) {
 }
 
 func TestMergeEmptyList9(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Remove(1)
-	newList := NewDLinkList[int]()
+	newList := dlinkList.New[int]()
 	list.Merge(newList)
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -651,9 +653,9 @@ func TestMergeEmptyList9(t *testing.T) {
 }
 
 func TestMergeEmptyList10(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
-	newList := NewDLinkList[int]()
+	newList := dlinkList.New[int]()
 	newList.Merge(list)
 	newList.Remove(1)
 	if !newList.IsEmpty() {
@@ -662,9 +664,9 @@ func TestMergeEmptyList10(t *testing.T) {
 }
 
 func TestMergeEmptyList15(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
-	newList := NewDLinkList[int]()
+	newList := dlinkList.New[int]()
 	list.Merge(newList)
 	list.Clear()
 	if !list.IsEmpty() {
@@ -673,7 +675,7 @@ func TestMergeEmptyList15(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -705,7 +707,7 @@ func TestInsert(t *testing.T) {
 }
 
 func TestInsertAtStart(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -737,7 +739,7 @@ func TestInsertAtStart(t *testing.T) {
 }
 
 func TestInsertAtEnd(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -769,7 +771,7 @@ func TestInsertAtEnd(t *testing.T) {
 }
 
 func TestInsertOutOfBounds(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -785,7 +787,7 @@ func TestInsertOutOfBounds(t *testing.T) {
 }
 
 func TestToSlice(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -805,7 +807,7 @@ func TestToSlice(t *testing.T) {
 }
 
 func TestToSliceEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	slice := list.ToSlice()
 
@@ -815,7 +817,7 @@ func TestToSliceEmpty(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -837,7 +839,7 @@ func TestFind(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -877,7 +879,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDeleteEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Delete(1)
 	if list.Size() != 0 {
 		t.Errorf(errWrongSize, 0, list.Size())
@@ -885,7 +887,7 @@ func TestDeleteEmpty(t *testing.T) {
 }
 
 func TestInsertEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	err := list.Insert(1)
 	if err != nil {
@@ -901,7 +903,7 @@ func TestInsertEmpty(t *testing.T) {
 }
 
 func TestInsertAfter(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -917,7 +919,7 @@ func TestInsertAfter(t *testing.T) {
 }
 
 func TestInsertAfterNotFound(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -933,7 +935,7 @@ func TestInsertAfterNotFound(t *testing.T) {
 }
 
 func TestInsertBefore(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -949,7 +951,7 @@ func TestInsertBefore(t *testing.T) {
 }
 
 func TestInsertBeforeNotFound(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -965,7 +967,7 @@ func TestInsertBeforeNotFound(t *testing.T) {
 }
 
 func TestDeleteLast(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1007,7 +1009,7 @@ func TestDeleteLast(t *testing.T) {
 }
 
 func TestDeleteLastEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.DeleteLast()
 	if !list.IsEmpty() {
 		t.Error(errListNotEmpty)
@@ -1015,7 +1017,7 @@ func TestDeleteLastEmpty(t *testing.T) {
 }
 
 func TestDeleteFirst(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1032,7 +1034,7 @@ func TestDeleteFirst(t *testing.T) {
 }
 
 func TestToSliceReverse(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1046,7 +1048,7 @@ func TestToSliceReverse(t *testing.T) {
 }
 
 func TestToSliceReverseEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	expected := []int{}
 	result := list.ToSliceReverse()
@@ -1057,7 +1059,7 @@ func TestToSliceReverseEmpty(t *testing.T) {
 }
 
 func TestToSliceReverseSingle(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 
 	expected := []int{1}
@@ -1069,7 +1071,7 @@ func TestToSliceReverseSingle(t *testing.T) {
 }
 
 func TestToSliceReverseDouble(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 
@@ -1082,7 +1084,7 @@ func TestToSliceReverseDouble(t *testing.T) {
 }
 
 func TestToSliceReverseTriple(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1097,7 +1099,7 @@ func TestToSliceReverseTriple(t *testing.T) {
 }
 
 func TestToSliceFromIndex(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1126,7 +1128,7 @@ func TestToSliceFromIndex(t *testing.T) {
 }
 
 func TestToSliceReverseFromIndex(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1177,7 +1179,7 @@ func TestToSliceReverseFromIndex(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1194,7 +1196,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestForEachEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	list.ForEach(func(value *int) {
 		t.Error("ForEach should not be called on an empty list")
@@ -1202,7 +1204,7 @@ func TestForEachEmpty(t *testing.T) {
 }
 
 func TestAny(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1225,7 +1227,7 @@ func TestAny(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1273,7 +1275,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestIndexOf(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1290,7 +1292,7 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestLastIndexOf(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1320,7 +1322,7 @@ func TestLastIndexOf(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1353,7 +1355,7 @@ func TestFilter(t *testing.T) {
 	}
 
 	// Test filtering with an empty list
-	emptyList := NewDLinkList[int]()
+	emptyList := dlinkList.New[int]()
 	emptyList.Filter(func(value int) bool {
 		return value > 0
 	})
@@ -1366,7 +1368,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1375,7 +1377,7 @@ func TestMap(t *testing.T) {
 		return value * 2
 	})
 
-	expectedList := NewDLinkList[int]()
+	expectedList := dlinkList.New[int]()
 	expectedList.Append(2)
 	expectedList.Append(4)
 	expectedList.Append(6)
@@ -1386,7 +1388,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestMapEmptyList(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	mappedList := list.Map(func(value int) int {
 		return value * 2
@@ -1398,7 +1400,7 @@ func TestMapEmptyList(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1443,7 +1445,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestReduceEmptyList(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	sum := list.Reduce(func(a, b int) int {
 		return a + b
@@ -1455,7 +1457,7 @@ func TestReduceEmptyList(t *testing.T) {
 }
 
 func TestReverseCopy(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1498,12 +1500,12 @@ func TestReverseCopy(t *testing.T) {
 }
 
 func TestReverseMerge(t *testing.T) {
-	list1 := NewDLinkList[int]()
+	list1 := dlinkList.New[int]()
 	list1.Append(1)
 	list1.Append(2)
 	list1.Append(3)
 
-	list2 := NewDLinkList[int]()
+	list2 := dlinkList.New[int]()
 	list2.Append(4)
 	list2.Append(5)
 	list2.Append(6)
@@ -1519,9 +1521,9 @@ func TestReverseMerge(t *testing.T) {
 }
 
 func TestReverseMergeEmptyList(t *testing.T) {
-	list1 := NewDLinkList[int]()
+	list1 := dlinkList.New[int]()
 
-	list2 := NewDLinkList[int]()
+	list2 := dlinkList.New[int]()
 	list2.Append(1)
 	list2.Append(2)
 	list2.Append(3)
@@ -1537,9 +1539,9 @@ func TestReverseMergeEmptyList(t *testing.T) {
 }
 
 func TestReverseMergeEmptyLists(t *testing.T) {
-	list1 := NewDLinkList[int]()
+	list1 := dlinkList.New[int]()
 
-	list2 := NewDLinkList[int]()
+	list2 := dlinkList.New[int]()
 
 	list1.ReverseMerge(list2)
 
@@ -1552,8 +1554,8 @@ func TestReverseMergeEmptyLists(t *testing.T) {
 }
 
 func TestEqual(t *testing.T) {
-	list1 := NewDLinkList[int]()
-	list2 := NewDLinkList[int]()
+	list1 := dlinkList.New[int]()
+	list2 := dlinkList.New[int]()
 
 	// Test when both lists are empty
 	if !list1.Equal(list2) {
@@ -1588,7 +1590,7 @@ func TestEqual(t *testing.T) {
 }
 
 func TestSwap(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1634,7 +1636,7 @@ func TestSwap(t *testing.T) {
 }
 
 func TestSort(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(3)
 	list.Append(1)
 	list.Append(2)
@@ -1654,7 +1656,7 @@ func TestSort(t *testing.T) {
 }
 
 func TestSortEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	list.Sort(func(a, b int) bool {
 		return a < b
@@ -1666,7 +1668,7 @@ func TestSortEmpty(t *testing.T) {
 }
 
 func TestSortSingle(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 
 	list.Sort(func(a, b int) bool {
@@ -1682,7 +1684,7 @@ func TestSortSingle(t *testing.T) {
 }
 
 func TestSortAlreadySorted(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1700,7 +1702,7 @@ func TestSortAlreadySorted(t *testing.T) {
 }
 
 func TestSortDescendingOrder(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(3)
 	list.Append(2)
 	list.Append(1)
@@ -1723,7 +1725,7 @@ func TestSortCustomType(t *testing.T) {
 		Age  int
 	}
 
-	list := NewDLinkList[Person]()
+	list := dlinkList.New[Person]()
 	list.Append(Person{Name: "Alice", Age: 25})
 	list.Append(Person{Name: "Bob", Age: 20})
 	list.Append(Person{Name: "Charlie", Age: 30})
@@ -1745,7 +1747,7 @@ func TestSortCustomType(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1754,7 +1756,7 @@ func TestFindAll(t *testing.T) {
 	result := list.FindAll(func(value int) bool {
 		return value%2 == 0
 	})
-	expectedResult := NewDLinkList[int]()
+	expectedResult := dlinkList.New[int]()
 	expectedResult.Append(2)
 	if !expectedResult.Equal(result) {
 		t.Errorf("Expected result to be %v, but got %v", expectedResult.ToSlice(), result.ToSlice())
@@ -1764,14 +1766,14 @@ func TestFindAll(t *testing.T) {
 	result = list.FindAll(func(value int) bool {
 		return value > 10
 	})
-	expectedResult = NewDLinkList[int]()
+	expectedResult = dlinkList.New[int]()
 	if !expectedResult.Equal(result) {
 		t.Errorf("Expected result to be %v, but got %v", expectedResult.ToSlice(), result.ToSlice())
 	}
 }
 
 func TestFindLast(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1797,7 +1799,7 @@ func TestFindLast(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1822,7 +1824,7 @@ func TestFindLastIndex(t *testing.T) {
 }
 
 func TestFindLastIndexEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	index := list.FindLastIndex(func(value int) bool {
 		return value == 1
 	})
@@ -1833,7 +1835,7 @@ func TestFindLastIndexEmpty(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1856,7 +1858,7 @@ func TestFindIndex(t *testing.T) {
 }
 
 func TestFindIndexEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	index := list.FindIndex(func(value int) bool {
 		return value == 1
 	})
@@ -1866,7 +1868,7 @@ func TestFindIndexEmpty(t *testing.T) {
 	}
 }
 func TestForFrom(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1883,7 +1885,7 @@ func TestForFrom(t *testing.T) {
 }
 
 func TestForFromEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	var result []int
 	list.ForFrom(0, func(value *int) {
@@ -1896,7 +1898,7 @@ func TestForFromEmpty(t *testing.T) {
 }
 
 func TestForFromOutOfBound(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1912,7 +1914,7 @@ func TestForFromOutOfBound(t *testing.T) {
 }
 
 func TestForRange(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -1998,7 +2000,7 @@ func TestForRange(t *testing.T) {
 }
 
 func TestForReverseRange(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -2067,7 +2069,7 @@ func TestForReverseRange(t *testing.T) {
 }
 
 func TestForReverseFrom(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -2083,14 +2085,14 @@ func TestForReverseFrom(t *testing.T) {
 	}
 
 	// Test with empty list
-	emptyList := NewDLinkList[int]()
+	emptyList := dlinkList.New[int]()
 	emptyList.ForReverseFrom(0, func(value *int) {
 		t.Error("Should not execute the callback function for an empty list")
 	})
 }
 
 func TestMapFrom(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -2099,7 +2101,7 @@ func TestMapFrom(t *testing.T) {
 		return value * 2
 	})
 
-	expected := NewDLinkList[int]()
+	expected := dlinkList.New[int]()
 	expected.Append(4)
 	expected.Append(6)
 
@@ -2109,7 +2111,7 @@ func TestMapFrom(t *testing.T) {
 }
 
 func TestMapRange(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -2151,7 +2153,7 @@ func TestMapRange(t *testing.T) {
 }
 
 func TestCheckSize(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -2181,7 +2183,7 @@ func TestCheckSize(t *testing.T) {
 }
 
 func TestForEachReverse(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 	list.Append(1)
 	list.Append(2)
 	list.Append(3)
@@ -2198,7 +2200,7 @@ func TestForEachReverse(t *testing.T) {
 }
 
 func TestForEachReverseEmpty(t *testing.T) {
-	list := NewDLinkList[int]()
+	list := dlinkList.New[int]()
 
 	var result []int
 	list.ForEachReverse(func(value *int) {

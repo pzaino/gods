@@ -28,14 +28,14 @@ type CSStack[T comparable] struct {
 	s  *stack.Stack[T]
 }
 
-// NewCSStack creates a new concurrency-safe stack.
-func NewCSStack[T comparable]() *CSStack[T] {
-	return &CSStack[T]{s: stack.NewStack[T]()}
+// New creates a new concurrency-safe stack.
+func New[T comparable]() *CSStack[T] {
+	return &CSStack[T]{s: stack.New[T]()}
 }
 
-// NewCSStackFromSlice creates a new concurrency-safe stack from a slice.
-func NewCSStackFromSlice[T comparable](items []T) *CSStack[T] {
-	cs := NewCSStack[T]()
+// NewFromSlice creates a new concurrency-safe stack from a slice.
+func NewFromSlice[T comparable](items []T) *CSStack[T] {
+	cs := New[T]()
 	cs.s.PushAll(items)
 	return cs
 }

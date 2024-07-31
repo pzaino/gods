@@ -76,7 +76,7 @@ func (pq *PriorityQueue[T]) downHeap(index uint64) {
 }
 
 // New creates a new PriorityQueue
-func NewPriorityQueue[T comparable]() *PriorityQueue[T] {
+func New[T comparable]() *PriorityQueue[T] {
 	return &PriorityQueue[T]{}
 }
 
@@ -266,7 +266,7 @@ func (pq *PriorityQueue[T]) Equals(other *PriorityQueue[T]) bool {
 
 // Copy returns a copy of the priority queue
 func (pq *PriorityQueue[T]) Copy() *PriorityQueue[T] {
-	copy := NewPriorityQueue[T]()
+	copy := New[T]()
 	copy.data = append(copy.data, pq.data...)
 	copy.size = pq.size
 	return copy
@@ -302,7 +302,7 @@ func (pq *PriorityQueue[T]) dataString(f func(T) string) string {
 
 // Map creates a new priority queue with the results of applying the function to each element
 func (pq *PriorityQueue[T]) Map(f func(T) T) *PriorityQueue[T] {
-	newQueue := NewPriorityQueue[T]()
+	newQueue := New[T]()
 	for i := 0; i < len(pq.data); i++ {
 		newQueue.Enqueue(f(pq.data[i].Value), pq.data[i].Priority)
 	}
@@ -413,7 +413,7 @@ func (pq *PriorityQueue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 
 // FindAll returns all elements that match the predicate
 func (pq *PriorityQueue[T]) FindAll(f func(T) bool) *PriorityQueue[T] {
-	newQueue := NewPriorityQueue[T]()
+	newQueue := New[T]()
 	for i := uint64(0); i < pq.size; i++ {
 		if f(pq.data[i].Value) {
 			newQueue.Enqueue(pq.data[i].Value, pq.data[i].Priority)

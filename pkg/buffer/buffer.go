@@ -35,8 +35,8 @@ type Buffer[T comparable] struct {
 	capacity uint64
 }
 
-// NewBuffer creates a new Buffer
-func NewBuffer[T comparable]() *Buffer[T] {
+// New creates a new Buffer
+func New[T comparable]() *Buffer[T] {
 	return &Buffer[T]{}
 }
 
@@ -199,7 +199,7 @@ func (b *Buffer[T]) Contains(value T) bool {
 
 // Copy returns a new buffer with copied elements
 func (b *Buffer[T]) Copy() *Buffer[T] {
-	newBuffer := NewBuffer[T]()
+	newBuffer := New[T]()
 	newBuffer.data = make([]T, b.size)
 	copy(newBuffer.data, b.data)
 	newBuffer.size = b.size
@@ -209,7 +209,7 @@ func (b *Buffer[T]) Copy() *Buffer[T] {
 
 // NewReference returns a new buffer with the same elements (aka elements are not copied)
 func (b *Buffer[T]) NewReference() *Buffer[T] {
-	newBuffer := NewBuffer[T]()
+	newBuffer := New[T]()
 	newBuffer.data = append(newBuffer.data, b.data...)
 	newBuffer.size = b.size
 	newBuffer.capacity = b.capacity
@@ -328,7 +328,7 @@ func (b *Buffer[T]) Filter(predicate func(T) bool) {
 
 // Map creates a new buffer with the results of applying the function to each element
 func (b *Buffer[T]) Map(fn func(T) T) (*Buffer[T], error) {
-	newBuffer := NewBuffer[T]()
+	newBuffer := New[T]()
 	var i uint64
 	for i := uint64(0); i < b.size; i++ {
 		err := newBuffer.Append(fn(b.data[i]))
@@ -346,7 +346,7 @@ func (b *Buffer[T]) MapFrom(start uint64, fn func(T) T) (*Buffer[T], error) {
 	if start >= b.size {
 		return nil, errors.New(ErrInvalidBuffer)
 	}
-	newBuffer := NewBuffer[T]()
+	newBuffer := New[T]()
 	var item uint64
 	for i := start; i < b.size; i++ {
 		err := newBuffer.Append(fn(b.data[i]))
@@ -365,7 +365,7 @@ func (b *Buffer[T]) MapRange(start, end uint64, fn func(T) T) (*Buffer[T], error
 	if start >= b.size || end > b.size || start > end {
 		return nil, errors.New(ErrInvalidBuffer)
 	}
-	newBuffer := NewBuffer[T]()
+	newBuffer := New[T]()
 	var item uint64
 	for i := start; i < end; i++ {
 		err := newBuffer.Append(fn(b.data[i]))
@@ -504,7 +504,7 @@ func (b *Buffer[T]) FindLastIndex(predicate func(T) bool) (uint64, error) {
 
 // FindAll returns all elements that match the predicate
 func (b *Buffer[T]) FindAll(predicate func(T) bool) *Buffer[T] {
-	newBuffer := NewBuffer[T]()
+	newBuffer := New[T]()
 	var i uint64
 	for i := uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {

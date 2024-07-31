@@ -37,14 +37,14 @@ type CircularLinkList[T comparable] struct {
 	size uint64
 }
 
-// NewCircularLinkList creates a new CircularLinkList
-func NewCircularLinkList[T comparable]() *CircularLinkList[T] {
+// New creates a new CircularLinkList
+func New[T comparable]() *CircularLinkList[T] {
 	return &CircularLinkList[T]{}
 }
 
-// NewCircularLinkListFromSlice creates a new CircularLinkList from a slice
-func NewCircularLinkListFromSlice[T comparable](items []T) *CircularLinkList[T] {
-	l := NewCircularLinkList[T]()
+// NewFromSlice creates a new CircularLinkList from a slice
+func NewFromSlice[T comparable](items []T) *CircularLinkList[T] {
+	l := New[T]()
 	for i := 0; i < len(items); i++ {
 		l.Append(items[i])
 	}
@@ -333,7 +333,7 @@ func (l *CircularLinkList[T]) Clear() {
 
 // Copy returns a copy of the list
 func (l *CircularLinkList[T]) Copy() *CircularLinkList[T] {
-	newList := NewCircularLinkList[T]()
+	newList := New[T]()
 
 	if l.Head == nil {
 		return newList
@@ -370,7 +370,7 @@ func (l *CircularLinkList[T]) Merge(list *CircularLinkList[T]) {
 
 // Map generates a new list by applying the function to all the nodes in the list
 func (l *CircularLinkList[T]) Map(f func(T) T) *CircularLinkList[T] {
-	newList := NewCircularLinkList[T]()
+	newList := New[T]()
 
 	if l.Head == nil {
 		return newList
@@ -400,7 +400,7 @@ func (l *CircularLinkList[T]) MapFrom(start uint64, f func(T) T) (*CircularLinkL
 		start = start % l.size
 	}
 
-	newList := NewCircularLinkList[T]()
+	newList := New[T]()
 
 	current := l.Head
 	for i := uint64(0); i < start; i++ {
@@ -443,7 +443,7 @@ func (l *CircularLinkList[T]) MapRange(start, end uint64, f func(T) T) (*Circula
 		return nil, errors.New(errIndexOutOfBound)
 	}
 
-	newList := NewCircularLinkList[T]()
+	newList := New[T]()
 
 	current := l.Head
 	for i := uint64(0); i < start; i++ {

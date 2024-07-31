@@ -22,8 +22,8 @@ import (
 	"github.com/pzaino/gods/pkg/pqueue"
 )
 
-func TestNewPriorityQueue(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+func TestNew(t *testing.T) {
+	pq := pqueue.New[int]()
 	if pq == nil {
 		t.Fatal("Expected new priority queue to be non-nil")
 	}
@@ -33,7 +33,7 @@ func TestNewPriorityQueue(t *testing.T) {
 }
 
 func TestEnqueueAndDequeue(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	if pq.Size() != 2 {
@@ -62,7 +62,7 @@ func TestEnqueueAndDequeue(t *testing.T) {
 }
 
 func TestPeek(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	val, err := pq.Peek()
 	if err != nil {
@@ -74,7 +74,7 @@ func TestPeek(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Clear()
 	if !pq.IsEmpty() {
@@ -83,7 +83,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	if !pq.Contains(10) {
 		t.Fatal("Expected priority queue to contain value 10")
@@ -94,8 +94,8 @@ func TestContains(t *testing.T) {
 }
 
 func TestEquals(t *testing.T) {
-	pq1 := pqueue.NewPriorityQueue[int]()
-	pq2 := pqueue.NewPriorityQueue[int]()
+	pq1 := pqueue.New[int]()
+	pq2 := pqueue.New[int]()
 	pq1.Enqueue(10, 1)
 	pq2.Enqueue(10, 1)
 	if !pq1.Equals(pq2) {
@@ -108,7 +108,7 @@ func TestEquals(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	copy := pq.Copy()
 	if !copy.Equals(pq) {
@@ -121,7 +121,7 @@ func TestCopy(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	str := pq.String(func(val int) string {
 		return fmt.Sprintf("%d", val)
@@ -133,7 +133,7 @@ func TestString(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	mapped := pq.Map(func(val int) int {
@@ -148,7 +148,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Filter(func(val int) bool {
@@ -160,7 +160,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	result := pq.Reduce(func(a, b int) int {
@@ -172,7 +172,7 @@ func TestReduce(t *testing.T) {
 }
 
 func TestForEach(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.ForEach(func(val *int) {
@@ -187,7 +187,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestAny(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	if !pq.Any(func(val int) bool { return val > 15 }) {
@@ -199,7 +199,7 @@ func TestAny(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	if !pq.All(func(val int) bool { return val > 5 }) {
@@ -211,7 +211,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestIndexOf(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	index, err := pq.IndexOf(10)
@@ -229,7 +229,7 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestLastIndexOf(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(10, 3)
@@ -243,7 +243,7 @@ func TestLastIndexOf(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	index, err := pq.FindIndex(func(val int) bool { return val > 15 })
@@ -261,7 +261,7 @@ func TestFindIndex(t *testing.T) {
 }
 
 func TestFindLastIndex(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(10, 3)
@@ -275,7 +275,7 @@ func TestFindLastIndex(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(10, 3)
@@ -286,7 +286,7 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindLast(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	val, err := pq.FindLast(func(val int) bool { return val == 10 })
@@ -303,7 +303,7 @@ func TestFindLast(t *testing.T) {
 }
 
 func TestFindAllIndexes(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(10, 3)
@@ -314,7 +314,7 @@ func TestFindAllIndexes(t *testing.T) {
 }
 
 func TestValues(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	values := pq.Values()
@@ -327,7 +327,7 @@ func TestValues(t *testing.T) {
 }
 
 func TestDequeueAll(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(30, 3)
@@ -352,7 +352,7 @@ func TestDequeueAll(t *testing.T) {
 }
 
 func TestDequeueN(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(30, 3)
@@ -382,7 +382,7 @@ func TestDequeueN(t *testing.T) {
 }
 
 func TestUpdatePriority(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	pq.Enqueue(30, 3)
@@ -422,7 +422,7 @@ func TestUpdatePriority(t *testing.T) {
 }
 
 func TestUpdateValue(t *testing.T) {
-	pq := pqueue.NewPriorityQueue[int]()
+	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
 	err := pq.UpdateValue(10, 30)

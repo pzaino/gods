@@ -27,9 +27,9 @@ type CSDLinkList[T comparable] struct {
 	l  *dlinkList.DLinkList[T]
 }
 
-// NewCSDLinkList creates a new concurrency-safe doubly linked list.
-func NewCSDLinkList[T comparable]() *CSDLinkList[T] {
-	return &CSDLinkList[T]{l: dlinkList.NewDLinkList[T]()}
+// New creates a new concurrency-safe doubly linked list.
+func New[T comparable]() *CSDLinkList[T] {
+	return &CSDLinkList[T]{l: dlinkList.New[T]()}
 }
 
 // Append adds a new node to the end of the doubly linked list.

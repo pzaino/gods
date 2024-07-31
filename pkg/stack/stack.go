@@ -34,14 +34,14 @@ type Stack[T comparable] struct {
 	size  uint64
 }
 
-// NewStack creates a new Stack.
-func NewStack[T comparable]() *Stack[T] {
+// New creates a new Stack.
+func New[T comparable]() *Stack[T] {
 	return &Stack[T]{}
 }
 
-// NewStackFromSlice creates a new Stack from a slice.
-func NewStackFromSlice[T comparable](items []T) *Stack[T] {
-	stack := NewStack[T]()
+// NewFromSlice creates a new Stack from a slice.
+func NewFromSlice[T comparable](items []T) *Stack[T] {
+	stack := New[T]()
 	stack.PushAll(items)
 	return stack
 }
@@ -146,7 +146,7 @@ func (s *Stack[T]) Contains(item T) bool {
 
 // Copy returns a new Stack with the same items.
 func (s *Stack[T]) Copy() *Stack[T] {
-	stack := NewStack[T]()
+	stack := New[T]()
 	for _, item := range s.items {
 		stack.Push(item)
 	}
@@ -243,7 +243,7 @@ func (s *Stack[T]) Filter(predicate func(T) bool) {
 
 // Map creates a new stack with the results of applying the function to each item.
 func (s *Stack[T]) Map(fn func(T) T) *Stack[T] {
-	stack := NewStack[T]()
+	stack := New[T]()
 	for i := uint64(0); i < s.size; i++ {
 		stack.Push(fn(s.items[i]))
 	}
@@ -264,7 +264,7 @@ func (s *Stack[T]) MapFrom(start uint64, fn func(T) T) (*Stack[T], error) {
 	// calculate stack start index
 	stackStart := s.size - start - 1
 
-	stack := NewStack[T]()
+	stack := New[T]()
 	stack.items = make([]T, s.size-(start))
 	for i := stackStart; i > 0; i-- {
 		stack.items[i] = fn(s.items[i])
@@ -294,7 +294,7 @@ func (s *Stack[T]) MapRange(start, end uint64, fn func(T) T) (*Stack[T], error) 
 	stackStart := (s.size - start) - 1
 	stackEnd := (s.size - end) - 1
 
-	stack := NewStack[T]()
+	stack := New[T]()
 	for i := stackEnd; i <= stackStart; i++ {
 		stack.Push(fn(s.items[i]))
 	}

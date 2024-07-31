@@ -31,8 +31,8 @@ type Queue[T comparable] struct {
 	size uint64
 }
 
-// NewQueue creates a new Queue
-func NewQueue[T comparable]() *Queue[T] {
+// New creates a new Queue
+func New[T comparable]() *Queue[T] {
 	return &Queue[T]{}
 }
 
@@ -114,7 +114,7 @@ func (q *Queue[T]) Equals(other *Queue[T]) bool {
 
 // Copy returns a copy of the queue
 func (q *Queue[T]) Copy() *Queue[T] {
-	copy := NewQueue[T]()
+	copy := New[T]()
 	copy.data = append(copy.data, q.data...)
 	copy.size = q.size
 	return copy
@@ -140,7 +140,7 @@ func (q *Queue[T]) dataString(f func(T) string) string {
 
 // Map creates a new queue with the results of applying the function to all elements in the queue
 func (q *Queue[T]) Map(f func(T) T) *Queue[T] {
-	newQueue := NewQueue[T]()
+	newQueue := New[T]()
 
 	if q.size == 0 {
 		return newQueue
@@ -281,7 +281,7 @@ func (q *Queue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 
 // FindAll returns all elements that match the predicate
 func (q *Queue[T]) FindAll(f func(T) bool) *Queue[T] {
-	newQueue := NewQueue[T]()
+	newQueue := New[T]()
 	for i := uint64(0); i < q.size; i++ {
 		if f(q.data[i]) {
 			newQueue.Enqueue(q.data[i])
