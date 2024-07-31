@@ -851,3 +851,111 @@ func TestBlit(t *testing.T) {
 		}
 	}
 }
+
+// TestBlitFrom tests the BlitFrom method
+func TestBlitFrom(t *testing.T) {
+	b1 := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	b2 := createBufferWithElements(t, []int{4, 5, 6}, 3)
+
+	err := b1.BlitFrom(0, b2, func(a, b int) int {
+		return a + b
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	expected := []int{5, 7, 9}
+	for i, v := range b1.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	err = b1.BlitFrom(2, b2, func(a, b int) int {
+		return a - b
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	expected = []int{5, 7, 3}
+	for i, v := range b1.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	err = b1.BlitFrom(0, b2, func(a, b int) int {
+		return a * b
+	})
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+
+	expected = []int{20, 35, 18}
+	for i, v := range b1.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestRotateLeft tests the RotateLeft method
+func TestRotateLeft(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateLeft(2)
+	expected := []int{3, 4, 5, 1, 2}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateLeft(5)
+	expected = []int{1, 2, 3, 4, 5}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateLeft(7)
+	expected = []int{3, 4, 5, 1, 2}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestRotateRight tests the RotateRight method
+func TestRotateRight(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateRight(2)
+	expected := []int{4, 5, 1, 2, 3}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateRight(5)
+	expected = []int{1, 2, 3, 4, 5}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+
+	b = createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	b.RotateRight(7)
+	expected = []int{4, 5, 1, 2, 3}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
