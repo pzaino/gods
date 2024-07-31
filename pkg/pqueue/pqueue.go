@@ -21,9 +21,9 @@ import (
 )
 
 const (
-	errQueueIsEmpty    = "queue is empty"
-	errIndexOutOfBound = "index out of bound"
-	errValueNotFound   = "value not found"
+	ErrQueueIsEmpty    = "queue is empty"
+	ErrIndexOutOfBound = "index out of bound"
+	ErrValueNotFound   = "value not found"
 )
 
 // Element represents an element in the priority queue with a value and a priority.
@@ -97,7 +97,7 @@ func (pq *PriorityQueue[T]) Enqueue(value T, priority int) {
 func (pq *PriorityQueue[T]) Dequeue() (T, error) {
 	if pq.IsEmpty() {
 		var rVal T
-		return rVal, errors.New(errQueueIsEmpty)
+		return rVal, errors.New(ErrQueueIsEmpty)
 	}
 
 	element := pq.data[0]
@@ -134,10 +134,10 @@ func (pq *PriorityQueue[T]) DequeueAll() ([]T, error) {
 // The returned list should be ordered by priority
 func (pq *PriorityQueue[T]) DequeueN(n uint64) ([]T, error) {
 	if pq.IsEmpty() {
-		return nil, errors.New(errQueueIsEmpty)
+		return nil, errors.New(ErrQueueIsEmpty)
 	}
 	if n > pq.size {
-		return nil, errors.New(errIndexOutOfBound)
+		return nil, errors.New(ErrIndexOutOfBound)
 	}
 	values := make([]T, n)
 	for i := uint64(0); i < n; i++ {
@@ -153,7 +153,7 @@ func (pq *PriorityQueue[T]) DequeueN(n uint64) ([]T, error) {
 // UpdatePriority updates the priority of an element in the priority queue
 func (pq *PriorityQueue[T]) UpdatePriority(value T, newPriority int) error {
 	if pq.IsEmpty() {
-		return errors.New(errQueueIsEmpty)
+		return errors.New(ErrQueueIsEmpty)
 	}
 
 	for i, e := range pq.data {
@@ -164,16 +164,16 @@ func (pq *PriorityQueue[T]) UpdatePriority(value T, newPriority int) error {
 			return nil
 		}
 	}
-	return errors.New(errValueNotFound)
+	return errors.New(ErrValueNotFound)
 }
 
 // UpdatePriorityAt updates the priority of an element at the given index
 func (pq *PriorityQueue[T]) UpdatePriorityAt(index uint64, newPriority int) error {
 	if pq.IsEmpty() {
-		return errors.New(errQueueIsEmpty)
+		return errors.New(ErrQueueIsEmpty)
 	}
 	if index >= pq.size {
-		return errors.New(errValueNotFound)
+		return errors.New(ErrValueNotFound)
 	}
 
 	oldPriority := pq.data[index].Priority
@@ -191,7 +191,7 @@ func (pq *PriorityQueue[T]) UpdatePriorityAt(index uint64, newPriority int) erro
 // UpdateValue updates the value of an element in the priority queue
 func (pq *PriorityQueue[T]) UpdateValue(value T, newValue T) error {
 	if pq.IsEmpty() {
-		return errors.New(errQueueIsEmpty)
+		return errors.New(ErrQueueIsEmpty)
 	}
 
 	for i, e := range pq.data {
@@ -200,14 +200,14 @@ func (pq *PriorityQueue[T]) UpdateValue(value T, newValue T) error {
 			return nil
 		}
 	}
-	return errors.New(errValueNotFound)
+	return errors.New(ErrValueNotFound)
 }
 
 // Peek returns the highest priority element in the queue without removing it
 func (pq *PriorityQueue[T]) Peek() (T, error) {
 	if pq.IsEmpty() {
 		var rVal T
-		return rVal, errors.New(errQueueIsEmpty)
+		return rVal, errors.New(ErrQueueIsEmpty)
 	}
 	return pq.data[0].Value, nil
 }
@@ -366,7 +366,7 @@ func (pq *PriorityQueue[T]) IndexOf(value T) (uint64, error) {
 			return i, nil
 		}
 	}
-	return 0, errors.New(errValueNotFound)
+	return 0, errors.New(ErrValueNotFound)
 }
 
 // LastIndexOf returns the index of the last element with the given value
@@ -380,7 +380,7 @@ func (pq *PriorityQueue[T]) LastIndexOf(value T) (uint64, error) {
 		}
 	}
 	if !found {
-		return 0, errors.New(errValueNotFound)
+		return 0, errors.New(ErrValueNotFound)
 	}
 	return index, nil
 }
@@ -392,7 +392,7 @@ func (pq *PriorityQueue[T]) FindIndex(f func(T) bool) (uint64, error) {
 			return i, nil
 		}
 	}
-	return 0, errors.New(errValueNotFound)
+	return 0, errors.New(ErrValueNotFound)
 }
 
 // FindLastIndex returns the index of the last element that matches the predicate
@@ -406,7 +406,7 @@ func (pq *PriorityQueue[T]) FindLastIndex(f func(T) bool) (uint64, error) {
 		}
 	}
 	if !found {
-		return 0, errors.New(errValueNotFound)
+		return 0, errors.New(ErrValueNotFound)
 	}
 	return index, nil
 }
@@ -433,7 +433,7 @@ func (pq *PriorityQueue[T]) FindLast(f func(T) bool) (T, error) {
 		}
 	}
 	if !found {
-		return result, errors.New(errValueNotFound)
+		return result, errors.New(ErrValueNotFound)
 	}
 	return result, nil
 }

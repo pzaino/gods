@@ -17,7 +17,7 @@ package dlinkList
 
 import "errors"
 
-const errIndexOutOfBound = "index out of bounds"
+const ErrIndexOutOfBound = "index out of bounds"
 
 // Node is a representation of a node in a doubly linked list
 type Node[T comparable] struct {
@@ -118,7 +118,7 @@ func (l *DLinkList[T]) InsertBefore(value, newValue T) {
 // InsertAt inserts a new node with the given value at the given index
 func (l *DLinkList[T]) InsertAt(index uint64, value T) error {
 	if index > l.size {
-		return errors.New(errIndexOutOfBound)
+		return errors.New(ErrIndexOutOfBound)
 	}
 
 	if index == 0 {
@@ -129,13 +129,13 @@ func (l *DLinkList[T]) InsertAt(index uint64, value T) error {
 	current := l.Head
 	for i := uint64(0); i < index-1; i++ {
 		if current == nil {
-			return errors.New(errIndexOutOfBound)
+			return errors.New(ErrIndexOutOfBound)
 		}
 		current = current.Next
 	}
 
 	if current == nil {
-		return errors.New(errIndexOutOfBound)
+		return errors.New(ErrIndexOutOfBound)
 	}
 
 	newNode := &Node[T]{Value: value}
@@ -257,13 +257,13 @@ func (l *DLinkList[T]) DeleteFirst() {
 // DeleteAt deletes the node at the given index
 func (l *DLinkList[T]) DeleteAt(index uint64) error {
 	if index > l.size {
-		return errors.New(errIndexOutOfBound)
+		return errors.New(ErrIndexOutOfBound)
 	}
 
 	// delete the first node
 	if index == 0 {
 		if l.Head == nil {
-			return errors.New(errIndexOutOfBound)
+			return errors.New(ErrIndexOutOfBound)
 		}
 		l.Head = l.Head.Next
 		l.Head.Prev = nil
@@ -275,14 +275,14 @@ func (l *DLinkList[T]) DeleteAt(index uint64) error {
 	current := l.Head
 	for i := uint64(0); i < index; i++ {
 		if current == nil {
-			return errors.New(errIndexOutOfBound)
+			return errors.New(ErrIndexOutOfBound)
 		}
 		current = current.Next
 	}
 
 	// Check if the node is valid
 	if current == nil {
-		return errors.New(errIndexOutOfBound)
+		return errors.New(ErrIndexOutOfBound)
 	}
 
 	// this is the last node
@@ -401,12 +401,12 @@ func (l *DLinkList[T]) IsEmpty() bool {
 // GetAt returns the node at the given index
 func (l *DLinkList[T]) GetAt(index uint64) (*Node[T], error) {
 	if index > l.size {
-		return nil, errors.New(errIndexOutOfBound)
+		return nil, errors.New(ErrIndexOutOfBound)
 	}
 
 	current := l.Head
 	if current == nil {
-		return nil, errors.New(errIndexOutOfBound)
+		return nil, errors.New(ErrIndexOutOfBound)
 	}
 	if index == 0 {
 		return current, nil
@@ -414,13 +414,13 @@ func (l *DLinkList[T]) GetAt(index uint64) (*Node[T], error) {
 
 	for i := uint64(0); i < index; i++ {
 		if current == nil {
-			return nil, errors.New(errIndexOutOfBound)
+			return nil, errors.New(ErrIndexOutOfBound)
 		}
 		current = current.Next
 	}
 
 	if current == nil {
-		return nil, errors.New(errIndexOutOfBound)
+		return nil, errors.New(ErrIndexOutOfBound)
 	}
 
 	return current, nil
