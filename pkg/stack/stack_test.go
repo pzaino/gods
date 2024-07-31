@@ -609,9 +609,12 @@ func TestMap(t *testing.T) {
 	s.Push(3)
 
 	// Test mapping to double the values
-	doubledStack := s.Map(func(item int) int {
+	doubledStack, err := s.Map(func(item int) int {
 		return item * 2
 	})
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
 
 	// Check if the original stack is unchanged
 	if s.Size() != 3 {
@@ -699,7 +702,10 @@ func TestForEach(t *testing.T) {
 	}
 
 	// Apply the function to each item in the stack
-	s.ForEach(fn)
+	err := s.ForEach(fn)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
 }
 
 func TestAny(t *testing.T) {

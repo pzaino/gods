@@ -551,9 +551,12 @@ func TestReduceRange(t *testing.T) {
 // TestForEach tests the ForEach method
 func TestForEach(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
-	b.ForEach(func(x *int) {
+	err := b.ForEach(func(x *int) {
 		*x *= 2
 	})
+	if err != nil {
+		t.Errorf("ForEach should not return an error, got %v", err)
+	}
 	expected := []int{2, 4, 6}
 	values := b.Values()
 	for i, v := range values {

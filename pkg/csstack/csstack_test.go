@@ -290,9 +290,12 @@ func TestCSStackMap(t *testing.T) {
 		cs.Push(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.Map(func(item int) int {
+		_, err := cs.Map(func(item int) int {
 			return item * 2
 		})
+		if err != nil {
+			t.Fatalf(errExpectedNoError, err)
+		}
 	})
 }
 
@@ -317,9 +320,12 @@ func TestCSStackForEach(t *testing.T) {
 		cs.Push(i)
 	}
 	runConcurrent(t, 1000, func() {
-		cs.ForEach(func(item *int) {
+		err := cs.ForEach(func(item *int) {
 			*item = *item + 1
 		})
+		if err != nil {
+			t.Fatalf(errExpectedNoError, err)
+		}
 	})
 }
 

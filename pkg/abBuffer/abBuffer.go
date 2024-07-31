@@ -174,8 +174,8 @@ func (b *ABBuffer[T]) InsertAt(index uint64, value T) error {
 }
 
 // ForEach applies the function to all elements in the active buffer
-func (b *ABBuffer[T]) ForEach(f func(*T)) {
-	b.active.ForEach(f)
+func (b *ABBuffer[T]) ForEach(f func(*T)) error {
+	return b.active.ForEach(f)
 }
 
 // ForFrom applies the function to all elements in the active buffer starting from the given index

@@ -209,9 +209,12 @@ func TestForEach(t *testing.T) {
 	_ = buf.Append(1)
 	_ = buf.Append(2)
 	var sum int
-	buf.ForEach(func(v *int) {
+	err := buf.ForEach(func(v *int) {
 		sum += *v
 	})
+	if err != nil {
+		t.Errorf(errUnexpectedError, err)
+	}
 	if sum != 3 {
 		t.Errorf("expected sum 3, got %d", sum)
 	}

@@ -185,10 +185,13 @@ func (cs *CSStack[T]) Filter(predicate func(T) bool) {
 }
 
 // Map creates a new stack with the results of applying the function to each item.
-func (cs *CSStack[T]) Map(fn func(T) T) *CSStack[T] {
+func (cs *CSStack[T]) Map(fn func(T) T) (*CSStack[T], error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
-	return &CSStack[T]{s: cs.s.Map(fn)}
+	csStack := &CSStack[T]{}
+	var err error
+	csStack.s, err = cs.s.Map(fn)
+	return csStack, err
 }
 
 // Reduce reduces the stack to a single value.
@@ -199,10 +202,10 @@ func (cs *CSStack[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each item in the stack.
-func (cs *CSStack[T]) ForEach(fn func(*T)) {
+func (cs *CSStack[T]) ForEach(fn func(*T)) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
-	cs.s.ForEach(fn)
+	return cs.s.ForEach(fn)
 }
 
 // ForRange applies the function to each item in the stack in the range [start, end).

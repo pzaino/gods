@@ -242,37 +242,14 @@ func (s *Stack[T]) Filter(predicate func(T) bool) {
 }
 
 // Map creates a new stack with the results of applying the function to each item.
-func (s *Stack[T]) Map(fn func(T) T) *Stack[T] {
-	stack := New[T]()
-	for i := uint64(0); i < s.size; i++ {
-		stack.Push(fn(s.items[i]))
-	}
-	return stack
+func (s *Stack[T]) Map(fn func(T) T) (*Stack[T], error) {
+	return s.MapRange(0, s.size-1, fn)
 }
 
 // MapFrom creates a new stack with the results of applying the function to each item starting from the specified index.
 // Please note: the start index is the top of the stack.
 func (s *Stack[T]) MapFrom(start uint64, fn func(T) T) (*Stack[T], error) {
-	if s.size == 0 {
-		return nil, errors.New(ErrStackIsEmpty)
-	}
-
-	if start >= s.size {
-		return nil, errors.New(ErrStartIndexOOR)
-	}
-
-	// calculate stack start index
-	stackStart := s.size - start - 1
-
-	stack := New[T]()
-	stack.items = make([]T, s.size-(start))
-	for i := stackStart; i > 0; i-- {
-		stack.items[i] = fn(s.items[i])
-		stack.size++
-	}
-	stack.items[0] = fn(s.items[0])
-	stack.size++
-	return stack, nil
+	return s.MapRange(start, s.size-1, fn)
 }
 
 // MapRange creates a new stack with the results of applying the function to each item within the specified range.
@@ -316,10 +293,8 @@ func (s *Stack[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each item in the stack.
-func (s *Stack[T]) ForEach(fn func(*T)) {
-	for i := uint64(0); i < s.size; i++ {
-		fn(&s.items[i])
-	}
+func (s *Stack[T]) ForEach(fn func(*T)) error {
+	return s.ForRange(0, s.size-1, fn)
 }
 
 // ForRange applies the function to each item in the stack within the specified range.
@@ -344,14 +319,7 @@ func (s *Stack[T]) ForRange(start, end uint64, fn func(*T)) error {
 
 // ForFrom applies the function to each item in the stack starting from the specified index.
 func (s *Stack[T]) ForFrom(start uint64, fn func(*T)) error {
-	if start >= s.size {
-		return errors.New(ErrStartIndexOOR)
-	}
-
-	for i := start; i < s.size; i++ {
-		fn(&s.items[i])
-	}
-	return nil
+	return s.ForRange(start, s.size-1, fn)
 }
 
 // Any checks if any item in the stack matches the predicate.
