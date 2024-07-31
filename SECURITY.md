@@ -35,8 +35,7 @@ Please report vulnerabilities by opening a private issue on our GitHub repositor
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Use this section to verify if the version of **GoDS** you are using is currently supported and eligible for security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
