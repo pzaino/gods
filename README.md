@@ -16,16 +16,53 @@
 
 This repository contains my implementations of various data structures in Go. The data structures are implemented in two ways:
 
-- Traditional single thread optimized (you can find these in the `pkg`
-directory with their "standard" name, for ex. stack, linkList).
-- Concurrency-safe wrapper added (you can find these in the `pkg`
-directory with their "cs" initials, for example cstsack, cslinkList).
+- Lock-less (you can find these in the `pkg` directory with their "standard"
+ name, for ex. stack, linkList).
+- Concurrency-safe wrapper added (you can find these in the `pkg` directory
+ with their "cs" initials, for example cstsack, cslinkList).
 
 Use the non concurrent-safe data structures if you need best performance
 in a non-concurrent application or if you want to handle concurrency by
 yourself. Use the concurrent-safe data structures for best approach in
 concurrent applications or if you don't want to handle concurrency by
 yourself.
+
+Both implementations generally come with 3 special methods:
+
+- `ConfinedForEach`: This method will iterate over the data structure and
+execute a function for each element. The function will be executed in a
+separate goroutine for each element.
+- `ConfinedForFrom`: This method will iterate over the data structure and
+execute a function for each element starting from a given element. The
+function will be executed in a separate goroutine for each element.
+- `ConfinedForRange`: This method will iterate over the data structure and
+execute a function for each element in a given range. The function will be
+executed in a separate goroutine for each element.
+
+These 3 methods offer better performance when there are multiple CPU cores
+available. They are also useful when you want to execute a function for each
+element in parallel. The number of goroutines created will be equal to the
+number of CPU cores available.
+
+Every other method is not parallel. The Buffer has a special set of methods
+called:
+
+- `Blit`: This method will combine/overwrite the elements of the buffer with
+the elements of another buffer using a custom function. If the two buffers
+have different lengths, the function will use the size of the smallest of the
+two.
+- `BlitFrom`: This method will combine/overwrite the elements of the buffer
+with the elements of another buffer starting from a given index using a custom
+function. If the two buffers have different lengths, the function will use the
+size of the smallest of the two.
+- `BlitRange`: This method will combine/overwrite the elements of the buffer
+with the elements of another buffer in a given range using a custom function.
+
+These functions are special because for large amount of data it will also use
+parallelism to speed up the process. The number of goroutines created will be
+equal to the number of CPU cores available.
+
+## Packaging and general design
 
 All data structures comes with a set of tests to ensure that they work as
  expected.
@@ -40,6 +77,29 @@ This should make it easy to use the data structures in your own projects and
 
 All data structures were designed to use generics, so some method call may
  require you to provide a comparison function or a hash function.
+
+## Installation / Use
+
+To use a library all you need to do is to import it in your code. For example,
+to use the stack data structure you would do:
+
+```go
+import "github.com/pzaino/gods/pkg/stack"
+```
+
+Then you can start using the stack data structure in your code.
+
+You can obviously use more than one data structure in your code. Just import
+the ones you need.
+
+You may need to "install" the library first. To do that you can use the
+following command:
+
+```bash
+go get github.com/pzaino/gods
+```
+
+This will download the library and install it in your `$GOPATH`.
 
 ## Data Structures
 
