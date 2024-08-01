@@ -41,6 +41,15 @@ func New[T comparable]() *Buffer[T] {
 	return &Buffer[T]{}
 }
 
+// NewReference returns a new buffer with the same elements (aka elements are not copied)
+func (b *Buffer[T]) NewReference() *Buffer[T] {
+	newBuffer := New[T]()
+	newBuffer.data = append(newBuffer.data, b.data...)
+	newBuffer.size = b.size
+	newBuffer.capacity = b.capacity
+	return newBuffer
+}
+
 // IsEmpty returns true if the buffer is empty
 func (b *Buffer[T]) IsEmpty() bool {
 	if b == nil {
@@ -69,10 +78,7 @@ func (b *Buffer[T]) Append(elem T) error {
 
 // InsertAt adds an element at the given index
 func (b *Buffer[T]) InsertAt(index uint64, elem T) error {
-	if index > b.size {
-		return errors.New(ErrBufferOverflow)
-	}
-	if b.IsFull() {
+	if index > b.size || b.IsFull() {
 		return errors.New(ErrBufferOverflow)
 	}
 
@@ -120,6 +126,13 @@ func (b *Buffer[T]) Remove(index uint64) error {
 func (b *Buffer[T]) Clear() {
 	b.data = []T{}
 	b.size = 0
+}
+
+// Destroy removes all elements from the buffer and sets the capacity to 0 and set the buffer to nil
+func (b *Buffer[T]) Destroy() {
+	b.Clear()
+	b.capacity = 0
+	b = nil
 }
 
 // Values returns all elements in the buffer
@@ -199,15 +212,6 @@ func (b *Buffer[T]) Copy() *Buffer[T] {
 	newBuffer := New[T]()
 	newBuffer.data = make([]T, b.size)
 	copy(newBuffer.data, b.data)
-	newBuffer.size = b.size
-	newBuffer.capacity = b.capacity
-	return newBuffer
-}
-
-// NewReference returns a new buffer with the same elements (aka elements are not copied)
-func (b *Buffer[T]) NewReference() *Buffer[T] {
-	newBuffer := New[T]()
-	newBuffer.data = append(newBuffer.data, b.data...)
 	newBuffer.size = b.size
 	newBuffer.capacity = b.capacity
 	return newBuffer

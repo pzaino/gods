@@ -69,6 +69,14 @@ func TestIsEmpty(t *testing.T) {
 	if b.IsEmpty() {
 		t.Error("IsEmpty should return false for a non-empty buffer")
 	}
+	b.Clear()
+	if !b.IsEmpty() {
+		t.Error("IsEmpty should return true for a cleared buffer")
+	}
+	b.Destroy()
+	if !b.IsEmpty() {
+		t.Error("IsEmpty should return true for a destroyed buffer")
+	}
 }
 
 // TestIsFull tests the IsFull method
@@ -1002,6 +1010,28 @@ func TestInsertAt(t *testing.T) {
 	if elem != 5 {
 		t.Errorf("Expected element 2, got %v", elem)
 	}
+	b.Clear()
+	err = b.InsertAt(0, 1)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	if b.Size() != 1 {
+		t.Errorf("Expected size 1, got %v", b.Size())
+	}
+	elem, _ = b.Get(0)
+	if elem != 1 {
+		t.Errorf("Expected element 1, got %v", elem)
+	}
+	b.Clear()
+	err = b.InsertAt(1, 1)
+	if err == nil {
+		t.Error("InsertAt should return an error for an out-of-bounds index")
+	}
+	b.Destroy()
+	err = b.InsertAt(1, 1)
+	if err == nil {
+		t.Errorf(errExpectedErr, buffer.ErrBufferOverflow, err)
+	}
 }
 
 // TestConfinedForRange tests the ConfinedForRange method
@@ -1068,5 +1098,17 @@ func TestConfinedForFrom(t *testing.T) {
 	expected := []int{3, 2}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf(errExpectedValue, expected, result)
+	}
+}
+
+// TestDestroy tests the Destroy method
+func TestDestroy(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
+	b.Destroy()
+	if !b.IsEmpty() {
+		t.Error("Destroy should empty the buffer")
+	}
+	if b.Capacity() != 0 {
+		t.Error("Destroy should set the capacity to 0")
 	}
 }

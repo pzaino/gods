@@ -18,6 +18,7 @@ package stack
 import (
 	"errors"
 	"fmt"
+	"sync"
 )
 
 // Error messages
@@ -26,6 +27,7 @@ const (
 	ErrStackIsEmpty  = "stack is empty"
 	ErrStartIndexOOR = "start index out of range"
 	ErrEndIndexOOR   = "end index out of range"
+	ErrSIndexGreater = "start index is greater than end index"
 )
 
 // Stack is a non-concurrent-safe stack.
@@ -72,7 +74,10 @@ func (s *Stack[T]) Pop() (*T, error) {
 // ToSlice returns the stack as a slice.
 func (s *Stack[T]) ToSlice() []T {
 	items := make([]T, s.size)
-	copy(items, s.items)
+	for i := s.size - 1; i > 0; i-- {
+		items[s.size-i-1] = s.items[i]
+	}
+	items[s.size-1] = s.items[0]
 	return items
 }
 
@@ -264,7 +269,7 @@ func (s *Stack[T]) MapRange(start, end uint64, fn func(T) T) (*Stack[T], error) 
 	}
 
 	if start > end {
-		return nil, errors.New("start index is greater than end index")
+		return nil, errors.New(ErrSIndexGreater)
 	}
 
 	// Convert the start and end index to the stack indexes
@@ -308,11 +313,23 @@ func (s *Stack[T]) ForRange(start, end uint64, fn func(*T)) error {
 	}
 
 	if start > end {
-		return errors.New("start index is greater than end index")
+		return errors.New(ErrSIndexGreater)
 	}
 
-	for i := start; i <= end; i++ {
+	// Convert the start and end index to the stack indexes
+	start = (s.size - start) - 1
+	end = (s.size - end) - 1
+	checkZero := false
+	if end == 0 {
+		end = 1
+		checkZero = true
+	}
+
+	for i := start; i >= end; i-- {
 		fn(&s.items[i])
+	}
+	if checkZero {
+		fn(&s.items[0])
 	}
 	return nil
 }
@@ -320,6 +337,62 @@ func (s *Stack[T]) ForRange(start, end uint64, fn func(*T)) error {
 // ForFrom applies the function to each item in the stack starting from the specified index.
 func (s *Stack[T]) ForFrom(start uint64, fn func(*T)) error {
 	return s.ForRange(start, s.size-1, fn)
+}
+
+// ConfinedForRange applies the function to each item in the stack within the specified range.
+// The function is executed in a separate goroutine for each item.
+func (s *Stack[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
+	if start >= s.size {
+		return errors.New(ErrStartIndexOOR)
+	}
+
+	if end >= s.size {
+		return errors.New(ErrEndIndexOOR)
+	}
+
+	if start > end {
+		return errors.New(ErrSIndexGreater)
+	}
+
+	// Convert the start and end index to the stack indexes
+	start = (s.size - start) - 1
+	end = (s.size - end) - 1
+	checkZero := false
+	if end == 0 {
+		end = 1
+		checkZero = true
+	}
+
+	var wg sync.WaitGroup
+	for i := start; i >= end; i-- {
+		wg.Add(1)
+		go func(i uint64) {
+			defer wg.Done()
+			fn(&s.items[i])
+		}(i)
+	}
+	if checkZero {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			fn(&s.items[0])
+		}()
+	}
+	wg.Wait()
+
+	return nil
+}
+
+// ConfinedForFrom applies the function to each item in the stack starting from the specified index.
+// The function is executed in a separate goroutine for each item.
+func (s *Stack[T]) ConfinedForFrom(start uint64, fn func(*T)) error {
+	return s.ConfinedForRange(start, s.size-1, fn)
+}
+
+// ConfinedForEach applies the function to each item in the stack.
+// The function is executed in a separate goroutine for each item.
+func (s *Stack[T]) ConfinedForEach(fn func(*T)) error {
+	return s.ConfinedForRange(0, s.size-1, fn)
 }
 
 // Any checks if any item in the stack matches the predicate.

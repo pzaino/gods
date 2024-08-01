@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"sync"
 	"testing"
 
 	stack "github.com/pzaino/gods/pkg/stack"
@@ -115,13 +116,13 @@ func TestToSlice(t *testing.T) {
 	if len(slice) != 3 {
 		t.Errorf("Expected slice to have 3 items, but got %v", len(slice))
 	}
-	if slice[0] != 1 {
+	if slice[0] != 3 {
 		t.Errorf(errExpectedXItemY, "first", 1, slice[0])
 	}
 	if slice[1] != 2 {
 		t.Errorf(errExpectedXItemY, "second", 2, slice[1])
 	}
-	if slice[2] != 3 {
+	if slice[2] != 1 {
 		t.Errorf(errExpectedXItemY, "third", 3, slice[2])
 	}
 }
@@ -136,13 +137,13 @@ func TestReverse(t *testing.T) {
 	if len(slice) != 3 {
 		t.Errorf("Expected slice to have 3 items, but got %v", len(slice))
 	}
-	if slice[0] != 3 {
+	if slice[0] != 1 {
 		t.Errorf(errExpectedXItemY, "first", 3, slice[0])
 	}
 	if slice[1] != 2 {
 		t.Errorf(errExpectedXItemY, "second", 2, slice[1])
 	}
-	if slice[2] != 1 {
+	if slice[2] != 3 {
 		t.Errorf(errExpectedXItemY, "third", 1, slice[2])
 	}
 }
@@ -159,10 +160,10 @@ func TestSwap(t *testing.T) {
 	if len(slice) != 2 {
 		t.Errorf("Expected slice to have 2 items, but got %v", len(slice))
 	}
-	if slice[0] != 2 {
+	if slice[0] != 1 {
 		t.Errorf(errExpectedXItemY, "first", 2, slice[0])
 	}
-	if slice[1] != 1 {
+	if slice[1] != 2 {
 		t.Errorf(errExpectedXItemY, "second", 1, slice[1])
 	}
 }
@@ -524,13 +525,13 @@ func TestPushN(t *testing.T) {
 	if len(slice) != 3 {
 		t.Errorf("Expected stack to have 3 items, but got %v", len(slice))
 	}
-	if slice[0] != 1 {
+	if slice[0] != 3 {
 		t.Errorf(errExpectedXItemY, "first", 1, slice[0])
 	}
 	if slice[1] != 2 {
 		t.Errorf(errExpectedXItemY, "second", 3, slice[1])
 	}
-	if slice[2] != 3 {
+	if slice[2] != 1 {
 		t.Errorf(errExpectedXItemY, "third", 3, slice[2])
 	}
 }
@@ -569,7 +570,7 @@ func TestPushAll(t *testing.T) {
 
 	slice := s.ToSlice()
 	for i, item := range items {
-		if slice[i] != item {
+		if slice[len(slice)-i-1] != item {
 			t.Errorf("Expected item at index %d to be %d, but got %d", i, item, slice[i])
 		}
 	}
@@ -626,13 +627,13 @@ func TestMap(t *testing.T) {
 	if len(doubledSlice) != 3 {
 		t.Errorf("Expected doubled stack to have 3 items, but got %v", len(doubledSlice))
 	}
-	if doubledSlice[0] != 2 {
+	if doubledSlice[0] != 6 {
 		t.Errorf(errExpectedXItemY, "first", 2, doubledSlice[0])
 	}
 	if doubledSlice[1] != 4 {
 		t.Errorf(errExpectedXItemY, "second", 4, doubledSlice[1])
 	}
-	if doubledSlice[2] != 6 {
+	if doubledSlice[2] != 2 {
 		t.Errorf(errExpectedXItemY, "third", 6, doubledSlice[2])
 	}
 }
@@ -957,7 +958,7 @@ func TestForRange(t *testing.T) {
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	expected := []int{2, 4, 3}
+	expected := []int{6, 4, 1}
 	actual := s.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedStack, expected, actual)
@@ -970,7 +971,7 @@ func TestForRange(t *testing.T) {
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	expected = []int{2, 12, 9}
+	expected = []int{6, 12, 3}
 	actual = s.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedStack, expected, actual)
@@ -983,7 +984,7 @@ func TestForRange(t *testing.T) {
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	expected = []int{2, 12, 36}
+	expected = []int{6, 12, 12}
 	actual = s.ToSlice()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf(errExpectedStack, expected, actual)
@@ -1028,7 +1029,7 @@ func TestForFrom(t *testing.T) {
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	expectedResult := []int{1, 2, 3}
+	expectedResult := []int{3, 2, 1}
 	if !reflect.DeepEqual(result, expectedResult) {
 		t.Errorf(errExpectedResult, expectedResult, result)
 	}
@@ -1041,7 +1042,7 @@ func TestForFrom(t *testing.T) {
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	expectedResult = []int{2, 3}
+	expectedResult = []int{2, 1}
 	if !reflect.DeepEqual(result, expectedResult) {
 		t.Errorf(errExpectedResult, expectedResult, result)
 	}
@@ -1054,7 +1055,7 @@ func TestForFrom(t *testing.T) {
 	if err != nil {
 		t.Errorf(errNoError, err)
 	}
-	expectedResult = []int{3}
+	expectedResult = []int{1}
 	if !reflect.DeepEqual(result, expectedResult) {
 		t.Errorf(errExpectedResult, expectedResult, result)
 	}
@@ -1214,5 +1215,59 @@ func TestCheckSize(t *testing.T) {
 	s.CheckSize()
 	if s.Size() != 0 {
 		t.Errorf("Expected stack to have 0 items after CheckSize, but got %v", s.Size())
+	}
+}
+
+func TestConfinedForEach(t *testing.T) {
+	s := stack.New[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+
+	err := s.ConfinedForEach(func(item *int) {
+		// Perform some operation on the item
+		*item = *item * 2
+	})
+
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	expected := []int{6, 4, 2}
+	actual := s.ToSlice()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected stack to contain %v, but got %v", expected, actual)
+	}
+}
+
+func TestConfinedForFrom(t *testing.T) {
+	s := stack.New[int]()
+	s.Push(1)
+	s.Push(2)
+	s.Push(3)
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var result []int
+
+	err := s.ConfinedForFrom(1, func(item *int) {
+		wg.Add(1)
+		go func(e int) {
+			defer wg.Done()
+			mu.Lock()
+			result = append(result, e)
+			mu.Unlock()
+		}(*item)
+	})
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	wg.Wait()
+
+	expected := []int{1, 2}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected result to be %v, but got %v", expected, result)
 	}
 }
