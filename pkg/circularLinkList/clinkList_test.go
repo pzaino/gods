@@ -129,7 +129,7 @@ func TestSize(t *testing.T) {
 	actual := list.Size()
 
 	if expected != actual {
-		t.Fatalf("expected size %d, got %d", expected, actual)
+		t.Fatalf(errExpectedLength, expected, actual)
 	}
 }
 
@@ -216,7 +216,7 @@ func TestClear(t *testing.T) {
 	actual := list.Size()
 
 	if expected != actual {
-		t.Fatalf("expected size %d, got %d", expected, actual)
+		t.Fatalf(errExpectedLength, expected, actual)
 	}
 }
 
@@ -664,7 +664,7 @@ func TestCheckSize(t *testing.T) {
 	expectedSize := uint64(0)
 	actualSize := list.Size()
 	if expectedSize != actualSize {
-		t.Fatalf("expected size %d, got %d", expectedSize, actualSize)
+		t.Fatalf(errExpectedLength, expectedSize, actualSize)
 	}
 
 	// Test when the list has one node
@@ -673,7 +673,7 @@ func TestCheckSize(t *testing.T) {
 	expectedSize = uint64(1)
 	actualSize = list.Size()
 	if expectedSize != actualSize {
-		t.Fatalf("expected size %d, got %d", expectedSize, actualSize)
+		t.Fatalf(errExpectedLength, expectedSize, actualSize)
 	}
 
 	// Test when the list has multiple nodes
@@ -683,6 +683,6 @@ func TestCheckSize(t *testing.T) {
 	expectedSize = uint64(3)
 	actualSize = list.Size()
 	if expectedSize != actualSize {
-		t.Fatalf("expected size %d, got %d", expectedSize, actualSize)
+		t.Fatalf(errExpectedLength, expectedSize, actualSize)
 	}
 }
