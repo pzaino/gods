@@ -60,6 +60,9 @@ func (b *Buffer[T]) IsEmpty() bool {
 
 // IsFull returns true if the buffer is full
 func (b *Buffer[T]) IsFull() bool {
+	if b.IsEmpty() {
+		return false
+	}
 	if b.capacity == 0 {
 		return false
 	}
@@ -78,6 +81,9 @@ func (b *Buffer[T]) Append(elem T) error {
 
 // InsertAt adds an element at the given index
 func (b *Buffer[T]) InsertAt(index uint64, elem T) error {
+	if b.IsEmpty() {
+		return errors.New(ErrBufferEmpty)
+	}
 	if index > b.size || b.IsFull() {
 		return errors.New(ErrBufferOverflow)
 	}
@@ -91,17 +97,25 @@ func (b *Buffer[T]) InsertAt(index uint64, elem T) error {
 
 // Put replaces the element at the given index
 func (b *Buffer[T]) Put(index uint64, elem T) error {
+	if b.IsEmpty() {
+		return errors.New(ErrBufferEmpty)
+	}
+
 	if index >= b.size {
 		return errors.New(ErrValueNotFound)
 	}
+
 	b.data[index] = elem
 	return nil
 }
 
 // Get returns the element at the given index
 func (b *Buffer[T]) Get(index uint64) (T, error) {
+	var rVal T
+	if b.IsEmpty() {
+		return rVal, errors.New(ErrBufferEmpty)
+	}
 	if index >= b.size {
-		var rVal T
 		return rVal, errors.New(ErrValueNotFound)
 	}
 	return b.data[index], nil
@@ -114,9 +128,14 @@ func (b *Buffer[T]) Set(index uint64, elem T) error {
 
 // Remove removes the element at the given index
 func (b *Buffer[T]) Remove(index uint64) error {
+	if b.IsEmpty() {
+		return errors.New(ErrBufferEmpty)
+	}
+
 	if index >= b.size {
 		return errors.New(ErrValueNotFound)
 	}
+
 	b.data = append(b.data[:index], b.data[index+1:]...)
 	b.size--
 	return nil
@@ -137,15 +156,12 @@ func (b *Buffer[T]) Destroy() {
 
 // Values returns all elements in the buffer
 func (b *Buffer[T]) Values() []T {
-	if b == nil {
-		return nil
-	}
-	return b.data
+	return b.ToSlice()
 }
 
 // Size returns the number of elements in the buffer
 func (b *Buffer[T]) Size() uint64 {
-	if b == nil {
+	if b.IsEmpty() {
 		return 0
 	}
 	return b.size
@@ -163,9 +179,18 @@ func (b *Buffer[T]) SetCapacity(capacity uint64) {
 
 // Equals returns true if the buffer is equal to another buffer
 func (b *Buffer[T]) Equals(other *Buffer[T]) bool {
+	if b.IsEmpty() && other.IsEmpty() {
+		return true
+	}
+
+	if b.IsEmpty() || other.IsEmpty() {
+		return false
+	}
+
 	if b.Size() != other.Size() {
 		return false
 	}
+
 	for i := uint64(0); i < b.Size(); i++ {
 		if b.data[i] != other.data[i] {
 			return false
@@ -176,11 +201,19 @@ func (b *Buffer[T]) Equals(other *Buffer[T]) bool {
 
 // ToSlice returns a slice of the buffer
 func (b *Buffer[T]) ToSlice() []T {
+	if b.IsEmpty() {
+		return nil
+	}
+
 	return b.data
 }
 
 // Reverse reverses the buffer
 func (b *Buffer[T]) Reverse() {
+	if b.IsEmpty() {
+		return
+	}
+
 	for i := uint64(0); i < b.size/2; i++ {
 		j := b.size - i - 1
 		b.data[i], b.data[j] = b.data[j], b.data[i]
@@ -189,6 +222,10 @@ func (b *Buffer[T]) Reverse() {
 
 // Find returns the index of the first element with the given value
 func (b *Buffer[T]) Find(value T) (uint64, error) {
+	if b.IsEmpty() {
+		return 0, errors.New(ErrBufferEmpty)
+	}
+
 	for i := uint64(0); i < b.size; i++ {
 		if b.data[i] == value {
 			return i, nil
@@ -199,6 +236,10 @@ func (b *Buffer[T]) Find(value T) (uint64, error) {
 
 // Contains returns true if the buffer contains the given element
 func (b *Buffer[T]) Contains(value T) bool {
+	if b.IsEmpty() {
+		return false
+	}
+
 	for i := uint64(0); i < b.size; i++ {
 		if b.data[i] == value {
 			return true
@@ -252,13 +293,14 @@ func (b *Buffer[T]) PushN(items ...T) error {
 
 // ShiftLeft shifts all elements to the left by n positions
 func (b *Buffer[T]) ShiftLeft(n uint64) {
-	if b.size == 0 || n == 0 {
+	if b.IsEmpty() || n == 0 {
 		return
 	}
 
 	if n > b.size {
 		n = b.size
 	}
+
 	// move the first n elements to the beginning of the buffer
 	b.data = b.data[n:]
 
@@ -271,7 +313,7 @@ func (b *Buffer[T]) ShiftLeft(n uint64) {
 
 // ShiftRight shifts all elements to the right by n positions
 func (b *Buffer[T]) ShiftRight(n uint64) {
-	if b.size == 0 || n == 0 {
+	if b.IsEmpty() || n == 0 {
 		return
 	}
 
@@ -291,32 +333,38 @@ func (b *Buffer[T]) ShiftRight(n uint64) {
 
 // RotateLeft rotates all elements to the left by n positions
 func (b *Buffer[T]) RotateLeft(n uint64) {
-	if b.size == 0 {
+	if b.IsEmpty() || n == 0 || n == b.Size() {
 		return
 	}
 
 	if n > b.size {
 		n = n % b.size
 	}
+
 	// move the first n elements to the end of the buffer
 	b.data = append(b.data[n:], b.data[:n]...)
 }
 
 // RotateRight rotates all elements to the right by n positions
 func (b *Buffer[T]) RotateRight(n uint64) {
-	if b.size == 0 {
+	if b.IsEmpty() || n == 0 || n == b.Size() {
 		return
 	}
 
 	if n > b.size {
 		n = n % b.size
 	}
+
 	// move the last n elements to the beginning of the buffer
 	b.data = append(b.data[b.size-n:], b.data[:b.size-n]...)
 }
 
 // Filter removes elements that don't match the predicate
 func (b *Buffer[T]) Filter(predicate func(T) bool) {
+	if b.IsEmpty() {
+		return
+	}
+
 	var newData []T
 	for i := uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {
@@ -339,19 +387,24 @@ func (b *Buffer[T]) MapFrom(start uint64, fn func(T) T) (*Buffer[T], error) {
 
 // MapRange creates a new buffer with the results of applying the function to each element in the range [start, end]
 func (b *Buffer[T]) MapRange(start, end uint64, fn func(T) T) (*Buffer[T], error) {
+	if b.IsEmpty() {
+		return nil, errors.New(ErrBufferEmpty)
+	}
+
 	if start >= b.size || end > b.size || start > end {
 		return nil, errors.New(ErrInvalidBuffer)
 	}
+
 	newBuffer := New[T]()
-	var item uint64
-	for i := start; i < end; i++ {
+	var i uint64
+	for i = start; i < end; i++ {
 		err := newBuffer.Append(fn(b.data[i]))
 		if err != nil {
 			break
 		}
 	}
 	newBuffer.capacity = b.capacity
-	newBuffer.size = item
+	newBuffer.size = i - start
 	return newBuffer, nil
 }
 
@@ -368,11 +421,7 @@ func (b *Buffer[T]) ReduceFrom(start uint64, fn func(T, T) T) (T, error) {
 // ReduceRange reduces the buffer to a single value in the range [start, end)
 func (b *Buffer[T]) ReduceRange(start, end uint64, fn func(T, T) T) (T, error) {
 	// If the buffer is empty there is no work to do
-	if b == nil {
-		var rVal T
-		return rVal, errors.New(ErrBufferEmpty)
-	}
-	if b.size == 0 {
+	if b.IsEmpty() {
 		var rVal T
 		return rVal, errors.New(ErrBufferEmpty)
 	}
@@ -399,9 +448,14 @@ func (b *Buffer[T]) ForEach(fn func(*T)) error {
 
 // ForRange applies the function to each element in the buffer in the range [start, end)
 func (b *Buffer[T]) ForRange(start, end uint64, fn func(*T)) error {
+	if b.IsEmpty() {
+		return errors.New(ErrBufferEmpty)
+	}
+
 	if start >= b.size || end > b.size || start > end {
 		return errors.New(ErrInvalidBuffer)
 	}
+
 	for i := start; i < end; i++ {
 		fn(&b.data[i])
 	}
@@ -411,9 +465,14 @@ func (b *Buffer[T]) ForRange(start, end uint64, fn func(*T)) error {
 // ConfinedForRange applies the function to each element in the buffer in the range [start, end]
 // in a confined goroutine (i.e., the user-function is executed in parallel)
 func (b *Buffer[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
+	if b.IsEmpty() {
+		return errors.New(ErrBufferEmpty)
+	}
+
 	if start >= b.size || end > b.size || start > end {
 		return errors.New(ErrInvalidBuffer)
 	}
+
 	var wg sync.WaitGroup
 	for i := start; i < end; i++ {
 		wg.Add(1)
@@ -443,6 +502,10 @@ func (b *Buffer[T]) ForFrom(start uint64, fn func(*T)) error {
 
 // Any checks if any element in the buffer matches the predicate
 func (b *Buffer[T]) Any(predicate func(T) bool) bool {
+	if b.IsEmpty() {
+		return false
+	}
+
 	for i := uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {
 			return true
@@ -453,6 +516,10 @@ func (b *Buffer[T]) Any(predicate func(T) bool) bool {
 
 // All checks if all elements in the buffer match the predicate
 func (b *Buffer[T]) All(predicate func(T) bool) bool {
+	if b.IsEmpty() {
+		return false
+	}
+
 	for i := uint64(0); i < b.size; i++ {
 		if !predicate(b.data[i]) {
 			return false
@@ -463,6 +530,10 @@ func (b *Buffer[T]) All(predicate func(T) bool) bool {
 
 // FindIndex returns the index of the first element that matches the predicate
 func (b *Buffer[T]) FindIndex(predicate func(T) bool) (uint64, error) {
+	if b.IsEmpty() {
+		return 0, errors.New(ErrBufferEmpty)
+	}
+
 	for i := uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {
 			return i, nil
@@ -473,6 +544,10 @@ func (b *Buffer[T]) FindIndex(predicate func(T) bool) (uint64, error) {
 
 // FindLast returns the last element that matches the predicate
 func (b *Buffer[T]) FindLast(predicate func(T) bool) (*T, error) {
+	if b.IsEmpty() {
+		return nil, errors.New(ErrBufferEmpty)
+	}
+
 	for i := b.size - 1; i > 0; i-- {
 		if predicate(b.data[i]) {
 			return &b.data[i], nil
@@ -486,6 +561,10 @@ func (b *Buffer[T]) FindLast(predicate func(T) bool) (*T, error) {
 
 // FindLastIndex returns the index of the last element that matches the predicate
 func (b *Buffer[T]) FindLastIndex(predicate func(T) bool) (uint64, error) {
+	if b.IsEmpty() {
+		return 0, errors.New(ErrBufferEmpty)
+	}
+
 	for i := b.size - 1; i > 0; i-- {
 		if predicate(b.data[i]) {
 			return i, nil
@@ -499,9 +578,13 @@ func (b *Buffer[T]) FindLastIndex(predicate func(T) bool) (uint64, error) {
 
 // FindAll returns all elements that match the predicate
 func (b *Buffer[T]) FindAll(predicate func(T) bool) *Buffer[T] {
+	if b.IsEmpty() {
+		return nil
+	}
+
 	newBuffer := New[T]()
 	var i uint64
-	for i := uint64(0); i < b.size; i++ {
+	for i = uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {
 			err := newBuffer.Append(b.data[i])
 			if err != nil {
@@ -517,6 +600,10 @@ func (b *Buffer[T]) FindAll(predicate func(T) bool) *Buffer[T] {
 // FindIndices returns the indices of all elements that match the predicate
 func (b *Buffer[T]) FindIndices(predicate func(T) bool) []uint64 {
 	var indices []uint64
+	if b.IsEmpty() {
+		return indices
+	}
+
 	for i := uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {
 			indices = append(indices, i)
@@ -527,6 +614,10 @@ func (b *Buffer[T]) FindIndices(predicate func(T) bool) []uint64 {
 
 // LastIndexOf returns the index of the last element with the given value
 func (b *Buffer[T]) LastIndexOf(value T) (uint64, error) {
+	if b.IsEmpty() {
+		return 0, errors.New(ErrBufferEmpty)
+	}
+
 	for i := b.size - 1; i > 0; i-- {
 		if b.data[i] == value {
 			return i, nil
@@ -550,9 +641,12 @@ func (b *Buffer[T]) BlitFrom(start uint64, other *Buffer[T], f func(T, T) T) err
 
 // BlitRange combine/overwrite the values of the in the buffer with the values of another buffer in the range [start, end] using a function
 func (b *Buffer[T]) BlitRange(start, end uint64, other *Buffer[T], f func(T, T) T) error {
-	// If the buffer is empty or the other buffer is empty, there is no work to do
-	if b.size == 0 || other.size == 0 {
+	if other.IsEmpty() {
 		return nil
+	}
+
+	if b == nil {
+		return errors.New(ErrInvalidBuffer)
 	}
 
 	// start and end must be within the bounds of the buffer

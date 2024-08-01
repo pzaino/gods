@@ -1012,15 +1012,15 @@ func TestInsertAt(t *testing.T) {
 	}
 	b.Clear()
 	err = b.InsertAt(0, 1)
-	if err != nil {
-		t.Errorf(errUnexpectedErr, err)
+	if err == nil {
+		t.Errorf(errExpectedErr, buffer.ErrBufferEmpty, err)
 	}
-	if b.Size() != 1 {
-		t.Errorf("Expected size 1, got %v", b.Size())
+	if b.Size() != 0 {
+		t.Errorf("Expected size 0, got %v", b.Size())
 	}
-	elem, _ = b.Get(0)
-	if elem != 1 {
-		t.Errorf("Expected element 1, got %v", elem)
+	_, err = b.Get(0)
+	if err == nil {
+		t.Error("Get should return an error for an empty buffer")
 	}
 	b.Clear()
 	err = b.InsertAt(1, 1)

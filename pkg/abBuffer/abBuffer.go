@@ -17,6 +17,7 @@ package abBuffer
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/pzaino/gods/pkg/buffer"
 )
@@ -197,6 +198,8 @@ func (b *ABBuffer[T]) Map(f func(T) T) (*ABBuffer[T], error) {
 	}
 	newBuffer.A = *nb
 	newBuffer.active = &newBuffer.A
+	fmt.Printf("New buffer: %v\n", newBuffer)
+	fmt.Printf("New buffer active: %v\n", newBuffer.active)
 	return newBuffer, nil
 }
 
