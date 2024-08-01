@@ -1230,7 +1230,7 @@ func TestConfinedForEach(t *testing.T) {
 	})
 
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 
 	expected := []int{6, 4, 2}
@@ -1261,7 +1261,7 @@ func TestConfinedForFrom(t *testing.T) {
 		}(*item)
 	})
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf(errNoError, err)
 	}
 
 	wg.Wait()
