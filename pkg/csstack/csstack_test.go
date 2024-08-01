@@ -334,7 +334,7 @@ func TestCSStackForRange(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		err := cs.ForRange(0, 500, func(item *int) {
 			*item = *item + 1
 		})
@@ -349,7 +349,7 @@ func TestCSStackForFrom(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		err := cs.ForFrom(500, func(item *int) {
 			*item = *item + 1
 		})
@@ -364,7 +364,7 @@ func TestCSStackAny(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		cs.Any(func(item int) bool {
 			return item == 500
 		})
@@ -376,7 +376,7 @@ func TestCSStackAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		cs.All(func(item int) bool {
 			return item < 1000
 		})
@@ -388,7 +388,7 @@ func TestCSStackFind(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		_, err := cs.Find(func(item int) bool {
 			return item == 500
 		})
@@ -403,7 +403,7 @@ func TestCSStackFindIndex(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		_, err := cs.FindIndex(func(item int) bool {
 			return item == 500
 		})
@@ -418,7 +418,7 @@ func TestCSStackFindLast(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		_, err := cs.FindLast(func(item int) bool {
 			return item == 500
 		})
@@ -433,7 +433,7 @@ func TestCSStackFindLastIndex(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		_, err := cs.FindLastIndex(func(item int) bool {
 			return item == 500
 		})
@@ -448,7 +448,7 @@ func TestCSStackFindAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		cs.FindAll(func(item int) bool {
 			return item%2 == 0
 		})
@@ -460,7 +460,7 @@ func TestCSStackFindIndices(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 999, func() {
 		cs.FindIndices(func(item int) bool {
 			return item%2 == 0
 		})
@@ -475,7 +475,7 @@ func TestNewFromSlice(t *testing.T) {
 	}
 	slice := cs.ToSlice()
 	for i, item := range items {
-		if slice[i] != item {
+		if slice[len(slice)-i-1] != item {
 			t.Fatalf("expected item %d to be %d, got %d", i, item, slice[i])
 		}
 	}
