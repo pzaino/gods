@@ -126,8 +126,14 @@ This will download the library and install it in your `$GOPATH`.
 - [ ] [Fenwick Tree](./pkg/fenwickTree)
 
 Legend:
- [x] - Implemented
- [ ] - Not implemented yet (WIP)
+
+- [x] Implemented
+- [ ] Not implemented yet (WIP)
+
+Given that at this time this project is still a WIP, I may change APIs as I
+ move forward with the work. I will try to keep the changes to a minimum and
+  to make them as easy to adapt to as possible. But I also want to achieve a
+   good design.
 
 ## License
 
