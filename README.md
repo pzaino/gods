@@ -125,6 +125,10 @@ This will download the library and install it in your `$GOPATH`.
 - [ ] [Segment Tree](./pkg/segmentTree)
 - [ ] [Fenwick Tree](./pkg/fenwickTree)
 
+Legend:
+ [x] - Implemented
+ [ ] - Not implemented yet (WIP)
+
 ## License
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_large)
