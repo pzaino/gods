@@ -45,7 +45,7 @@ func TestAppend(t *testing.T) {
 		t.Errorf(errUnexpectedError, err)
 	}
 	if !equal(buf.GetActive(), []int{1, 2}) {
-		t.Errorf(errExpectedXGotY, "[1, 2]", buf.GetActive())
+		t.Errorf(errExpectedXGotY, []int{1, 2}, buf.GetActive())
 	}
 
 	err = buf.Append(3)
@@ -53,7 +53,7 @@ func TestAppend(t *testing.T) {
 		t.Errorf(errUnexpectedError, err)
 	}
 	if !equal(buf.GetActive(), []int{1, 2, 3}) {
-		t.Errorf(errExpectedXGotY, "[1, 2, 3]", buf.GetActive())
+		t.Errorf(errExpectedXGotY, []int{1, 2, 3}, buf.GetActive())
 	}
 
 	err = buf.Append(4)
@@ -147,7 +147,7 @@ func TestToSlice(t *testing.T) {
 	_ = buf.Append(2)
 	slice := buf.ToSlice()
 	if !equal(slice, []int{1, 2}) {
-		t.Errorf(errExpectedXGotY, "[1, 2]", slice)
+		t.Errorf(errExpectedXGotY, []int{1, 2}, slice)
 	}
 }
 
@@ -278,7 +278,7 @@ func TestMap(t *testing.T) {
 	}
 
 	if !equal(buf.GetActive(), []int{1, 2}) {
-		t.Errorf(errExpectedXGotY, "[1, 2]", buf.GetActive())
+		t.Errorf(errExpectedXGotY, []int{1, 2}, buf.GetActive())
 	}
 
 	newBuf, err := buf.Map(func(v int) int {
@@ -498,7 +498,7 @@ func TestMerge(t *testing.T) {
 	_ = buf2.Append(2)
 	buf1.Merge(buf2)
 	if !equal(buf1.GetActive(), []int{1, 2}) {
-		t.Errorf(errExpectedXGotY, "[1, 2]", buf1.GetActive())
+		t.Errorf(errExpectedXGotY, []int{1, 2}, buf1.GetActive())
 	}
 
 	buf3 := abBuffer.New[int](16)
