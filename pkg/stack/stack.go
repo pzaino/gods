@@ -27,6 +27,7 @@ const (
 	ErrStackIsEmpty  = "stack is empty"
 	ErrStartIndexOOR = "start index out of range"
 	ErrEndIndexOOR   = "end index out of range"
+	ErrSIndexGreater = "start index is greater than end index"
 )
 
 // Stack is a non-concurrent-safe stack.
@@ -268,7 +269,7 @@ func (s *Stack[T]) MapRange(start, end uint64, fn func(T) T) (*Stack[T], error) 
 	}
 
 	if start > end {
-		return nil, errors.New("start index is greater than end index")
+		return nil, errors.New(ErrSIndexGreater)
 	}
 
 	// Convert the start and end index to the stack indexes
@@ -312,7 +313,7 @@ func (s *Stack[T]) ForRange(start, end uint64, fn func(*T)) error {
 	}
 
 	if start > end {
-		return errors.New("start index is greater than end index")
+		return errors.New(ErrSIndexGreater)
 	}
 
 	// Convert the start and end index to the stack indexes
@@ -350,7 +351,7 @@ func (s *Stack[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
 	}
 
 	if start > end {
-		return errors.New("start index is greater than end index")
+		return errors.New(ErrSIndexGreater)
 	}
 
 	// Convert the start and end index to the stack indexes
