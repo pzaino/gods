@@ -106,7 +106,7 @@ This will download the library and install it in your `$GOPATH`.
 - [x] [Stack](./pkg/stack)
 - [x] [Concurrent Stack](./pkg/csstack)
 - [x] [Buffer](./pkg/buffer)
-- [ ] [Concurrent Buffer](./pkg/csbuffer)
+- [x] [Concurrent Buffer](./pkg/csbuffer)
 - [ ] [Ring Buffer](./pkg/ringBuffer)
 - [ ] [Concurrent Ring Buffer](./pkg/csringBuffer)
 - [ ] [A/B Buffer](./pkg/abBuffer)
