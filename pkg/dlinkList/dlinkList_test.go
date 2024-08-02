@@ -704,6 +704,41 @@ func TestInsert(t *testing.T) {
 	if item.Value != 2 {
 		t.Errorf(errWrongValue, 2, item.Value)
 	}
+
+	// Test case 2: Insert at the end of the list
+	err = list.InsertAt(4, 5)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	if list.Size() != 5 {
+		t.Errorf(errWrongSize, 5, list.Size())
+	}
+
+	item, err = list.GetAt(4)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	if item.Value != 5 {
+		t.Errorf(errWrongValue, 5, item.Value)
+	}
+
+	item, err = list.GetAt(3)
+	if err != nil {
+		t.Errorf(errNoError, err)
+	}
+
+	if item.Value != 3 {
+		t.Errorf(errWrongValue, 3, item.Value)
+	}
+
+	// Test case 3: Insert outside of the list
+	err = list.InsertAt(6, 6)
+	if err == nil {
+		t.Error(errYesError)
+	}
+
 }
 
 func TestInsertAtStart(t *testing.T) {

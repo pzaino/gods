@@ -17,7 +17,11 @@ package dlinkList
 
 import "errors"
 
-const ErrIndexOutOfBound = "index out of bounds"
+const (
+	ErrIndexOutOfBound = "index out of bounds"
+	ErrFailedToInsert  = "failed to insert"
+	ErrValueNotFound   = "value not found"
+)
 
 // Node is a representation of a node in a doubly linked list
 type Node[T comparable] struct {
@@ -78,7 +82,7 @@ func (l *DLinkList[T]) Insert(value T) error {
 	ln := l.size
 	l.Append(value)
 	if ln == l.size {
-		return errors.New("failed to insert")
+		return errors.New(ErrFailedToInsert)
 	}
 	return nil
 }
@@ -390,7 +394,7 @@ func (l *DLinkList[T]) Find(value T) (*Node[T], error) {
 		current = current.Next
 	}
 
-	return nil, errors.New("value  not found")
+	return nil, errors.New(ErrValueNotFound)
 }
 
 // IsEmpty returns true if the doubly linked list is empty
@@ -665,7 +669,7 @@ func (l *DLinkList[T]) LastIndexOf(value T) (uint64, error) {
 		current = current.Prev
 	}
 
-	return 0, errors.New("value not found")
+	return 0, errors.New(ErrValueNotFound)
 }
 
 // removeNode removes a node from the doubly linked list
@@ -972,7 +976,7 @@ func (l *DLinkList[T]) FindLast(f func(T) bool) (*Node[T], error) {
 	}
 
 	if result == nil {
-		return nil, errors.New("value not found")
+		return nil, errors.New(ErrValueNotFound)
 	}
 
 	return result, nil
