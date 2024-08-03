@@ -320,8 +320,9 @@ func TestCSStackForEach(t *testing.T) {
 		cs.Push(i)
 	}
 	runConcurrent(t, 1000, func() {
-		err := cs.ForEach(func(item *int) {
+		err := cs.ForEach(func(item *int) error {
 			*item = *item + 1
+			return nil
 		})
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -335,8 +336,9 @@ func TestCSStackForRange(t *testing.T) {
 		cs.Push(i)
 	}
 	runConcurrent(t, 999, func() {
-		err := cs.ForRange(0, 500, func(item *int) {
+		err := cs.ForRange(0, 500, func(item *int) error {
 			*item = *item + 1
+			return nil
 		})
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -350,8 +352,9 @@ func TestCSStackForFrom(t *testing.T) {
 		cs.Push(i)
 	}
 	runConcurrent(t, 999, func() {
-		err := cs.ForFrom(500, func(item *int) {
+		err := cs.ForFrom(500, func(item *int) error {
 			*item = *item + 1
+			return nil
 		})
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)

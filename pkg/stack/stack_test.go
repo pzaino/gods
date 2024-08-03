@@ -697,9 +697,10 @@ func TestForEach(t *testing.T) {
 	s.Push(3)
 
 	// Define a function to be applied to each item
-	fn := func(item *int) {
+	fn := func(item *int) error {
 		// Perform some action on the item
 		fmt.Println(*item)
+		return nil
 	}
 
 	// Apply the function to each item in the stack
@@ -952,8 +953,9 @@ func TestForRange(t *testing.T) {
 	s.Push(3)
 
 	// Test case 1: Apply function to each item within the range [0, 1]
-	err := s.ForRange(0, 1, func(item *int) {
+	err := s.ForRange(0, 1, func(item *int) error {
 		*item *= 2
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
@@ -965,8 +967,9 @@ func TestForRange(t *testing.T) {
 	}
 
 	// Test case 2: Apply function to each item within the range [1, 2]
-	err = s.ForRange(1, 2, func(item *int) {
+	err = s.ForRange(1, 2, func(item *int) error {
 		*item *= 3
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
@@ -978,8 +981,9 @@ func TestForRange(t *testing.T) {
 	}
 
 	// Test case 3: Apply function to each item within the range [2, 2]
-	err = s.ForRange(2, 2, func(item *int) {
+	err = s.ForRange(2, 2, func(item *int) error {
 		*item *= 4
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
@@ -991,24 +995,27 @@ func TestForRange(t *testing.T) {
 	}
 
 	// Test case 4: Start index out of range
-	err = s.ForRange(3, 4, func(item *int) {
+	err = s.ForRange(3, 4, func(item *int) error {
 		*item *= 5
+		return nil
 	})
 	if err == nil {
 		t.Error(errYesError)
 	}
 
 	// Test case 5: End index out of range
-	err = s.ForRange(1, 3, func(item *int) {
+	err = s.ForRange(1, 3, func(item *int) error {
 		*item *= 6
+		return nil
 	})
 	if err == nil {
 		t.Error(errYesError)
 	}
 
 	// Test case 6: Start index is greater than end index
-	err = s.ForRange(2, 1, func(item *int) {
+	err = s.ForRange(2, 1, func(item *int) error {
 		*item *= 7
+		return nil
 	})
 	if err == nil {
 		t.Error(errYesError)
@@ -1023,8 +1030,9 @@ func TestForFrom(t *testing.T) {
 
 	// Test case 1: Apply function to each item starting from index 0
 	var result []int
-	err := s.ForFrom(0, func(item *int) {
+	err := s.ForFrom(0, func(item *int) error {
 		result = append(result, *item)
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
@@ -1036,8 +1044,9 @@ func TestForFrom(t *testing.T) {
 
 	// Test case 2: Apply function to each item starting from index 1
 	result = nil
-	err = s.ForFrom(1, func(item *int) {
+	err = s.ForFrom(1, func(item *int) error {
 		result = append(result, *item)
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
@@ -1049,8 +1058,9 @@ func TestForFrom(t *testing.T) {
 
 	// Test case 3: Apply function to each item starting from index 2
 	result = nil
-	err = s.ForFrom(2, func(item *int) {
+	err = s.ForFrom(2, func(item *int) error {
 		result = append(result, *item)
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)
@@ -1061,9 +1071,10 @@ func TestForFrom(t *testing.T) {
 	}
 
 	// Test case 4: Apply function to each item starting from index out of range
-	err = s.ForFrom(3, func(item *int) {
+	err = s.ForFrom(3, func(item *int) error {
 		// Function should not be called
 		t.Error("Function should not be called")
+		return nil
 	})
 	if err == nil {
 		t.Error(errYesError)
@@ -1224,9 +1235,10 @@ func TestConfinedForEach(t *testing.T) {
 	s.Push(2)
 	s.Push(3)
 
-	err := s.ConfinedForEach(func(item *int) {
+	err := s.ConfinedForEach(func(item *int) error {
 		// Perform some operation on the item
 		*item = *item * 2
+		return nil
 	})
 
 	if err != nil {
@@ -1251,7 +1263,7 @@ func TestConfinedForFrom(t *testing.T) {
 	var mu sync.Mutex
 	var result []int
 
-	err := s.ConfinedForFrom(1, func(item *int) {
+	err := s.ConfinedForFrom(1, func(item *int) error {
 		wg.Add(1)
 		go func(e int) {
 			defer wg.Done()
@@ -1259,6 +1271,7 @@ func TestConfinedForFrom(t *testing.T) {
 			result = append(result, e)
 			mu.Unlock()
 		}(*item)
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errNoError, err)

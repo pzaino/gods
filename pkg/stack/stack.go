@@ -56,6 +56,9 @@ func (s *Stack[T]) Push(item T) {
 
 // IsEmpty checks if the stack is empty.
 func (s *Stack[T]) IsEmpty() bool {
+	if s == nil {
+		return true
+	}
 	return s.size == 0
 }
 
@@ -73,6 +76,10 @@ func (s *Stack[T]) Pop() (*T, error) {
 
 // ToSlice returns the stack as a slice.
 func (s *Stack[T]) ToSlice() []T {
+	if s.IsEmpty() {
+		return nil
+	}
+
 	items := make([]T, s.size)
 	for i := s.size - 1; i > 0; i-- {
 		items[s.size-i-1] = s.items[i]
@@ -83,6 +90,10 @@ func (s *Stack[T]) ToSlice() []T {
 
 // Reverse reverses the stack.
 func (s *Stack[T]) Reverse() {
+	if s.IsEmpty() {
+		return
+	}
+
 	for i := 0; i < len(s.items)/2; i++ {
 		j := len(s.items) - i - 1
 		s.items[i], s.items[j] = s.items[j], s.items[i]
@@ -91,7 +102,7 @@ func (s *Stack[T]) Reverse() {
 
 // Swap swaps the top two items on the stack.
 func (s *Stack[T]) Swap() error {
-	if len(s.items) < 2 {
+	if s.IsEmpty() || s.size < 2 {
 		return errors.New("Stack has less than 2 items")
 	}
 
@@ -101,7 +112,7 @@ func (s *Stack[T]) Swap() error {
 
 // Top returns the top item from the stack without removing it.
 func (s *Stack[T]) Top() (*T, error) {
-	if len(s.items) == 0 {
+	if s.IsEmpty() {
 		return nil, errors.New(ErrStackIsEmpty)
 	}
 
@@ -116,11 +127,17 @@ func (s *Stack[T]) Peek() (*T, error) {
 
 // Size returns the number of items in the stack.
 func (s *Stack[T]) Size() uint64 {
+	if s.IsEmpty() {
+		return 0
+	}
 	return s.size
 }
 
 // CheckSize recalculate the size of the stack.
 func (s *Stack[T]) CheckSize() {
+	if s.IsEmpty() {
+		return
+	}
 	s.size = uint64(len(s.items))
 }
 
@@ -132,7 +149,7 @@ func (s *Stack[T]) Clear() {
 
 // Contains checks if the stack contains an item.
 func (s *Stack[T]) Contains(item T) bool {
-	if s.size == 0 {
+	if s.IsEmpty() {
 		return false
 	}
 
@@ -152,6 +169,10 @@ func (s *Stack[T]) Contains(item T) bool {
 // Copy returns a new Stack with the same items.
 func (s *Stack[T]) Copy() *Stack[T] {
 	stack := New[T]()
+	if s.IsEmpty() {
+		return stack
+	}
+
 	for _, item := range s.items {
 		stack.Push(item)
 	}
@@ -189,13 +210,19 @@ func (s *Stack[T]) Equal(other *Stack[T]) bool {
 
 // String returns a string representation of the stack.
 func (s *Stack[T]) String() string {
+	if s.IsEmpty() {
+		return "[]"
+	}
 	return fmt.Sprintf("%v", s.items)
 }
 
 // PopN removes and returns the top n items from the stack.
 func (s *Stack[T]) PopN(n uint64) ([]T, error) {
+	if s.IsEmpty() {
+		return nil, errors.New(ErrStackIsEmpty)
+	}
 	if s.size < n {
-		return nil, errors.New("Stack has less than n items")
+		return nil, errors.New("Stack has less items than requested")
 	}
 
 	items := make([]T, n)
@@ -298,12 +325,16 @@ func (s *Stack[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each item in the stack.
-func (s *Stack[T]) ForEach(fn func(*T)) error {
+func (s *Stack[T]) ForEach(fn func(*T) error) error {
 	return s.ForRange(0, s.size-1, fn)
 }
 
 // ForRange applies the function to each item in the stack within the specified range.
-func (s *Stack[T]) ForRange(start, end uint64, fn func(*T)) error {
+func (s *Stack[T]) ForRange(start, end uint64, fn func(*T) error) error {
+	if s.IsEmpty() {
+		return nil
+	}
+
 	if start >= s.size {
 		return errors.New(ErrStartIndexOOR)
 	}
@@ -326,22 +357,28 @@ func (s *Stack[T]) ForRange(start, end uint64, fn func(*T)) error {
 	}
 
 	for i := start; i >= end; i-- {
-		fn(&s.items[i])
+		err := fn(&s.items[i])
+		if err != nil {
+			return err
+		}
 	}
 	if checkZero {
-		fn(&s.items[0])
+		err := fn(&s.items[0])
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 // ForFrom applies the function to each item in the stack starting from the specified index.
-func (s *Stack[T]) ForFrom(start uint64, fn func(*T)) error {
+func (s *Stack[T]) ForFrom(start uint64, fn func(*T) error) error {
 	return s.ForRange(start, s.size-1, fn)
 }
 
 // ConfinedForRange applies the function to each item in the stack within the specified range.
 // The function is executed in a separate goroutine for each item.
-func (s *Stack[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
+func (s *Stack[T]) ConfinedForRange(start, end uint64, fn func(*T) error) error {
 	if start >= s.size {
 		return errors.New(ErrStartIndexOOR)
 	}
@@ -363,35 +400,55 @@ func (s *Stack[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
 		checkZero = true
 	}
 
+	numElements := start - end + 1
+
 	var wg sync.WaitGroup
+	errorChan := make(chan error, numElements)
+
 	for i := start; i >= end; i-- {
 		wg.Add(1)
 		go func(i uint64) {
 			defer wg.Done()
-			fn(&s.items[i])
+			if err := fn(&s.items[i]); err != nil {
+				errorChan <- err
+			}
 		}(i)
 	}
 	if checkZero {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			fn(&s.items[0])
+			if err := fn(&s.items[0]); err != nil {
+				errorChan <- err
+			}
 		}()
 	}
 	wg.Wait()
+	close(errorChan)
+
+	// Handle errors captured from goroutines
+	var capturedErrors []error
+	for err := range errorChan {
+		capturedErrors = append(capturedErrors, err)
+	}
+
+	if len(capturedErrors) > 0 {
+		errMsg := fmt.Sprintf("captured %d errors during concurrent operations: %v", len(capturedErrors), capturedErrors)
+		return errors.New(errMsg)
+	}
 
 	return nil
 }
 
 // ConfinedForFrom applies the function to each item in the stack starting from the specified index.
 // The function is executed in a separate goroutine for each item.
-func (s *Stack[T]) ConfinedForFrom(start uint64, fn func(*T)) error {
+func (s *Stack[T]) ConfinedForFrom(start uint64, fn func(*T) error) error {
 	return s.ConfinedForRange(start, s.size-1, fn)
 }
 
 // ConfinedForEach applies the function to each item in the stack.
 // The function is executed in a separate goroutine for each item.
-func (s *Stack[T]) ConfinedForEach(fn func(*T)) error {
+func (s *Stack[T]) ConfinedForEach(fn func(*T) error) error {
 	return s.ConfinedForRange(0, s.size-1, fn)
 }
 

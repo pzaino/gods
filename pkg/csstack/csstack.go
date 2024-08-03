@@ -202,21 +202,21 @@ func (cs *CSStack[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each item in the stack.
-func (cs *CSStack[T]) ForEach(fn func(*T)) error {
+func (cs *CSStack[T]) ForEach(fn func(*T) error) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.ForEach(fn)
 }
 
 // ForRange applies the function to each item in the stack in the range [start, end).
-func (cs *CSStack[T]) ForRange(start, end uint64, fn func(*T)) error {
+func (cs *CSStack[T]) ForRange(start, end uint64, fn func(*T) error) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.ForRange(start, end, fn)
 }
 
 // ForFrom applies the function to each item in the stack starting from the index.
-func (cs *CSStack[T]) ForFrom(start uint64, fn func(*T)) error {
+func (cs *CSStack[T]) ForFrom(start uint64, fn func(*T) error) error {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 	return cs.s.ForFrom(start, fn)
