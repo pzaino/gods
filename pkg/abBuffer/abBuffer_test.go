@@ -209,8 +209,9 @@ func TestForEach(t *testing.T) {
 	_ = buf.Append(1)
 	_ = buf.Append(2)
 	var sum int
-	err := buf.ForEach(func(v *int) {
+	err := buf.ForEach(func(v *int) error {
 		sum += *v
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errUnexpectedError, err)
@@ -225,8 +226,9 @@ func TestForFrom(t *testing.T) {
 	_ = buf.Append(1)
 	_ = buf.Append(2)
 	var sum int
-	err := buf.ForFrom(1, func(v *int) {
+	err := buf.ForFrom(1, func(v *int) error {
 		sum += *v
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errUnexpectedError, err)
@@ -235,8 +237,9 @@ func TestForFrom(t *testing.T) {
 		t.Errorf("expected sum 2, got %d", sum)
 	}
 
-	err = buf.ForFrom(2, func(v *int) {
+	err = buf.ForFrom(2, func(v *int) error {
 		sum += *v
+		return nil
 	})
 	if err == nil || err.Error() != abBuffer.ErrInvalidBuffer {
 		t.Errorf(errExpectedInvalidBuf, err)
@@ -248,8 +251,9 @@ func TestForRange(t *testing.T) {
 	_ = buf.Append(1)
 	_ = buf.Append(2)
 	var sum int
-	err := buf.ForRange(0, 2, func(v *int) {
+	err := buf.ForRange(0, 2, func(v *int) error {
 		sum += *v
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errUnexpectedError, err)
@@ -258,8 +262,9 @@ func TestForRange(t *testing.T) {
 		t.Errorf("expected sum 3, got %d", sum)
 	}
 
-	err = buf.ForRange(0, 3, func(v *int) {
+	err = buf.ForRange(0, 3, func(v *int) error {
 		sum += *v
+		return nil
 	})
 	if err == nil || err.Error() != abBuffer.ErrInvalidBuffer {
 		t.Errorf(errExpectedInvalidBuf, err)

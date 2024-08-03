@@ -17,6 +17,7 @@ package buffer
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"sync"
 )
@@ -442,12 +443,12 @@ func (b *Buffer[T]) ReduceRange(start, end uint64, fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each element in the buffer
-func (b *Buffer[T]) ForEach(fn func(*T)) error {
+func (b *Buffer[T]) ForEach(fn func(*T) error) error {
 	return b.ForRange(0, b.size, fn)
 }
 
 // ForRange applies the function to each element in the buffer in the range [start, end)
-func (b *Buffer[T]) ForRange(start, end uint64, fn func(*T)) error {
+func (b *Buffer[T]) ForRange(start, end uint64, fn func(*T) error) error {
 	if b.IsEmpty() {
 		return errors.New(ErrBufferEmpty)
 	}
@@ -457,14 +458,16 @@ func (b *Buffer[T]) ForRange(start, end uint64, fn func(*T)) error {
 	}
 
 	for i := start; i < end; i++ {
-		fn(&b.data[i])
+		if err := fn(&b.data[i]); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 // ConfinedForRange applies the function to each element in the buffer in the range [start, end]
 // in a confined goroutine (i.e., the user-function is executed in parallel)
-func (b *Buffer[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
+func (b *Buffer[T]) ConfinedForRange(start, end uint64, fn func(*T) error) error {
 	if b.IsEmpty() {
 		return errors.New(ErrBufferEmpty)
 	}
@@ -473,30 +476,45 @@ func (b *Buffer[T]) ConfinedForRange(start, end uint64, fn func(*T)) error {
 		return errors.New(ErrInvalidBuffer)
 	}
 
+	numElements := end - start + 1
+
 	var wg sync.WaitGroup
+	var errChan = make(chan error, numElements)
 	for i := start; i < end; i++ {
 		wg.Add(1)
 		go func(i uint64) {
 			defer wg.Done()
-			fn(&b.data[i])
+			if err := fn(&b.data[i]); err != nil {
+				errChan <- err
+			}
 		}(i)
 	}
 	wg.Wait()
+	close(errChan)
+
+	var collectedErrors []error
+	for err := range errChan {
+		collectedErrors = append(collectedErrors, err)
+	}
+	if len(collectedErrors) > 0 {
+		errMsg := fmt.Sprintf("errors occurred in %d goroutines: %v", len(collectedErrors), collectedErrors)
+		return errors.New(errMsg)
+	}
 	return nil
 }
 
 // ConfinedForEach applies the function to each element in the buffer in a confined goroutine
-func (b *Buffer[T]) ConfinedForEach(fn func(*T)) error {
+func (b *Buffer[T]) ConfinedForEach(fn func(*T) error) error {
 	return b.ConfinedForRange(0, b.size, fn)
 }
 
 // ConfinedForFrom applies the function to each element in the buffer starting from the index
-func (b *Buffer[T]) ConfinedForFrom(start uint64, fn func(*T)) error {
+func (b *Buffer[T]) ConfinedForFrom(start uint64, fn func(*T) error) error {
 	return b.ConfinedForRange(start, b.size, fn)
 }
 
 // ForFrom applies the function to each element in the buffer starting from the index
-func (b *Buffer[T]) ForFrom(start uint64, fn func(*T)) error {
+func (b *Buffer[T]) ForFrom(start uint64, fn func(*T) error) error {
 	return b.ForRange(start, b.size, fn)
 }
 

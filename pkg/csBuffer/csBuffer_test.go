@@ -230,3 +230,98 @@ func TestConcurrentDestroy(t *testing.T) {
 		t.Errorf("expected buffer capacity to be 0 after destroy, got %d", cb.Capacity())
 	}
 }
+
+// TestConcurrentForFrom tests the ForFrom method of ConcurrentBuffer.
+func TestConcurrentForFrom(t *testing.T) {
+	cb := buffer.New[int]()
+	const numElements = 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i)
+		if err != nil {
+			t.Errorf(errUnexpectedErr, err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < numElements; i++ {
+		wg.Add(1)
+		if i%2 == 0 {
+			go func() {
+				defer wg.Done()
+				err := cb.ForFrom(uint64(0), func(elem *int) error {
+					*elem = *elem + 1
+					return nil
+				})
+				if err != nil {
+					t.Errorf("unexpected error during ForFrom: %v", err)
+				}
+			}()
+		} else {
+			go func() {
+				defer wg.Done()
+				err := cb.ForFrom(uint64(0), func(elem *int) error {
+					*elem = *elem - 1
+					return nil
+				})
+				if err != nil {
+					t.Errorf("unexpected error during ForFrom: %v", err)
+				}
+			}()
+		}
+	}
+
+	wg.Wait()
+
+	for i := 0; i < numElements; i++ {
+		val, err := cb.Get(uint64(i))
+		if err != nil {
+			t.Errorf("unexpected error during Get: %v", err)
+		}
+		expectedVal := i
+		if val != expectedVal {
+			t.Errorf("expected value %d, got %d", expectedVal, val)
+		}
+	}
+}
+
+// TestConcurrentForRange tests the ForRange method of ConcurrentBuffer.
+func TestConcurrentForRange(t *testing.T) {
+	cb := buffer.New[int]()
+	const numElements = 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i)
+		if err != nil {
+			t.Errorf(errUnexpectedErr, err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	const start = uint64(20)
+	const end = uint64(80)
+	for i := start; i < end; i++ {
+		wg.Add(1)
+		go func(i uint64) {
+			defer wg.Done()
+			err := cb.ForRange(start, end, func(elem *int) error {
+				*elem = *elem + 1
+				return nil
+			})
+			if err != nil {
+				t.Errorf("unexpected error during ForRange: %v", err)
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	for i := start; i < end; i++ {
+		val, err := cb.Get(i)
+		if err != nil {
+			t.Errorf("unexpected error during Get: %v", err)
+		}
+		expectedVal := int(i) + 60
+		if val != expectedVal {
+			t.Errorf("expected value %d, got %d", expectedVal, val)
+		}
+	}
+}
