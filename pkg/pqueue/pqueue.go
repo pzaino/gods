@@ -311,11 +311,27 @@ func (pq *PriorityQueue[T]) Reduce(f func(T, T) T, initial T) T {
 	return result
 }
 
-// ForEach applies the function to all the elements in the priority queue
-func (pq *PriorityQueue[T]) ForEach(f func(*T)) {
-	for i := uint64(0); i < pq.size; i++ {
-		f(&pq.data[i].Value)
+// Given that the priority queue is a max-heap, the following functions are not needed:
+// - ForFrom
+// - ForRange
+// This is because we can't guarantee the order of the elements in the heap.
+
+// ForEach applies the function to all the elements in the priority queue within the given range
+func (pq *PriorityQueue[T]) ForEach(f func(*T) error) error {
+	if pq.IsEmpty() {
+		return nil
 	}
+
+	// Iterate over the elements in the priority queue
+	start := uint64(0)
+	end := pq.size
+
+	for i := start; i < end; i++ {
+		if err := f(&pq.data[i].Value); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Any checks if any element in the priority queue matches the predicate

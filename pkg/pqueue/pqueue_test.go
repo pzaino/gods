@@ -175,9 +175,13 @@ func TestForEach(t *testing.T) {
 	pq := pqueue.New[int]()
 	pq.Enqueue(10, 1)
 	pq.Enqueue(20, 2)
-	pq.ForEach(func(val *int) {
+	err := pq.ForEach(func(val *int) error {
 		*val += 5
+		return nil
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectedValues := []int{25, 15}
 	for i, val := range pq.Values() {
 		if val != expectedValues[i] {

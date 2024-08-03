@@ -311,7 +311,10 @@ func TestMap(t *testing.T) {
 	}
 
 	// Apply the mapping function to the queue
-	mappedQueue := q.Map(f)
+	mappedQueue, err := q.Map(f)
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
 
 	// Check the size of the mapped queue
 	if mappedQueue.Size() != 3 {
@@ -405,12 +408,13 @@ func TestForEach(t *testing.T) {
 	q.Enqueue(3)
 
 	// Define the function to be applied to each element
-	f := func(elem *int) {
+	f := func(elem *int) error {
 		*elem = *elem * 2
+		return nil
 	}
 
 	// Apply the function to each element in the queue
-	q.ForEach(f)
+	_ = q.ForEach(f)
 
 	// Check the values of the queue after applying the function
 	values := q.Values()

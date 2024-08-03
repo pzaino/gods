@@ -115,6 +115,9 @@ func (q *Queue[T]) Equals(other *Queue[T]) bool {
 // Copy returns a copy of the queue
 func (q *Queue[T]) Copy() *Queue[T] {
 	copy := New[T]()
+	if q.IsEmpty() {
+		return copy
+	}
 	copy.data = append(copy.data, q.data...)
 	copy.size = q.size
 	return copy
@@ -122,6 +125,9 @@ func (q *Queue[T]) Copy() *Queue[T] {
 
 // String returns a string representation of the queue
 func (q *Queue[T]) String(f func(T) string) string {
+	if q.IsEmpty() {
+		return "[]"
+	}
 	return q.dataString(f)
 }
 
@@ -139,21 +145,34 @@ func (q *Queue[T]) dataString(f func(T) string) string {
 }
 
 // Map creates a new queue with the results of applying the function to all elements in the queue
-func (q *Queue[T]) Map(f func(T) T) *Queue[T] {
+func (q *Queue[T]) Map(f func(T) T) (*Queue[T], error) {
+	return q.MapRange(0, q.size, f)
+}
+
+// MapFrom creates a new queue with the results of applying the function to all elements in the queue starting from the given index
+func (q *Queue[T]) MapFrom(start uint64, f func(T) T) (*Queue[T], error) {
+	return q.MapRange(start, q.size, f)
+}
+
+// MapRange creates a new queue with the results of applying the function to all elements in the queue within the given range
+func (q *Queue[T]) MapRange(start, end uint64, f func(T) T) (*Queue[T], error) {
 	newQueue := New[T]()
 
-	if q.size == 0 {
-		return newQueue
+	if q.IsEmpty() {
+		return newQueue, nil
 	}
 
-	for i := uint64(0); i < q.size; i++ {
+	for i := start; i < end; i++ {
 		newQueue.Enqueue(f(q.data[i]))
 	}
-	return newQueue
+	return newQueue, nil
 }
 
 // Filter removes elements from the queue that don't match the predicate
 func (q *Queue[T]) Filter(f func(T) bool) {
+	if q.IsEmpty() {
+		return
+	}
 	var newData []T
 	var size uint64
 	for i := uint64(0); i < q.size; i++ {
@@ -176,13 +195,29 @@ func (q *Queue[T]) Reduce(f func(T, T) T, initial T) T {
 }
 
 // ForEach applies the function to all the elements in the queue
-func (q *Queue[T]) ForEach(f func(*T)) {
-	if q.size == 0 {
-		return
+func (q *Queue[T]) ForEach(f func(*T) error) error {
+	return q.ForRange(0, q.size, f)
+}
+
+// ForFrom applies the function to all the elements in the queue starting from the given index
+func (q *Queue[T]) ForFrom(start uint64, f func(*T) error) error {
+	return q.ForRange(start, q.size, f)
+}
+
+// ForRange applies the function to all the elements in the queue within the given range
+func (q *Queue[T]) ForRange(start, end uint64, f func(*T) error) error {
+	if q.IsEmpty() {
+		return nil
 	}
-	for i := uint64(0); i < q.size; i++ {
-		f(&q.data[i])
+
+	var err error
+	for i := start; i < end; i++ {
+		err = f(&q.data[i])
+		if err != nil {
+			break
+		}
 	}
+	return err
 }
 
 // Any checks if any element in the queue matches the predicate

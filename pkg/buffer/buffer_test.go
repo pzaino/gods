@@ -562,8 +562,9 @@ func TestReduceRange(t *testing.T) {
 // TestForEach tests the ForEach method
 func TestForEach(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
-	err := b.ForEach(func(x *int) {
+	err := b.ForEach(func(x *int) error {
 		*x *= 2
+		return nil
 	})
 	if err != nil {
 		t.Errorf("ForEach should not return an error, got %v", err)
@@ -580,8 +581,9 @@ func TestForEach(t *testing.T) {
 // TestForRange tests the ForRange method
 func TestForRange(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
-	err := b.ForRange(1, 3, func(x *int) {
+	err := b.ForRange(1, 3, func(x *int) error {
 		*x *= 2
+		return nil
 	})
 	if err != nil {
 		t.Errorf("ForRange should not return an error, got %v", err)
@@ -593,8 +595,9 @@ func TestForRange(t *testing.T) {
 			t.Errorf(errExpectedValue, expected[i], v)
 		}
 	}
-	err = b.ForRange(3, 3, func(x *int) {
+	err = b.ForRange(3, 3, func(x *int) error {
 		*x *= 2
+		return nil
 	})
 	if err == nil {
 		t.Error("ForRange should return an error for an out-of-bounds index")
@@ -607,8 +610,9 @@ func TestForRange(t *testing.T) {
 // TestForFrom tests the ForFrom method
 func TestForFrom(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
-	err := b.ForFrom(1, func(x *int) {
+	err := b.ForFrom(1, func(x *int) error {
 		*x *= 2
+		return nil
 	})
 	if err != nil {
 		t.Errorf("ForFrom should not return an error, got %v", err)
@@ -620,8 +624,9 @@ func TestForFrom(t *testing.T) {
 			t.Errorf(errExpectedValue, expected[i], v)
 		}
 	}
-	err = b.ForFrom(3, func(x *int) {
+	err = b.ForFrom(3, func(x *int) error {
 		*x *= 2
+		return nil
 	})
 	if err == nil {
 		t.Error("ForFrom should return an error for an out-of-bounds index")
@@ -1038,8 +1043,9 @@ func TestInsertAt(t *testing.T) {
 func TestConfinedForRange(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
 	fmt.Printf("Buffer: %v\n", b)
-	err := b.ConfinedForRange(0, b.Size(), func(elem *int) {
+	err := b.ConfinedForRange(0, b.Size(), func(elem *int) error {
 		*elem = *elem * 2
+		return nil
 	})
 	fmt.Printf("Buffer: %v\n", b)
 	if err != nil {
@@ -1062,8 +1068,9 @@ func TestConfinedForRange(t *testing.T) {
 // TestConfinedForEach tests the ConfinedForEach method
 func TestConfinedForEach(t *testing.T) {
 	b := createBufferWithElements(t, []int{1, 2, 3}, 3)
-	err := b.ConfinedForEach(func(elem *int) {
+	err := b.ConfinedForEach(func(elem *int) error {
 		*elem *= 2
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errUnexpectedErr, err)
@@ -1082,7 +1089,7 @@ func TestConfinedForFrom(t *testing.T) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var result []int
-	err := b.ConfinedForFrom(1, func(elem *int) {
+	err := b.ConfinedForFrom(1, func(elem *int) error {
 		wg.Add(1)
 		go func(e int) {
 			defer wg.Done()
@@ -1090,6 +1097,7 @@ func TestConfinedForFrom(t *testing.T) {
 			result = append(result, e)
 			mu.Unlock()
 		}(*elem)
+		return nil
 	})
 	if err != nil {
 		t.Errorf(errUnexpectedErr, err)

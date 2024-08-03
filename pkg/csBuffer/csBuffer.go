@@ -238,10 +238,24 @@ func (cb *ConcurrentBuffer[T]) Reduce(fn func(T, T) T) (T, error) {
 }
 
 // ForEach applies the function to each element in the buffer.
-func (cb *ConcurrentBuffer[T]) ForEach(fn func(*T)) error {
+func (cb *ConcurrentBuffer[T]) ForEach(fn func(*T) error) error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	return cb.b.ForEach(fn)
+}
+
+// ForFrom applies the function to each element in the buffer starting from the given index.
+func (cb *ConcurrentBuffer[T]) ForFrom(start uint64, fn func(*T) error) error {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	return cb.b.ForFrom(start, fn)
+}
+
+// ForRange applies the function to each element in the buffer within the given range.
+func (cb *ConcurrentBuffer[T]) ForRange(start, end uint64, fn func(*T) error) error {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	return cb.b.ForRange(start, end, fn)
 }
 
 // Any checks if any element in the buffer matches the predicate.
