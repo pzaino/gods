@@ -10,6 +10,7 @@ import (
 
 const (
 	errUnexpectedErr = "unexpected error during append: %v"
+	errExpectedVal   = "expected value %d, got %d"
 )
 
 // TestConcurrentAppend tests concurrent appends to the buffer.
@@ -60,7 +61,7 @@ func TestConcurrentGet(t *testing.T) {
 				t.Errorf("unexpected error during get: %v", err)
 			}
 			if val != i {
-				t.Errorf("expected value %d, got %d", i, val)
+				t.Errorf(errExpectedVal, i, val)
 			}
 		}(i)
 	}
@@ -246,27 +247,9 @@ func TestConcurrentForFrom(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		wg.Add(1)
 		if i%2 == 0 {
-			go func() {
-				defer wg.Done()
-				err := cb.ForFrom(uint64(0), func(elem *int) error {
-					*elem = *elem + 1
-					return nil
-				})
-				if err != nil {
-					t.Errorf("unexpected error during ForFrom: %v", err)
-				}
-			}()
+			go incrementElements(t, &wg, cb)
 		} else {
-			go func() {
-				defer wg.Done()
-				err := cb.ForFrom(uint64(0), func(elem *int) error {
-					*elem = *elem - 1
-					return nil
-				})
-				if err != nil {
-					t.Errorf("unexpected error during ForFrom: %v", err)
-				}
-			}()
+			go decrementElements(t, &wg, cb)
 		}
 	}
 
@@ -279,9 +262,35 @@ func TestConcurrentForFrom(t *testing.T) {
 		}
 		expectedVal := i
 		if val != expectedVal {
-			t.Errorf("expected value %d, got %d", expectedVal, val)
+			t.Errorf(errExpectedVal, expectedVal, val)
 		}
 	}
+}
+
+func incrementElements(t *testing.T, wg *sync.WaitGroup, cb *buffer.ConcurrentBuffer[int]) {
+	defer wg.Done()
+	err := cb.ForFrom(uint64(0), increment)
+	if err != nil {
+		t.Errorf("unexpected error during ForFrom: %v", err)
+	}
+}
+
+func decrementElements(t *testing.T, wg *sync.WaitGroup, cb *buffer.ConcurrentBuffer[int]) {
+	defer wg.Done()
+	err := cb.ForFrom(uint64(0), decrement)
+	if err != nil {
+		t.Errorf("unexpected error during ForFrom: %v", err)
+	}
+}
+
+func increment(elem *int) error {
+	*elem = *elem + 1
+	return nil
+}
+
+func decrement(elem *int) error {
+	*elem = *elem - 1
+	return nil
 }
 
 // TestConcurrentForRange tests the ForRange method of ConcurrentBuffer.
@@ -321,7 +330,7 @@ func TestConcurrentForRange(t *testing.T) {
 		}
 		expectedVal := int(i) + 60
 		if val != expectedVal {
-			t.Errorf("expected value %d, got %d", expectedVal, val)
+			t.Errorf(errExpectedVal, expectedVal, val)
 		}
 	}
 }
