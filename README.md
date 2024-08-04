@@ -12,76 +12,78 @@
 [![FOSSA Security](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_shield&issueType=security)
 [![OSV Security](https://github.com/pzaino/gods/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/pzaino/gods/actions/workflows/osv-scanner.yml/badge.svg)
 
-**WIP**: This project is still a work in progress. I will be adding more data structures as I implement them.
+**WIP**: This project is still a work in progress. I will be adding more data
+ structures as I implement them. Please do not use it yet, as it is not ready
+  for production.
 
-This repository contains my implementations of various data structures in Go. The data structures are implemented in two ways:
+This repository contains my implementations of various data structures in Go.
+ The data structures are implemented in two ways:
 
-- Lock-less (you can find these in the `pkg` directory with their "standard"
- name, for ex. stack, linkList).
-- Concurrency-safe wrapper added (you can find these in the `pkg` directory
- with their "cs" initials, for example cstsack, cslinkList).
+- Lockless: You can find these in the `pkg` directory with their "standard"
+ names, e.g., stack, linkedList.
+- Concurrency-safe wrapper: You can find these in the `pkg` directory with the
+ prefix "cs", e.g., csstack, cslinkedList.
 
-Use the non concurrent-safe data structures if you need best performance
-in a non-concurrent application or if you want to handle concurrency by
-yourself. Use the concurrent-safe data structures for best approach in
-concurrent applications or if you don't want to handle concurrency by
-yourself.
+Use the non-concurrent-safe data structures if you need the best performance
+ in a non-concurrent application or if you want to handle concurrency yourself.
+  Use the concurrent-safe data structures for the best approach in concurrent
+   applications or if you prefer not to handle concurrency yourself.
 
-Both implementations generally come with 3 special methods:
+Both implementations generally come with three special methods:
 
-- `ConfinedForEach`: This method will iterate over the data structure and
-execute a function for each element. The function will be executed in a
-separate goroutine for each element.
-- `ConfinedForFrom`: This method will iterate over the data structure and
-execute a function for each element starting from a given element. The
-function will be executed in a separate goroutine for each element.
-- `ConfinedForRange`: This method will iterate over the data structure and
-execute a function for each element in a given range. The function will be
-executed in a separate goroutine for each element.
+- `ConfinedForEach`: This method iterates over the data structure and executes
+ a function for each element. The function is executed in a separate goroutine
+  for each element.
+- `ConfinedForFrom`: This method iterates over the data structure and executes
+ a function for each element starting from a given element. The function is
+  executed in a separate goroutine for each element.
+- `ConfinedForRange`: This method iterates over the data structure and
+ executes a function for each element within a given range. The function is
+ executed in a separate goroutine for each element.
 
-These 3 methods offer better performance when there are multiple CPU cores
-available. They are also useful when you want to execute a function for each
-element in parallel. The number of goroutines created will be equal to the
-number of CPU cores available.
+These three methods offer better performance when there are multiple CPU cores
+ available. They are also useful when you want to execute a function for each
+  element in parallel. The number of goroutines created will be equal to the
+   number of CPU cores available.
 
 Every other method is not parallel. The Buffer has a special set of methods
-called:
+ called:
 
-- `Blit`: This method will combine/overwrite the elements of the buffer with
-the elements of another buffer using a custom function. If the two buffers
-have different lengths, the function will use the size of the smallest of the
-two.
-- `BlitFrom`: This method will combine/overwrite the elements of the buffer
-with the elements of another buffer starting from a given index using a custom
-function. If the two buffers have different lengths, the function will use the
-size of the smallest of the two.
-- `BlitRange`: This method will combine/overwrite the elements of the buffer
-with the elements of another buffer in a given range using a custom function.
+- `Blit`: This method combines/overwrites the elements of the buffer with the
+ elements of another buffer using a custom function. If the two buffers have
+  different lengths, the function will use the size of the smaller buffer.
+- `BlitFrom`: This method combines/overwrites the elements of the buffer with
+ the elements of another buffer starting from a given index using a custom
+  function. If the two buffers have different lengths, the function will use
+   the size of the smaller buffer.
+- `BlitRange`: This method combines/overwrites the elements of the buffer
+ with the elements of another buffer within a given range using a custom
+  function.
 
-These functions are special because for large amount of data it will also use
-parallelism to speed up the process. The number of goroutines created will be
-equal to the number of CPU cores available.
+These functions are special because, for large amounts of data, they use
+ parallelism to speed up the process. The number of goroutines created will
+  be equal to the number of CPU cores available.
 
-## Packaging and general design
+## Packaging and General Design
 
-All data structures comes with a set of tests to ensure that they work as
+All data structures come with a set of tests to ensure that they work as
  expected.
 
 Each data structure is implemented as a separate package in the `pkg`
-directory. The `cmd` directory contains a set of example programs that
- demonstrate how to use the data structures.
+ directory. The `cmd` directory contains a set of example programs that
+  demonstrate how to use the data structures.
 
-This should make it easy to use the data structures in your own projects and
- without making your code get too big. You can just import the package you
-  need and start using it.
+This design should make it easy to use the data structures in your own
+ projects without significantly increasing your code size. You can simply
+  import the package you need and start using it.
 
-All data structures were designed to use generics, so some method call may
- require you to provide a comparison function or a hash function.
+All data structures are designed to use generics, so some method calls may
+ require you to provide a comparison function, hash function, etc.
 
-## Installation / Use
+## Installation / Usage
 
-To use a library all you need to do is to import it in your code. For example,
-to use the stack data structure you would do:
+To use a library, you need to import it into your code. For example, to use
+ the stack data structure, you would do:
 
 ```go
 import "github.com/pzaino/gods/pkg/stack"
@@ -89,11 +91,11 @@ import "github.com/pzaino/gods/pkg/stack"
 
 Then you can start using the stack data structure in your code.
 
-You can obviously use more than one data structure in your code. Just import
-the ones you need.
+You can use more than one data structure in your code. Just import the ones
+ you need.
 
-You may need to "install" the library first. To do that you can use the
-following command:
+You may need to "install" the library first. To do that, use the following
+ command:
 
 ```bash
 go get github.com/pzaino/gods
@@ -134,10 +136,9 @@ Legend:
 - [x] Implemented
 - [ ] Not implemented yet (WIP)
 
-Given that at this time this project is still a WIP, I may change APIs as I
- move forward with the work. I will try to keep the changes to a minimum and
-  to make them as easy to adapt to as possible. But I also want to achieve a
-   good design.
+Given that this project is still a WIP, I may change the APIs as I move forward
+ with the work. I will try to keep the changes to a minimum and make them as
+  easy to adapt to as possible. However, I also want to achieve a good design.
 
 ## License
 
