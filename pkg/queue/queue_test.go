@@ -757,3 +757,66 @@ func TestFindAllIndexes(t *testing.T) {
 		t.Errorf("FindAllIndexes should not return any indexes in an empty queue")
 	}
 }
+
+func TestForFrom(t *testing.T) {
+	q := queue.New[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the function to be applied
+	f := func(elem *int) error {
+		*elem *= 2
+		return nil
+	}
+
+	// Apply the function to the elements starting from index 1
+	err := q.ForFrom(1, f)
+	if err != nil {
+		t.Errorf("ForFrom returned an error: %v", err)
+	}
+
+	// Check the values of the queue
+	values := q.Values()
+	if values[0] != 1 {
+		t.Errorf("Value at index 0 should be 1")
+	}
+	if values[1] != 4 {
+		t.Errorf("Value at index 1 should be 4")
+	}
+	if values[2] != 6 {
+		t.Errorf("Value at index 2 should be 6")
+	}
+}
+
+func TestMapFrom(t *testing.T) {
+	q := queue.New[int]()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+
+	// Define the mapping function
+	f := func(elem int) int {
+		return elem * 2
+	}
+
+	// Apply the mapping function to the queue starting from index 1
+	mappedQueue, err := q.MapFrom(1, f)
+	if err != nil {
+		t.Errorf(errExpectedNoError, err)
+	}
+
+	// Check the size of the mapped queue
+	if mappedQueue.Size() != 2 {
+		t.Errorf("Mapped queue should have 2 elements")
+	}
+
+	// Check the values of the mapped queue
+	values := mappedQueue.Values()
+	if values[0] != 4 {
+		t.Errorf("Mapped queue should have value 4 at index 0")
+	}
+	if values[1] != 6 {
+		t.Errorf("Mapped queue should have value 6 at index 1")
+	}
+}

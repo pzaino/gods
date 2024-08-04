@@ -624,3 +624,14 @@ func TestDestroy(t *testing.T) {
 		t.Error("expected active buffer to be nil")
 	}
 }
+
+// TestCopyActive tests the CopyActive method
+func TestCopyActive(t *testing.T) {
+	buf := abBuffer.New[int](16)
+	_ = buf.Append(1)
+	_ = buf.Append(2)
+	newBuf := buf.CopyActive()
+	if !equal(buf.GetActive(), newBuf.GetActive()) {
+		t.Errorf(errExpectedXGotY, buf.GetActive(), newBuf.GetActive())
+	}
+}
