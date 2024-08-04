@@ -252,6 +252,13 @@ func (cb *ConcurrentBuffer[T]) Reduce(fn func(T, T) T) (T, error) {
 	return cb.b.Reduce(fn)
 }
 
+// Swap swaps the elements at the given indices.
+func (cb *ConcurrentBuffer[T]) Swap(i, j uint64) error {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	return cb.b.Swap(i, j)
+}
+
 // ForEach applies the function to each element in the buffer.
 func (cb *ConcurrentBuffer[T]) ForEach(fn func(*T) error) error {
 	cb.mu.Lock()

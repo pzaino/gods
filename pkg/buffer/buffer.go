@@ -292,6 +292,10 @@ func (b *Buffer[T]) Contains(value T) bool {
 
 // Copy returns a new buffer with copied elements
 func (b *Buffer[T]) Copy() *Buffer[T] {
+	if b.IsEmpty() {
+		return New[T]()
+	}
+
 	newBuffer := New[T]()
 	newBuffer.data = make([]T, b.size)
 	copy(newBuffer.data, b.data)
@@ -302,6 +306,10 @@ func (b *Buffer[T]) Copy() *Buffer[T] {
 
 // Merge appends all elements from another buffer
 func (b *Buffer[T]) Merge(other *Buffer[T]) {
+	if other.IsEmpty() {
+		return
+	}
+
 	b.data = append(b.data, other.data...)
 	b.size += other.size
 
@@ -312,6 +320,10 @@ func (b *Buffer[T]) Merge(other *Buffer[T]) {
 
 // PopN removes and returns the last n elements
 func (b *Buffer[T]) PopN(n uint64) ([]T, error) {
+	if b.IsEmpty() {
+		return nil, errors.New(ErrBufferEmpty)
+	}
+
 	if b.size < n {
 		return nil, errors.New(ErrBufferEmpty)
 	}
@@ -325,7 +337,7 @@ func (b *Buffer[T]) PopN(n uint64) ([]T, error) {
 
 // PushN adds multiple elements to the end of the buffer
 func (b *Buffer[T]) PushN(items ...T) error {
-	if b.size+uint64(len(items)) > b.capacity {
+	if b.size+uint64(len(items)) > b.capacity && b.capacity != 0 {
 		return errors.New(ErrBufferOverflow)
 	}
 	b.data = append(b.data, items...)
@@ -481,6 +493,20 @@ func (b *Buffer[T]) ReduceRange(start, end uint64, fn func(T, T) T) (T, error) {
 	}
 
 	return result, nil
+}
+
+// Swap swaps the elements at the given indices
+func (b *Buffer[T]) Swap(i, j uint64) error {
+	if b.IsEmpty() {
+		return errors.New(ErrBufferEmpty)
+	}
+
+	if i >= b.size || j >= b.size {
+		return errors.New(ErrIndexOutOfBounds)
+	}
+
+	b.data[i], b.data[j] = b.data[j], b.data[i]
+	return nil
 }
 
 // ForEach applies the function to each element in the buffer

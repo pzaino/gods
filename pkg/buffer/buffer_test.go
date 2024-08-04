@@ -1124,3 +1124,46 @@ func TestDestroy(t *testing.T) {
 		t.Error("Destroy should set the capacity to 0")
 	}
 }
+
+// TestSwap tests the Swap method
+// for example swapping first and last elements in a buffer
+func TestSwap(t *testing.T) {
+	b := createBufferWithElements(t, []int{1, 2, 3, 4, 5}, 5)
+	err := b.Swap(0, 4)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
+	}
+	expected := []int{5, 2, 3, 4, 1}
+	for i, v := range b.Values() {
+		if v != expected[i] {
+			t.Errorf(errExpectedValue, expected[i], v)
+		}
+	}
+}
+
+// TestNewWithCapacity tests the NewWithCapacity function
+func TestNewWithCapacity(t *testing.T) {
+	b := buffer.NewWithCapacity[int](5)
+	if b.Capacity() != 5 {
+		t.Errorf("Expected capacity 5, got %v", b.Capacity())
+	}
+}
+
+// TestNewWidthSize tests the NewWithSize function
+func TestNewWithSize(t *testing.T) {
+	b := buffer.NewWithSize[int](5)
+	if b.Size() != 5 {
+		t.Errorf("Expected size 5, got %v", b.Size())
+	}
+}
+
+// TestNewWithSizeAndCapacity tests the NewWithSizeAndCapacity function
+func TestNewWithSizeAndCapacity(t *testing.T) {
+	b := buffer.NewWithSizeAndCapacity[int](5, 10)
+	if b.Size() != 5 {
+		t.Errorf("Expected size 5, got %v", b.Size())
+	}
+	if b.Capacity() != 10 {
+		t.Errorf("Expected capacity 10, got %v", b.Capacity())
+	}
+}

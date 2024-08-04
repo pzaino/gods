@@ -937,3 +937,410 @@ func TestConcurrentFindAll(t *testing.T) {
 
 	wg.Wait()
 }
+
+// TestConcurrentFindLast tests the FindLast method under concurrent access.
+func TestConcurrentFindLast(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i % 2)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			val, err := cb.FindLast(func(val int) bool {
+				return val == 1
+			})
+			if err != nil {
+				t.Errorf("unexpected error during find last: %v", err)
+			}
+			if *val != int(1) {
+				t.Errorf(errExpectedVal, 1, val)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentFindIndices tests the FindIndices method under concurrent access.
+func TestConcurrentFindIndices(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i % 2)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			indices := cb.FindIndices(func(val int) bool {
+				return val == 1
+			})
+			if len(indices) != 50 {
+				t.Errorf("expected indices size 50, got %d", len(indices))
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentFindLastIndex tests the FindLastIndex method under concurrent access.
+func TestConcurrentFindLastIndex(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i % 2)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			index, err := cb.FindLastIndex(func(val int) bool {
+				return val == 1
+			})
+			if err != nil {
+				t.Errorf("unexpected error during find last index: %v", err)
+			}
+			if index != 99 {
+				t.Errorf("expected index 99, got %d", index)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentValues() tests the Values method under concurrent access.
+func TestConcurrentValues(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	values := cb.Values()
+	if len(values) != numElements {
+		t.Errorf("expected values size %d, got %d", numElements, len(values))
+	}
+	for i := 0; i < numElements; i++ {
+		if values[i] != i {
+			t.Errorf(errExpectedVal, i, values[i])
+		}
+	}
+}
+
+// TestConcurrentForEach tests the ForEach method under concurrent access.
+func TestConcurrentForEach(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := cb.ForEach(func(val *int) error {
+				*val = *val * 2
+				return nil
+			})
+			if err != nil {
+				t.Errorf("unexpected error during for each: %v", err)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentLastIndexOf tests the LastIndexOf method under concurrent access.
+func TestConcurrentLastIndexOf(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i % 2)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			index, err := cb.LastIndexOf(1)
+			if err != nil {
+				t.Errorf("unexpected error during last index of: %v", err)
+			}
+			if index != 99 {
+				t.Errorf("expected index 99, got %d", index)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentFindIndex tests the FindIndex method under concurrent access.
+func TestConcurrentFindIndex(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i % 2)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			index, err := cb.FindIndex(func(val int) bool {
+				return val == 1
+			})
+			if err != nil {
+				t.Errorf("unexpected error during find index: %v", err)
+			}
+			if index != 1 {
+				t.Errorf("expected index 1, got %d", index)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentIsFull tests the IsFull method under concurrent access.
+func TestConcurrentIsFull(t *testing.T) {
+	cb := buffer.New[int]()
+	cb.SetCapacity(100)
+
+	for i := 0; i < 100; i++ {
+		err := cb.Append(i)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if !cb.IsFull() {
+				t.Error("expected buffer to be full")
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentEquals tests the Equals method under concurrent access.
+func TestConcurrentEquals(t *testing.T) {
+	cb1 := buffer.New[int]()
+	cb2 := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb1.Append(i)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+		err = cb2.Append(i)
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if !cb1.Equals(cb2) {
+				t.Error("expected buffers to be equal")
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentSwap tests the Swap method under concurrent access.
+// for example to swap the first and last elements of the buffer.
+func TestConcurrentSwap(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := uint64(100)
+	for i := uint64(0); i < numElements; i++ {
+		err := cb.Append(int(i))
+		if err != nil {
+			t.Errorf("unexpected error during append: %v", err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	const numIterations = 9 // Iterations has to be odd number to have the first and last elements swapped
+	wg.Add(numIterations)
+	for i := 0; i < numIterations; i++ {
+		go func() {
+			defer wg.Done()
+			err := cb.Swap(0, numElements-1)
+			if err != nil {
+				t.Errorf("unexpected error during swap: %v", err)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	// Verify swap effect
+	firstVal, err := cb.Get(0)
+	if err != nil {
+		t.Errorf("unexpected error during get: %v", err)
+	}
+	lastVal, err := cb.Get(uint64(numElements - 1))
+	if err != nil {
+		t.Errorf("unexpected error during get: %v", err)
+	}
+	if firstVal != int(numElements)-1 {
+		t.Errorf(errExpectedVal, numElements-1, firstVal)
+	}
+	if lastVal != 0 {
+		t.Errorf(errExpectedVal, 0, lastVal)
+	}
+}
+
+// TestConcurrentPopN tests concurrent pop operations.
+func TestConcurrentPopN(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	for i := 0; i < numElements; i++ {
+		err := cb.Append(i)
+		if err != nil {
+			t.Errorf(errUnexpectedErr, err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			_, err := cb.PopN(10)
+			if err != nil {
+				t.Errorf(errUnexpectedErr, err)
+			}
+		}()
+	}
+
+	wg.Wait()
+	if cb.Size() != 0 {
+		t.Errorf("expected buffer to be empty after popping all elements, got size %d", cb.Size())
+	}
+}
+
+// TestConcurrentPushN tests concurrent push operations.
+func TestConcurrentPushN(t *testing.T) {
+	cb := buffer.New[int]()
+	numElements := 100
+	var wg sync.WaitGroup
+	wg.Add(10)
+	items := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			err := cb.PushN(items...)
+			if err != nil {
+				t.Errorf(errUnexpectedErr, err)
+			}
+		}()
+	}
+
+	wg.Wait()
+	if cb.Size() != uint64(numElements) {
+		t.Errorf("expected buffer size %d after pushing 100 elements, got %d", numElements, cb.Size())
+	}
+}
+
+// TestConcurrentNewWithCapacity tests NewWithCapacity under concurrent access.
+func TestConcurrentWidthCapacity(t *testing.T) {
+	var wg sync.WaitGroup
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			cb := buffer.NewWithCapacity[int](100)
+			if cb.Capacity() != 100 {
+				t.Errorf("expected buffer capacity 100, got %d", cb.Capacity())
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentNewWithSize tests NewWithSize under concurrent access.
+func TestConcurrentWidthSize(t *testing.T) {
+	var wg sync.WaitGroup
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			cb := buffer.NewWithSize[int](100)
+			if cb.Size() != 100 {
+				t.Errorf("expected buffer size 100, got %d", cb.Size())
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// TestConcurrentNewWithSizeAndCapacity tests NewWithSizeAndCapacity under concurrent access.
+func TestConcurrentWidthSizeAndCapacity(t *testing.T) {
+	var wg sync.WaitGroup
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			cb := buffer.NewWithSizeAndCapacity[int](100, 200)
+			if cb.Size() != 100 {
+				t.Errorf("expected buffer size 100, got %d", cb.Size())
+			}
+			if cb.Capacity() != 200 {
+				t.Errorf("expected buffer capacity 200, got %d", cb.Capacity())
+			}
+		}()
+	}
+
+	wg.Wait()
+}
