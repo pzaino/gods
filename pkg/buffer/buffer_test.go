@@ -1016,7 +1016,7 @@ func TestInsertAt(t *testing.T) {
 		t.Errorf("Expected element 2, got %v", elem)
 	}
 	b.Clear()
-	err = b.InsertAt(0, 1)
+	err = b.InsertAt(1, 1)
 	if err == nil {
 		t.Errorf(errExpectedErr, buffer.ErrBufferEmpty, err)
 	}
@@ -1026,6 +1026,10 @@ func TestInsertAt(t *testing.T) {
 	_, err = b.Get(0)
 	if err == nil {
 		t.Error("Get should return an error for an empty buffer")
+	}
+	err = b.InsertAt(0, 1)
+	if err != nil {
+		t.Errorf(errUnexpectedErr, err)
 	}
 	b.Clear()
 	err = b.InsertAt(1, 1)

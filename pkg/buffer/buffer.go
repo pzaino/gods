@@ -42,6 +42,47 @@ func New[T comparable]() *Buffer[T] {
 	return &Buffer[T]{}
 }
 
+// NewWithCapacity creates a new Buffer with the given capacity
+func NewWithCapacity[T comparable](capacity uint64) *Buffer[T] {
+	return &Buffer[T]{capacity: capacity}
+}
+
+// NewWithSize creates a new Buffer with the given size
+func NewWithSize[T comparable](size uint64) *Buffer[T] {
+	// If the size is 0, return an empty buffer
+	if size == 0 {
+		return New[T]()
+	}
+	// initialize the buffer with the given size and zero values
+	var zeroVal T
+	Buffer := New[T]()
+	Buffer.data = make([]T, size)
+	for i := uint64(0); i < size; i++ {
+		Buffer.data[i] = zeroVal
+	}
+	Buffer.size = size
+	Buffer.capacity = 0
+	return Buffer
+}
+
+// NewWithSizeAndCapacity creates a new Buffer with the given size and capacity
+func NewWithSizeAndCapacity[T comparable](size, capacity uint64) *Buffer[T] {
+	// If the size is 0, return an empty buffer
+	if size == 0 {
+		return New[T]()
+	}
+	// initialize the buffer with the given size and zero values
+	var zeroVal T
+	Buffer := New[T]()
+	Buffer.data = make([]T, size)
+	for i := uint64(0); i < size; i++ {
+		Buffer.data[i] = zeroVal
+	}
+	Buffer.size = size
+	Buffer.capacity = capacity
+	return Buffer
+}
+
 // NewReference returns a new buffer with the same elements (aka elements are not copied)
 func (b *Buffer[T]) NewReference() *Buffer[T] {
 	newBuffer := New[T]()
@@ -82,7 +123,7 @@ func (b *Buffer[T]) Append(elem T) error {
 
 // InsertAt adds an element at the given index
 func (b *Buffer[T]) InsertAt(index uint64, elem T) error {
-	if b.IsEmpty() {
+	if b.IsEmpty() && index != 0 {
 		return errors.New(ErrBufferEmpty)
 	}
 	if index > b.size || b.IsFull() {
@@ -601,17 +642,18 @@ func (b *Buffer[T]) FindAll(predicate func(T) bool) *Buffer[T] {
 	}
 
 	newBuffer := New[T]()
-	var i uint64
-	for i = uint64(0); i < b.size; i++ {
+	var items uint64
+	for i := uint64(0); i < b.size; i++ {
 		if predicate(b.data[i]) {
 			err := newBuffer.Append(b.data[i])
 			if err != nil {
 				break
 			}
+			items++
 		}
 	}
 	newBuffer.capacity = b.capacity
-	newBuffer.size = i
+	newBuffer.size = items
 	return newBuffer
 }
 

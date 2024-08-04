@@ -32,6 +32,21 @@ func New[T comparable]() *ConcurrentBuffer[T] {
 	return &ConcurrentBuffer[T]{b: buffer.New[T]()}
 }
 
+// NewWithCapacity creates a new ConcurrentBuffer with the given capacity.
+func NewWithCapacity[T comparable](capacity uint64) *ConcurrentBuffer[T] {
+	return &ConcurrentBuffer[T]{b: buffer.NewWithCapacity[T](capacity)}
+}
+
+// NewWithSize creates a new ConcurrentBuffer with the given size.
+func NewWithSize[T comparable](size uint64) *ConcurrentBuffer[T] {
+	return &ConcurrentBuffer[T]{b: buffer.NewWithSize[T](size)}
+}
+
+// NewWithSizeAndCapacity creates a new ConcurrentBuffer with the given size and capacity.
+func NewWithSizeAndCapacity[T comparable](size, capacity uint64) *ConcurrentBuffer[T] {
+	return &ConcurrentBuffer[T]{b: buffer.NewWithSizeAndCapacity[T](size, capacity)}
+}
+
 // Append adds an element to the end of the buffer.
 func (cb *ConcurrentBuffer[T]) Append(elem T) error {
 	cb.mu.Lock()
