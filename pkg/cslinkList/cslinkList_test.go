@@ -27,14 +27,14 @@ const (
 	errExpectedSizeX   = "expected size %d, got %d"
 )
 
-func runConcurrent(_ *testing.T, n int, fn func()) {
+func runConcurrent(_ *testing.T, n int, fn func(j int)) {
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
 		wg.Add(1)
-		go func() {
+		go func(j int) {
 			defer wg.Done()
-			fn()
-		}()
+			fn(j)
+		}(i)
 	}
 	wg.Wait()
 }
@@ -48,8 +48,8 @@ func TestCSLinkListFromSlice(t *testing.T) {
 
 func TestCSLinkListAppend(t *testing.T) {
 	cs := cslinkList.New[int]()
-	runConcurrent(t, 1000, func() {
-		cs.Append(1)
+	runConcurrent(t, 1000, func(j int) {
+		cs.Append(j)
 	})
 	if cs.Size() != 1000 {
 		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
@@ -58,8 +58,8 @@ func TestCSLinkListAppend(t *testing.T) {
 
 func TestCSLinkListPrepend(t *testing.T) {
 	cs := cslinkList.New[int]()
-	runConcurrent(t, 1000, func() {
-		cs.Prepend(1)
+	runConcurrent(t, 1000, func(j int) {
+		cs.Prepend(j)
 	})
 	if cs.Size() != 1000 {
 		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
@@ -71,7 +71,7 @@ func TestCSLinkListDeleteWithValue(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 100, func() {
+	runConcurrent(t, 100, func(_ int) {
 		cs.DeleteWithValue(500)
 	})
 	if cs.Contains(500) {
@@ -84,7 +84,7 @@ func TestCSLinkListRemove(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i * 2)
 	}
-	runConcurrent(t, 100, func() {
+	runConcurrent(t, 100, func(_ int) {
 		cs.Remove(500)
 	})
 	if cs.Contains(500) {
@@ -97,7 +97,7 @@ func TestCSLinkListToSlice(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.ToSlice()
 	})
 }
@@ -108,7 +108,7 @@ func TestCSLinkListIsEmpty(t *testing.T) {
 		t.Fatalf("expected list to be empty")
 	}
 	cs.Append(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.IsEmpty()
 	})
 }
@@ -116,7 +116,7 @@ func TestCSLinkListIsEmpty(t *testing.T) {
 func TestCSLinkListFind(t *testing.T) {
 	cs := cslinkList.New[int]()
 	cs.Append(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.Find(1)
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -129,14 +129,14 @@ func TestCSLinkListReverse(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Reverse()
 	})
 }
 
 func TestCSLinkListSize(t *testing.T) {
 	cs := cslinkList.New[int]()
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Append(2)
 	})
 	if cs.Size() != 1000 {
@@ -147,7 +147,7 @@ func TestCSLinkListSize(t *testing.T) {
 func TestCSLinkListGetFirst(t *testing.T) {
 	cs := cslinkList.New[int]()
 	cs.Append(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.GetFirst()
 	})
 }
@@ -155,7 +155,7 @@ func TestCSLinkListGetFirst(t *testing.T) {
 func TestCSLinkListGetLast(t *testing.T) {
 	cs := cslinkList.New[int]()
 	cs.Append(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.GetLast()
 	})
 }
@@ -165,7 +165,7 @@ func TestCSLinkListGetAt(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.GetAt(500)
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -178,7 +178,7 @@ func TestCSLinkListInsertAt(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		err := cs.InsertAt(500, 999)
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -191,7 +191,7 @@ func TestCSLinkListDeleteAt(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		err := cs.DeleteAt(500)
 		if err != nil && err.Error() != "index out of bounds" {
 			t.Fatalf(errExpectedNoError, err)
@@ -204,7 +204,7 @@ func TestCSLinkListClear(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Clear()
 	})
 	if cs.Size() != 0 {
@@ -215,12 +215,14 @@ func TestCSLinkListClear(t *testing.T) {
 func TestCSLinkListCopy(t *testing.T) {
 	cs := cslinkList.New[int]()
 	cs.Append(1)
-	var copy *cslinkList.CSLinkList[int]
-	runConcurrent(t, 1000, func() {
-		copy = cs.Copy()
+	copy := make([]*cslinkList.CSLinkList[int], 1000)
+	runConcurrent(t, 1000, func(j int) {
+		copy[j] = cs.Copy()
 	})
-	if copy.Size() != cs.Size() {
-		t.Fatalf(errExpectedSizeX, cs.Size(), copy.Size())
+	for _, c := range copy {
+		if c.Size() != cs.Size() {
+			t.Fatalf(errExpectedSizeX, cs.Size(), c.Size())
+		}
 	}
 }
 
@@ -231,7 +233,7 @@ func TestCSLinkListMerge(t *testing.T) {
 		cs1.Append(i)
 		cs2.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs1.Merge(cs2)
 	})
 	if cs1.Size() != 2000 {
@@ -247,7 +249,7 @@ func TestCSLinkListMap(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Map(func(item int) int {
 			return item * 2
 		})
@@ -259,7 +261,7 @@ func TestCSLinkListFilter(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Filter(func(item int) bool {
 			return item%2 == 0
 		})
@@ -271,7 +273,7 @@ func TestCSLinkListReduce(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Reduce(func(a, b int) int {
 			return a + b
 		}, 0)
@@ -283,7 +285,7 @@ func TestCSLinkListForEach(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.ForEach(func(item *int) {
 			*item = *item + 1
 		})
@@ -295,7 +297,7 @@ func TestCSLinkListForRange(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		err := cs.ForRange(0, 500, func(item *int) {
 			*item = *item + 1
 		})
@@ -310,7 +312,7 @@ func TestCSLinkListForFrom(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		err := cs.ForFrom(500, func(item *int) {
 			*item = *item + 1
 		})
@@ -325,7 +327,7 @@ func TestCSLinkListAny(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Any(func(item int) bool {
 			return item == 500
 		})
@@ -337,7 +339,7 @@ func TestCSLinkListAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.All(func(item int) bool {
 			return item < 1000
 		})
@@ -347,7 +349,7 @@ func TestCSLinkListAll(t *testing.T) {
 func TestCSLinkListContains(t *testing.T) {
 	cs := cslinkList.New[int]()
 	cs.Append(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.Contains(1)
 	})
 }
@@ -357,7 +359,7 @@ func TestCSLinkListIndexOf(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.IndexOf(500)
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -370,7 +372,7 @@ func TestCSLinkListLastIndexOf(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.LastIndexOf(500)
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -383,7 +385,7 @@ func TestCSLinkListFindIndex(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.FindIndex(func(item int) bool {
 			return item == 500
 		})
@@ -398,7 +400,7 @@ func TestCSLinkListFindLastIndex(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.FindLastIndex(func(item int) bool {
 			return item == 500
 		})
@@ -413,7 +415,7 @@ func TestCSLinkListFindAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.FindAll(func(item int) bool {
 			return item%2 == 0
 		})
@@ -425,7 +427,7 @@ func TestCSLinkListFindLast(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.FindLast(func(item int) bool {
 			return item == 500
 		})
@@ -440,7 +442,7 @@ func TestCSLinkListFindAllIndexes(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		cs.FindAllIndexes(func(item int) bool {
 			return item%2 == 0
 		})
@@ -452,7 +454,7 @@ func TestCSLinkListMapFrom(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.MapFrom(500, func(item int) int {
 			return item * 2
 		})
@@ -467,7 +469,7 @@ func TestCSLinkListMapRange(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Append(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(_ int) {
 		_, err := cs.MapRange(0, 500, func(item int) int {
 			return item * 2
 		})

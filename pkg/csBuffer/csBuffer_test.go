@@ -159,12 +159,17 @@ func TestConcurrentMerge(t *testing.T) {
 	wg.Wait()
 
 	expectedSize := uint64(numElements * 2)
+	// Given we are merging two buffers without a lock in between
+	// At the end of the above test either cb1 OR cb2 will have the expected size
+	// and the other will have size 0. But not both.
 	if cb1.Size() != expectedSize {
-		t.Errorf("expected cb1 size %d after merging twice, got %d", expectedSize, cb1.Size())
-	}
-
-	if cb2.Size() != 0 {
-		t.Errorf("expected cb2 to be empty after merging into cb1, got size %d", cb2.Size())
+		if cb2.Size() != expectedSize {
+			t.Errorf("expected cb2 size %d after merging, got %d", expectedSize, cb2.Size())
+		}
+	} else {
+		if cb2.Size() != 0 {
+			t.Errorf("expected cb2 size 0 after merging, got %d", cb2.Size())
+		}
 	}
 }
 

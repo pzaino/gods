@@ -28,13 +28,13 @@ const (
 	errExpectedSizeX      = "expected size %d, got %d"
 )
 
-func runConcurrent(_ *testing.T, n int, fn func()) {
+func runConcurrent(_ *testing.T, n int, fn func(j int)) {
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			fn()
+			fn(i)
 		}()
 	}
 	wg.Wait()
@@ -42,7 +42,7 @@ func runConcurrent(_ *testing.T, n int, fn func()) {
 
 func TestCSStackPush(t *testing.T) {
 	cs := csstack.New[int]()
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.Push(1)
 	})
 	if cs.Size() != 1000 {
@@ -56,7 +56,7 @@ func TestCSStackIsEmpty(t *testing.T) {
 		t.Fatalf(errExpectedStackEmpty)
 	}
 	cs.Push(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.IsEmpty()
 	})
 }
@@ -66,7 +66,7 @@ func TestCSStackPop(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		_, err := cs.Pop()
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -82,7 +82,7 @@ func TestCSStackToSlice(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.ToSlice()
 	})
 }
@@ -92,7 +92,7 @@ func TestCSStackToStack(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.ToStack()
 	})
 }
@@ -102,7 +102,7 @@ func TestCSStackReverse(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.Reverse()
 	})
 }
@@ -111,7 +111,7 @@ func TestCSStackSwap(t *testing.T) {
 	cs := csstack.New[int]()
 	cs.Push(1)
 	cs.Push(2)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		err := cs.Swap()
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -122,7 +122,7 @@ func TestCSStackSwap(t *testing.T) {
 func TestCSStackTop(t *testing.T) {
 	cs := csstack.New[int]()
 	cs.Push(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		top, err := cs.Top()
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -136,7 +136,7 @@ func TestCSStackTop(t *testing.T) {
 func TestCSStackPeek(t *testing.T) {
 	cs := csstack.New[int]()
 	cs.Push(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		peek, err := cs.Peek()
 		if err != nil {
 			t.Fatalf(errExpectedNoError, err)
@@ -149,7 +149,7 @@ func TestCSStackPeek(t *testing.T) {
 
 func TestCSStackSize(t *testing.T) {
 	cs := csstack.New[int]()
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.Push(2)
 	})
 	if cs.Size() != 1000 {
@@ -162,7 +162,7 @@ func TestCSStackClear(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.Clear()
 	})
 	if cs.Size() != 0 {
@@ -173,20 +173,24 @@ func TestCSStackClear(t *testing.T) {
 func TestCSStackContains(t *testing.T) {
 	cs := csstack.New[int]()
 	cs.Push(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.Contains(1)
 	})
 }
 
 func TestCSStackCopy(t *testing.T) {
 	cs := csstack.New[int]()
+
 	cs.Push(1)
-	var copy *csstack.CSStack[int]
-	runConcurrent(t, 1000, func() {
-		copy = cs.Copy()
+	copy := make([]*csstack.CSStack[int], 1000)
+
+	runConcurrent(t, 1000, func(j int) {
+		copy[j] = cs.Copy()
 	})
-	if copy.Size() != cs.Size() {
-		t.Fatalf(errExpectedSizeX, cs.Size(), copy.Size())
+	for _, c := range copy {
+		if c.Size() != cs.Size() {
+			t.Fatalf(errExpectedSizeX, cs.Size(), c.Size())
+		}
 	}
 }
 
@@ -197,7 +201,7 @@ func TestCSStackEqual(t *testing.T) {
 		cs1.Push(i)
 		cs2.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		if !cs1.Equal(cs2) {
 			t.Fatalf("expected stacks to be equal")
 		}
@@ -207,7 +211,7 @@ func TestCSStackEqual(t *testing.T) {
 func TestCSStackString(t *testing.T) {
 	cs := csstack.New[int]()
 	cs.Push(1)
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		test := cs.String()
 		if test == "" || test == "[]" {
 			t.Fatalf("expected string representation of the stack")
@@ -224,7 +228,7 @@ func TestCSStackPopN(t *testing.T) {
 		t.Fatalf(errExpectedSizeX, 1000, cs.Size())
 	}
 
-	runConcurrent(t, 100, func() { // Reduce the number of goroutines to avoid exhausting the stack too quickly
+	runConcurrent(t, 100, func(j int) { // Reduce the number of goroutines to avoid exhausting the stack too quickly
 		_, err := cs.PopN(10)
 		if err != nil && err.Error() != "Stack has less than n items" {
 			t.Fatalf(errExpectedNoError, err)
@@ -237,7 +241,7 @@ func TestCSStackPopN(t *testing.T) {
 
 func TestCSStackPushN(t *testing.T) {
 	cs := csstack.New[int]()
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.PushN(1, 2, 3, 4, 5)
 	})
 	if cs.Size() != 5000 {
@@ -250,7 +254,7 @@ func TestCSStackPopAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.PopAll()
 	})
 	if !cs.IsEmpty() {
@@ -261,7 +265,7 @@ func TestCSStackPopAll(t *testing.T) {
 func TestCSStackPushAll(t *testing.T) {
 	cs := csstack.New[int]()
 	items := []int{1, 2, 3, 4, 5}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.PushAll(items)
 	})
 	if cs.Size() != 5000 {
@@ -274,7 +278,7 @@ func TestCSStackFilter(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		cs.Filter(func(item int) bool {
 			return item%2 == 0
 		})
@@ -289,7 +293,7 @@ func TestCSStackMap(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		_, err := cs.Map(func(item int) int {
 			return item * 2
 		})
@@ -304,7 +308,7 @@ func TestCSStackReduce(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		_, err := cs.Reduce(func(a, b int) int {
 			return a + b
 		})
@@ -319,7 +323,7 @@ func TestCSStackForEach(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 1000, func() {
+	runConcurrent(t, 1000, func(j int) {
 		err := cs.ForEach(func(item *int) error {
 			*item = *item + 1
 			return nil
@@ -335,7 +339,7 @@ func TestCSStackForRange(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		err := cs.ForRange(0, 500, func(item *int) error {
 			*item = *item + 1
 			return nil
@@ -351,7 +355,7 @@ func TestCSStackForFrom(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		err := cs.ForFrom(500, func(item *int) error {
 			*item = *item + 1
 			return nil
@@ -367,7 +371,7 @@ func TestCSStackAny(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		cs.Any(func(item int) bool {
 			return item == 500
 		})
@@ -379,7 +383,7 @@ func TestCSStackAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		cs.All(func(item int) bool {
 			return item < 1000
 		})
@@ -391,7 +395,7 @@ func TestCSStackFind(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		_, err := cs.Find(func(item int) bool {
 			return item == 500
 		})
@@ -406,7 +410,7 @@ func TestCSStackFindIndex(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		_, err := cs.FindIndex(func(item int) bool {
 			return item == 500
 		})
@@ -421,7 +425,7 @@ func TestCSStackFindLast(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		_, err := cs.FindLast(func(item int) bool {
 			return item == 500
 		})
@@ -436,7 +440,7 @@ func TestCSStackFindLastIndex(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		_, err := cs.FindLastIndex(func(item int) bool {
 			return item == 500
 		})
@@ -451,7 +455,7 @@ func TestCSStackFindAll(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		cs.FindAll(func(item int) bool {
 			return item%2 == 0
 		})
@@ -463,7 +467,7 @@ func TestCSStackFindIndices(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		cs.Push(i)
 	}
-	runConcurrent(t, 999, func() {
+	runConcurrent(t, 999, func(j int) {
 		cs.FindIndices(func(item int) bool {
 			return item%2 == 0
 		})

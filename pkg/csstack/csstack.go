@@ -24,7 +24,7 @@ import (
 
 // CSStack is a concurrency-safe stack.
 type CSStack[T comparable] struct {
-	mu sync.Mutex
+	mu sync.RWMutex
 	s  *stack.Stack[T]
 }
 
@@ -63,15 +63,15 @@ func (cs *CSStack[T]) Pop() (*T, error) {
 
 // ToSlice returns the stack as a slice.
 func (cs *CSStack[T]) ToSlice() []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.ToSlice()
 }
 
 // ToStack returns the stack as a stack (non-concurrent-safe).
 func (cs *CSStack[T]) ToStack() *stack.Stack[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s
 }
 
@@ -91,22 +91,22 @@ func (cs *CSStack[T]) Swap() error {
 
 // Top returns the top item from the stack without removing it.
 func (cs *CSStack[T]) Top() (*T, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Top()
 }
 
 // Peek is a wrapper around Top (for those more used to using Peek).
 func (cs *CSStack[T]) Peek() (*T, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Peek()
 }
 
 // Size returns the number of items in the stack.
 func (cs *CSStack[T]) Size() uint64 {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Size()
 }
 
@@ -119,22 +119,22 @@ func (cs *CSStack[T]) Clear() {
 
 // Contains checks if the stack contains an item.
 func (cs *CSStack[T]) Contains(item T) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Contains(item)
 }
 
 // Copy returns a new CSStack with the same items.
 func (cs *CSStack[T]) Copy() *CSStack[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSStack[T]{s: cs.s.Copy()}
 }
 
 // Equal checks if two stacks are equal.
 func (cs *CSStack[T]) Equal(other *CSStack[T]) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	other.mu.Lock()
 	defer other.mu.Unlock()
 	return cs.s.Equal(other.s)
@@ -142,8 +142,8 @@ func (cs *CSStack[T]) Equal(other *CSStack[T]) bool {
 
 // String returns a string representation of the stack.
 func (cs *CSStack[T]) String() string {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.String()
 }
 
@@ -186,8 +186,8 @@ func (cs *CSStack[T]) Filter(predicate func(T) bool) {
 
 // Map creates a new stack with the results of applying the function to each item.
 func (cs *CSStack[T]) Map(fn func(T) T) (*CSStack[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	csStack := &CSStack[T]{}
 	var err error
 	csStack.s, err = cs.s.Map(fn)
@@ -196,8 +196,8 @@ func (cs *CSStack[T]) Map(fn func(T) T) (*CSStack[T], error) {
 
 // Reduce reduces the stack to a single value.
 func (cs *CSStack[T]) Reduce(fn func(T, T) T) (T, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Reduce(fn)
 }
 
@@ -224,56 +224,56 @@ func (cs *CSStack[T]) ForFrom(start uint64, fn func(*T) error) error {
 
 // Any checks if any item in the stack matches the predicate.
 func (cs *CSStack[T]) Any(predicate func(T) bool) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Any(predicate)
 }
 
 // All checks if all items in the stack match the predicate.
 func (cs *CSStack[T]) All(predicate func(T) bool) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.All(predicate)
 }
 
 // Find returns the first item that matches the predicate.
 func (cs *CSStack[T]) Find(predicate func(T) bool) (*T, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.Find(predicate)
 }
 
 // FindIndex returns the index of the first item that matches the predicate.
 func (cs *CSStack[T]) FindIndex(predicate func(T) bool) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.FindIndex(predicate)
 }
 
 // FindLast returns the last item that matches the predicate.
 func (cs *CSStack[T]) FindLast(predicate func(T) bool) (*T, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.FindLast(predicate)
 }
 
 // FindLastIndex returns the index of the last item that matches the predicate.
 func (cs *CSStack[T]) FindLastIndex(predicate func(T) bool) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.FindLastIndex(predicate)
 }
 
 // FindAll returns all items that match the predicate.
 func (cs *CSStack[T]) FindAll(predicate func(T) bool) []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.FindAll(predicate)
 }
 
 // FindIndices returns the indices of all items that match the predicate.
 func (cs *CSStack[T]) FindIndices(predicate func(T) bool) []uint64 {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.s.FindIndices(predicate)
 }
