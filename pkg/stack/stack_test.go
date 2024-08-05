@@ -1279,8 +1279,9 @@ func TestConfinedForFrom(t *testing.T) {
 
 	wg.Wait()
 
-	expected := []int{1, 2}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected result to be %v, but got %v", expected, result)
+	expected1 := []int{1, 2}
+	expected2 := []int{2, 1}
+	if !reflect.DeepEqual(result, expected1) && !reflect.DeepEqual(result, expected2) {
+		t.Errorf("Expected result to be either %v or %v, but got %v", expected1, expected2, result)
 	}
 }

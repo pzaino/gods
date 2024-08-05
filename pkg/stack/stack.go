@@ -41,6 +41,14 @@ func New[T comparable]() *Stack[T] {
 	return &Stack[T]{}
 }
 
+// NewWithSize creates a new Stack with the given size.
+func NewWithSize[T comparable](size uint64) *Stack[T] {
+	Stack := New[T]()
+	Stack.items = make([]T, size)
+	Stack.size = size
+	return Stack
+}
+
 // NewFromSlice creates a new Stack from a slice.
 func NewFromSlice[T comparable](items []T) *Stack[T] {
 	stack := New[T]()

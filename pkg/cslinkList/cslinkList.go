@@ -23,7 +23,7 @@ import (
 
 // CSLinkList is a concurrency-safe linked list.
 type CSLinkList[T comparable] struct {
-	mu sync.Mutex
+	mu sync.RWMutex
 	l  *linkList.LinkList[T]
 }
 
@@ -62,22 +62,22 @@ func (cs *CSLinkList[T]) DeleteWithValue(value T) {
 
 // ToSlice returns the list as a slice.
 func (cs *CSLinkList[T]) ToSlice() []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.ToSlice()
 }
 
 // IsEmpty checks if the list is empty.
 func (cs *CSLinkList[T]) IsEmpty() bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.IsEmpty()
 }
 
 // Find returns the first node with the given value.
 func (cs *CSLinkList[T]) Find(value T) (*linkList.Node[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Find(value)
 }
 
@@ -90,29 +90,29 @@ func (cs *CSLinkList[T]) Reverse() {
 
 // Size returns the number of nodes in the list.
 func (cs *CSLinkList[T]) Size() uint64 {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Size()
 }
 
 // GetFirst returns the first node in the list.
 func (cs *CSLinkList[T]) GetFirst() *linkList.Node[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.GetFirst()
 }
 
 // GetLast returns the last node in the list.
 func (cs *CSLinkList[T]) GetLast() *linkList.Node[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.GetLast()
 }
 
 // GetAt returns the node at the given index.
 func (cs *CSLinkList[T]) GetAt(index uint64) (*linkList.Node[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.GetAt(index)
 }
 
@@ -146,8 +146,8 @@ func (cs *CSLinkList[T]) Clear() {
 
 // Copy returns a copy of the list.
 func (cs *CSLinkList[T]) Copy() *CSLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSLinkList[T]{l: cs.l.Copy()}
 }
 
@@ -163,8 +163,8 @@ func (cs *CSLinkList[T]) Merge(list *CSLinkList[T]) {
 
 // Map generates a new list by applying the function to all the nodes in the list.
 func (cs *CSLinkList[T]) Map(f func(T) T) *CSLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 
 	newList := cs.l.Map(f)
 	newCSList := New[T]()
@@ -174,8 +174,8 @@ func (cs *CSLinkList[T]) Map(f func(T) T) *CSLinkList[T] {
 
 // MapFrom generates a new list by applying the function to all the nodes in the list starting from the specified index.
 func (cs *CSLinkList[T]) MapFrom(start uint64, f func(T) T) (*CSLinkList[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 
 	newList, err := cs.l.MapFrom(start, f)
 	if err != nil {
@@ -189,8 +189,8 @@ func (cs *CSLinkList[T]) MapFrom(start uint64, f func(T) T) (*CSLinkList[T], err
 
 // MapRange generates a new list by applying the function to all the nodes in the list in the range [start, end).
 func (cs *CSLinkList[T]) MapRange(start, end uint64, f func(T) T) (*CSLinkList[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 
 	newList, err := cs.l.MapRange(start, end, f)
 	if err != nil {
@@ -211,8 +211,8 @@ func (cs *CSLinkList[T]) Filter(f func(T) bool) {
 
 // Reduce reduces the list to a single value.
 func (cs *CSLinkList[T]) Reduce(f func(T, T) T, initial T) T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Reduce(f, initial)
 }
 
@@ -239,70 +239,70 @@ func (cs *CSLinkList[T]) ForFrom(start uint64, f func(*T)) error {
 
 // Any checks if any node in the list matches the predicate.
 func (cs *CSLinkList[T]) Any(f func(T) bool) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Any(f)
 }
 
 // All checks if all nodes in the list match the predicate.
 func (cs *CSLinkList[T]) All(f func(T) bool) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.All(f)
 }
 
 // Contains checks if the list contains the given value.
 func (cs *CSLinkList[T]) Contains(value T) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Contains(value)
 }
 
 // IndexOf returns the index of the first node with the given value.
 func (cs *CSLinkList[T]) IndexOf(value T) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.IndexOf(value)
 }
 
 // LastIndexOf returns the index of the last node with the given value.
 func (cs *CSLinkList[T]) LastIndexOf(value T) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.LastIndexOf(value)
 }
 
 // FindIndex returns the index of the first node that matches the predicate.
 func (cs *CSLinkList[T]) FindIndex(f func(T) bool) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindIndex(f)
 }
 
 // FindLastIndex returns the index of the last node that matches the predicate.
 func (cs *CSLinkList[T]) FindLastIndex(f func(T) bool) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindLastIndex(f)
 }
 
 // FindAll returns all nodes that match the predicate.
 func (cs *CSLinkList[T]) FindAll(f func(T) bool) *CSLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSLinkList[T]{l: cs.l.FindAll(f)}
 }
 
 // FindLast returns the last node that matches the predicate.
 func (cs *CSLinkList[T]) FindLast(f func(T) bool) (*linkList.Node[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindLast(f)
 }
 
 // FindAllIndexes returns the indexes of all nodes that match the predicate.
 func (cs *CSLinkList[T]) FindAllIndexes(f func(T) bool) []uint64 {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindAllIndexes(f)
 }

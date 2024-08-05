@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	errUnexpectedErr = "unexpected error during append: %v"
+	errUnexpectedErr = "unexpected error: %v"
 	errExpectedVal   = "expected value %d, got %d"
+	errExpectedSize  = "expected buffer size %d, got %d"
 )
 
 // TestConcurrentAppend tests concurrent appends to the buffer.
@@ -36,7 +37,7 @@ func TestConcurrentAppend(t *testing.T) {
 	wg.Wait()
 	expectedSize := uint64(numGoroutines * numAppendsPerGoroutine)
 	if cb.Size() != expectedSize {
-		t.Errorf("expected buffer size %d, got %d", expectedSize, cb.Size())
+		t.Errorf(errExpectedSize, expectedSize, cb.Size())
 	}
 }
 
@@ -58,7 +59,7 @@ func TestConcurrentGet(t *testing.T) {
 			defer wg.Done()
 			val, err := cb.Get(uint64(i))
 			if err != nil {
-				t.Errorf("unexpected error during get: %v", err)
+				t.Errorf(errUnexpectedErr, err)
 			}
 			if val != i {
 				t.Errorf(errExpectedVal, i, val)
@@ -159,12 +160,17 @@ func TestConcurrentMerge(t *testing.T) {
 	wg.Wait()
 
 	expectedSize := uint64(numElements * 2)
+	// Given we are merging two buffers without a lock in between
+	// At the end of the above test either cb1 OR cb2 will have the expected size
+	// and the other will have size 0. But not both.
 	if cb1.Size() != expectedSize {
-		t.Errorf("expected cb1 size %d after merging twice, got %d", expectedSize, cb1.Size())
-	}
-
-	if cb2.Size() != 0 {
-		t.Errorf("expected cb2 to be empty after merging into cb1, got size %d", cb2.Size())
+		if cb2.Size() != expectedSize {
+			t.Errorf("expected cb2 size %d after merging, got %d", expectedSize, cb2.Size())
+		}
+	} else {
+		if cb2.Size() != 0 {
+			t.Errorf("expected cb2 size 0 after merging, got %d", cb2.Size())
+		}
 	}
 }
 
@@ -193,7 +199,7 @@ func TestConcurrentCapacity(t *testing.T) {
 	wg.Wait()
 	expectedSize := uint64(numGoroutines * numAppendsPerGoroutine)
 	if cb.Size() != expectedSize {
-		t.Errorf("expected buffer size %d, got %d", expectedSize, cb.Size())
+		t.Errorf(errExpectedSize, expectedSize, cb.Size())
 	}
 	if cb.Capacity() != 200 {
 		t.Errorf("expected buffer capacity 200, got %d", cb.Capacity())
@@ -373,7 +379,7 @@ func TestConcurrentInsertAt(t *testing.T) {
 	// Verify the buffer size after all insertions
 	expectedSize := uint64(initialSize + numGoroutines*numInsertsPerGoroutine)
 	if cb.Size() != expectedSize {
-		t.Errorf("expected buffer size %d, got %d", expectedSize, cb.Size())
+		t.Errorf(errExpectedSize, expectedSize, cb.Size())
 	}
 
 	// Create a map to verify that all expected negative values are present
@@ -386,7 +392,7 @@ func TestConcurrentInsertAt(t *testing.T) {
 	for i := 0; i < int(expectedSize); i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		t.Logf("Value at index %d: %d", i, val)
 
@@ -411,7 +417,7 @@ func TestConcurrentPut(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -431,7 +437,7 @@ func TestConcurrentPut(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		expectedVal := i + 1
 		if val != expectedVal {
@@ -447,7 +453,7 @@ func TestConcurrentClear(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -473,7 +479,7 @@ func TestConcurrentReverse(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -491,7 +497,7 @@ func TestConcurrentReverse(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		// Since reversals may end in the original order due to even number of reversals,
 		// check either possible final state
@@ -508,7 +514,7 @@ func TestConcurrentContains(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -533,7 +539,7 @@ func TestConcurrentCopy(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -549,11 +555,11 @@ func TestConcurrentCopy(t *testing.T) {
 			for j := 0; j < int(copy.Size()); j++ {
 				val, err := copy.Get(uint64(j))
 				if err != nil {
-					t.Errorf("unexpected error during get: %v", err)
+					t.Errorf(errUnexpectedErr, err)
 				}
 				originalVal, err := cb.Get(uint64(j))
 				if err != nil {
-					t.Errorf("unexpected error during get: %v", err)
+					t.Errorf(errUnexpectedErr, err)
 				}
 				if val != originalVal {
 					t.Errorf("expected value %d, got %d", originalVal, val)
@@ -572,7 +578,7 @@ func TestConcurrentFilter(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -600,7 +606,7 @@ func TestConcurrentAny(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -627,7 +633,7 @@ func TestConcurrentAll(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(1) // All elements are 1
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -654,7 +660,7 @@ func TestConcurrentRotateLeft(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -674,7 +680,7 @@ func TestConcurrentRotateLeft(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		expectedVal := (i + rotations) % numElements
 		if val != expectedVal {
@@ -690,7 +696,7 @@ func TestConcurrentRotateRight(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -710,7 +716,7 @@ func TestConcurrentRotateRight(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		expectedVal := (i - rotations + numElements) % numElements
 		if val != expectedVal {
@@ -726,7 +732,7 @@ func TestConcurrentMap(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -747,7 +753,7 @@ func TestConcurrentMap(t *testing.T) {
 			for j := 0; j < int(mappedBuffer.Size()); j++ {
 				val, err := mappedBuffer.Get(uint64(j))
 				if err != nil {
-					t.Errorf("unexpected error during get: %v", err)
+					t.Errorf(errUnexpectedErr, err)
 				}
 				expectedVal := j * 2
 				if val != expectedVal {
@@ -767,7 +773,7 @@ func TestConcurrentReduce(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(1)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -799,7 +805,7 @@ func TestConcurrentShiftLeft(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -819,7 +825,7 @@ func TestConcurrentShiftLeft(t *testing.T) {
 	for i := 0; i < numElements-shifts; i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		expectedVal := i + shifts
 		if val != expectedVal {
@@ -835,7 +841,7 @@ func TestConcurrentShiftRight(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -855,7 +861,7 @@ func TestConcurrentShiftRight(t *testing.T) {
 	for i := shifts; i < numElements; i++ {
 		val, err := cb.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		expectedVal := i - shifts
 		if val != expectedVal {
@@ -872,11 +878,11 @@ func TestConcurrentBlit(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb1.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		err = cb2.Append(i * 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -901,7 +907,7 @@ func TestConcurrentBlit(t *testing.T) {
 	for i := 0; i < int(cb1.Size()); i++ {
 		val, err := cb1.Get(uint64(i))
 		if err != nil {
-			t.Errorf("unexpected error during get: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		expectedVal := i | (i * 2)
 		if val != expectedVal {
@@ -917,7 +923,7 @@ func TestConcurrentFindAll(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i % 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -945,7 +951,7 @@ func TestConcurrentFindLast(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i % 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -976,7 +982,7 @@ func TestConcurrentFindIndices(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i % 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1004,7 +1010,7 @@ func TestConcurrentFindLastIndex(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i % 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1035,7 +1041,7 @@ func TestConcurrentValues(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1057,7 +1063,7 @@ func TestConcurrentForEach(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1086,7 +1092,7 @@ func TestConcurrentLastIndexOf(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i % 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1115,7 +1121,7 @@ func TestConcurrentFindIndex(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb.Append(i % 2)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1147,7 +1153,7 @@ func TestConcurrentIsFull(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		err := cb.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1173,11 +1179,11 @@ func TestConcurrentEquals(t *testing.T) {
 	for i := 0; i < numElements; i++ {
 		err := cb1.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 		err = cb2.Append(i)
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1203,7 +1209,7 @@ func TestConcurrentSwap(t *testing.T) {
 	for i := uint64(0); i < numElements; i++ {
 		err := cb.Append(int(i))
 		if err != nil {
-			t.Errorf("unexpected error during append: %v", err)
+			t.Errorf(errUnexpectedErr, err)
 		}
 	}
 
@@ -1225,11 +1231,11 @@ func TestConcurrentSwap(t *testing.T) {
 	// Verify swap effect
 	firstVal, err := cb.Get(0)
 	if err != nil {
-		t.Errorf("unexpected error during get: %v", err)
+		t.Errorf(errUnexpectedErr, err)
 	}
 	lastVal, err := cb.Get(uint64(numElements - 1))
 	if err != nil {
-		t.Errorf("unexpected error during get: %v", err)
+		t.Errorf(errUnexpectedErr, err)
 	}
 	if firstVal != int(numElements)-1 {
 		t.Errorf(errExpectedVal, numElements-1, firstVal)
