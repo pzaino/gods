@@ -23,7 +23,7 @@ import (
 
 // CSDLinkList is a concurrency-safe doubly linked list.
 type CSDLinkList[T comparable] struct {
-	mu sync.Mutex
+	mu sync.RWMutex
 	l  *dlinkList.DLinkList[T]
 }
 
@@ -121,29 +121,29 @@ func (cs *CSDLinkList[T]) DeleteAt(index uint64) error {
 
 // ToSlice converts the doubly linked list to a slice.
 func (cs *CSDLinkList[T]) ToSlice() []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.ToSlice()
 }
 
 // ToSliceReverse converts the doubly linked list to a slice in reverse order.
 func (cs *CSDLinkList[T]) ToSliceReverse() []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.ToSliceReverse()
 }
 
 // ToSliceFromIndex converts the doubly linked list to a slice starting from the given index.
 func (cs *CSDLinkList[T]) ToSliceFromIndex(index uint64) []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.ToSliceFromIndex(index)
 }
 
 // ToSliceReverseFromIndex converts the doubly linked list to a slice in reverse order starting from the given index.
 func (cs *CSDLinkList[T]) ToSliceReverseFromIndex(index uint64) []T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.ToSliceReverseFromIndex(index)
 }
 
@@ -156,43 +156,43 @@ func (cs *CSDLinkList[T]) Reverse() {
 
 // Find returns the first node with the given value.
 func (cs *CSDLinkList[T]) Find(value T) (*dlinkList.Node[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Find(value)
 }
 
 // IsEmpty returns true if the doubly linked list is empty.
 func (cs *CSDLinkList[T]) IsEmpty() bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.IsEmpty()
 }
 
 // GetAt returns the node at the given index.
 func (cs *CSDLinkList[T]) GetAt(index uint64) (*dlinkList.Node[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.GetAt(index)
 }
 
 // GetLast returns the last node in the doubly linked list.
 func (cs *CSDLinkList[T]) GetLast() *dlinkList.Node[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.GetLast()
 }
 
 // GetFirst returns the first node in the doubly linked list.
 func (cs *CSDLinkList[T]) GetFirst() *dlinkList.Node[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.GetFirst()
 }
 
 // Size returns the number of nodes in the doubly linked list.
 func (cs *CSDLinkList[T]) Size() uint64 {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Size()
 }
 
@@ -205,8 +205,8 @@ func (cs *CSDLinkList[T]) Clear() {
 
 // Contains returns true if the doubly linked list contains the given value.
 func (cs *CSDLinkList[T]) Contains(value T) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Contains(value)
 }
 
@@ -254,29 +254,29 @@ func (cs *CSDLinkList[T]) ForReverseRange(start, end uint64, f func(*T)) {
 
 // Any returns true if the given function returns true for any node in the doubly linked list.
 func (cs *CSDLinkList[T]) Any(f func(T) bool) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Any(f)
 }
 
 // All returns true if the given function returns true for all nodes in the doubly linked list.
 func (cs *CSDLinkList[T]) All(f func(T) bool) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.All(f)
 }
 
 // IndexOf returns the index of the first occurrence of the given value in the doubly linked list.
 func (cs *CSDLinkList[T]) IndexOf(value T) int {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.IndexOf(value)
 }
 
 // LastIndexOf returns the index of the last occurrence of the given value in the doubly linked list.
 func (cs *CSDLinkList[T]) LastIndexOf(value T) (uint64, error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.LastIndexOf(value)
 }
 
@@ -289,36 +289,36 @@ func (cs *CSDLinkList[T]) Filter(f func(T) bool) {
 
 // Map returns a new doubly linked list containing the result of applying the given function to each node.
 func (cs *CSDLinkList[T]) Map(f func(T) T) *CSDLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSDLinkList[T]{l: cs.l.Map(f)}
 }
 
 // MapFrom returns a new doubly linked list containing the result of applying the given function to each node starting from the given index.
 func (cs *CSDLinkList[T]) MapFrom(index uint64, f func(T) T) *CSDLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSDLinkList[T]{l: cs.l.MapFrom(index, f)}
 }
 
 // MapRange returns a new doubly linked list containing the result of applying the given function to each node in the given range.
 func (cs *CSDLinkList[T]) MapRange(start, end uint64, f func(T) T) *CSDLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSDLinkList[T]{l: cs.l.MapRange(start, end, f)}
 }
 
 // Reduce reduces the doubly linked list to a single value using the given function.
 func (cs *CSDLinkList[T]) Reduce(f func(T, T) T) T {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.Reduce(f)
 }
 
 // Copy returns a new doubly linked list with the same nodes as the original doubly linked list.
 func (cs *CSDLinkList[T]) Copy() *CSDLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSDLinkList[T]{l: cs.l.Copy()}
 }
 
@@ -333,8 +333,8 @@ func (cs *CSDLinkList[T]) Merge(list *CSDLinkList[T]) {
 
 // ReverseCopy returns a new doubly linked list with the nodes of the original doubly linked list in reverse order.
 func (cs *CSDLinkList[T]) ReverseCopy() *CSDLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSDLinkList[T]{l: cs.l.ReverseCopy()}
 }
 
@@ -349,10 +349,10 @@ func (cs *CSDLinkList[T]) ReverseMerge(list *CSDLinkList[T]) {
 
 // Equal returns true if the given doubly linked list is equal to the original doubly linked list.
 func (cs *CSDLinkList[T]) Equal(list *CSDLinkList[T]) bool {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
-	list.mu.Lock()
-	defer list.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
+	list.mu.RLock()
+	defer list.mu.RUnlock()
 	return cs.l.Equal(list.l)
 }
 
@@ -372,28 +372,28 @@ func (cs *CSDLinkList[T]) Sort(f func(T, T) bool) {
 
 // FindAll returns a new doubly linked list containing all nodes that satisfy the given function.
 func (cs *CSDLinkList[T]) FindAll(f func(T) bool) *CSDLinkList[T] {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return &CSDLinkList[T]{l: cs.l.FindAll(f)}
 }
 
 // FindLast returns the last node that satisfies the given function.
 func (cs *CSDLinkList[T]) FindLast(f func(T) bool) (*dlinkList.Node[T], error) {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindLast(f)
 }
 
 // FindLastIndex returns the index of the last node that satisfies the given function.
 func (cs *CSDLinkList[T]) FindLastIndex(f func(T) bool) int {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindLastIndex(f)
 }
 
 // FindIndex returns the index of the first node that satisfies the given function.
 func (cs *CSDLinkList[T]) FindIndex(f func(T) bool) int {
-	cs.mu.Lock()
-	defer cs.mu.Unlock()
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
 	return cs.l.FindIndex(f)
 }
