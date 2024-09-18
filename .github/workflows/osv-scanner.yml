@@ -50,7 +50,7 @@ jobs:
         run: |
           ARCH=$(uname -m)
           if [[ "$ARCH" == "x86_64" ]]; then
-            curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux-amd64 -o osv-scanner
+            curl -sSL https://github.com/google/osv-scanner/releases/download/v1.8.5/osv-scanner_linux_amd64 -o osv-scanner
           else
             echo "Unsupported architecture: $ARCH"
             exit 1
@@ -66,7 +66,7 @@ jobs:
         run: |
           ARCH=$(uname -m)
           if [[ "$ARCH" == "x86_64" ]]; then
-            curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux-amd64 -o osv-scanner
+            curl -sSL https://github.com/google/osv-scanner/releases/download/v1.8.5/osv-scanner_linux_amd64 -o osv-scanner
           else
             echo "Unsupported architecture: $ARCH"
             exit 1
