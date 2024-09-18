@@ -55,6 +55,7 @@ jobs:
             echo "Unsupported architecture: $ARCH"
             exit 1
           fi
+          file osv-scanner  # Check if the binary is valid
           chmod +x osv-scanner
           ./osv-scanner --recursive --skip-git ./
 
@@ -70,6 +71,7 @@ jobs:
             echo "Unsupported architecture: $ARCH"
             exit 1
           fi
+          file osv-scanner  # Check if the binary is valid
           chmod +x osv-scanner
           ./osv-scanner --recursive --skip-git ./
 
@@ -80,7 +82,12 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true  # Allows the action to continue even if it fails, so we can debug it later
 
-      # Debug output for the dependency review action if it fails
+      # Debug Dependency Review Output
       - name: Debug Dependency Review Output
         if: failure()
-        run: cat dependency-review-results.json
+        run: |
+          if [ -f dependency-review-results.json ]; then
+            cat dependency-review-results.json
+          else
+            echo "No dependency-review-results.json file found"
+          fi
