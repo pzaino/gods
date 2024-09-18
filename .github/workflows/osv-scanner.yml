@@ -45,18 +45,31 @@ jobs:
         run: go mod download
 
       # Manually download and run OSV-Scanner for scheduled jobs
-      - name: Run OSV-Scanner (scheduled)
+      - name: Download and Run OSV-Scanner (scheduled)
         if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: |
-          curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux-amd64 -o osv-scanner
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "x86_64" ]]; then
+            curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux-amd64 -o osv-scanner
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
           chmod +x osv-scanner
           ./osv-scanner --recursive --skip-git ./
+
 
       # Manually download and run OSV-Scanner for PRs
       - name: Run OSV-Scanner (PR)
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
         run: |
-          curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux-amd64 -o osv-scanner
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "x86_64" ]]; then
+            curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux-amd64 -o osv-scanner
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
           chmod +x osv-scanner
           ./osv-scanner --recursive --skip-git ./
 
