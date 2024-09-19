@@ -8,6 +8,7 @@
 [![Go-VulnCheck](https://github.com/pzaino/gods/actions/workflows/go-vulncheck.yml/badge.svg)](https://github.com/pzaino/gods/actions/workflows/go-vulncheck.yml)
 ![Scorecard supply-chain security](https://github.com/pzaino/gods/actions/workflows/scorecard.yml/badge.svg)
 ![CodeQL](https://github.com/pzaino/gods/actions/workflows/codeql.yml/badge.svg)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/59dfeec6d51942a188e474b9bfc22249)](https://app.codacy.com/gh/pzaino/gods/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![FOSSA license](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_shield&issueType=license)
 [![FOSSA Security](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpzaino%2Fgods.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpzaino%2Fgods?ref=badge_shield&issueType=security)
 [![OSV Security](https://github.com/pzaino/gods/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/pzaino/gods/actions/workflows/osv-scanner.yml/badge.svg)
