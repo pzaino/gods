@@ -22,28 +22,72 @@ on:
     branches: [ "main" ]
 
 permissions:
-  # Require writing security events to upload SARIF file to security tab
   security-events: write
-  # Read commit contents
   contents: read
   actions: read
 
 jobs:
-  scan-scheduled:
-    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@f0e6719deb666cd19a0b56bc56d01161bd848b4f" # v1.8.5
-    with:
-      # Example of specifying custom arguments
-      scan-args: |-
-        -r
-        --skip-git
-        ./
-  scan-pr:
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@f0e6719deb666cd19a0b56bc56d01161bd848b4f" # v1.8.5
-    with:
-      # Example of specifying custom arguments
-      scan-args: |-
-        -r
-        --skip-git
-        ./
+  setup-go-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Go using the version specified in the go.mod file
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: './go.mod'
+
+      # Install Go dependencies based on go.mod
+      - name: Install dependencies
+        run: go mod download
+
+      # Manually download and run OSV-Scanner for scheduled jobs
+      - name: Download and Run OSV-Scanner (scheduled)
+        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+        run: |
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "x86_64" ]]; then
+            curl -sSL https://github.com/google/osv-scanner/releases/download/v1.8.5/osv-scanner_linux_amd64 -o osv-scanner
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          file osv-scanner  # Check if the binary is valid
+          chmod +x osv-scanner
+          ./osv-scanner --recursive --skip-git ./
+
+
+      # Manually download and run OSV-Scanner for PRs
+      - name: Run OSV-Scanner (PR)
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
+        run: |
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "x86_64" ]]; then
+            curl -sSL https://github.com/google/osv-scanner/releases/download/v1.8.5/osv-scanner_linux_amd64 -o osv-scanner
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          file osv-scanner  # Check if the binary is valid
+          chmod +x osv-scanner
+          ./osv-scanner --recursive --skip-git ./
+
+      # Run Dependency Review Action to ensure that dependency versions are safe and properly encoded
+      - name: Run dependency review action
+        uses: actions/dependency-review-action@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true  # Allows the action to continue even if it fails, so we can debug it later
+
+      # Debug Dependency Review Output
+      - name: Debug Dependency Review Output
+        if: failure()
+        run: |
+          if [ -f dependency-review-results.json ]; then
+            cat dependency-review-results.json
+          else
+            echo "No dependency-review-results.json file found"
+          fi
