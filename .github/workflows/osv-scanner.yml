@@ -82,7 +82,7 @@ jobs:
 
       # Run Dependency Review Action to ensure that dependency versions are safe and properly encoded
       - name: Run dependency review action
-        uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
+        uses: actions/dependency-review-action@56339e523c0409420f6c2c9a2f4292bbb3c07dd3 # v4.8.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true  # Allows the action to continue even if it fails, so we can debug it later
